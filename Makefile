@@ -11,6 +11,10 @@ TARGET = jsm
 all:
 	g++ ${CFLAG} -o ${TARGET} ${SRCS}
 
+arm:
+	arm-none-linux-gnueabi-g++ ${CFLAG} --static -o ${TARGET} ${SRCS}
+
+
 clean:
 	rm -fr jsm *.o jsm.dSYM
 

@@ -122,6 +122,7 @@
 #include "TinyJS.h"
 #include <assert.h>
 #include <sstream>
+#include <stdlib.h>
 
 #define ASSERT(X) assert(X)
 /* Frees the given link IF it isn't owned by anything else */

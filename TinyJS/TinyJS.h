@@ -34,6 +34,9 @@
 
 #include <vector>
 #include <string>
+#include <stdlib.h>
+#include <string.h>
+#include <stdio.h>
 #ifndef TRACE
 #define TRACE printf
 #endif // TRACE
