@@ -1,19 +1,21 @@
 #ifndef JSM_ARRAY
 #define JSM_ARRAY
 
-#include "../../TinyJS/TinyJS.h"
+#include "../../TinyJS/ClassLoader.h"
 
 namespace JSM {
 
-class Array {
+class Array : public ClassLoader {
   static void contains(CScriptVar *c, void *data);
 
   static void remove(CScriptVar *c, void *data);
 
   static void join(CScriptVar *c, void *data);
 
+protected:
+ 	void registerFunctions(CTinyJS* tinyJS, const std::string& classname);
 public:
-  static void registerFunctions(CTinyJS* tinyJS);
+	DECL_INSTANCE(Array)
 };
 
 };

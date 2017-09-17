@@ -63,9 +63,8 @@ void Array::join(CScriptVar *c, void *data) {
 }
 
 
-
-void Array::registerFunctions(CTinyJS *tinyJS) {
-  tinyJS->addNative("function Array.contains(obj)", &Array::contains, 0);
-  tinyJS->addNative("function Array.remove(obj)", &Array::remove, 0);
-  tinyJS->addNative("function Array.join(separator)", &Array::join, 0);
+void Array::registerFunctions(CTinyJS *tinyJS, const std::string& className) {
+	ClassLoader::addFunction(tinyJS, className, "contains(obj)", &Array::contains, NULL);
+	ClassLoader::addFunction(tinyJS, className, "remove(obj)", &Array::remove, NULL);
+	ClassLoader::addFunction(tinyJS, className, "join(separator)", &Array::join, NULL);
 }

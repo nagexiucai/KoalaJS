@@ -1,11 +1,11 @@
 #ifndef JSM_STRING
 #define JSM_STRING
 
-#include "../../TinyJS/TinyJS.h"
+#include "../../TinyJS/ClassLoader.h"
 
 namespace JSM {
 
-class String {
+class String : public ClassLoader {
   static void indexOf(CScriptVar *c, void *);
 
   static void substring(CScriptVar *c, void *);
@@ -18,8 +18,11 @@ class String {
 
   static void fromCharCode(CScriptVar *c, void *);
 
+protected:
+	void registerFunctions(CTinyJS* tinyJS, const std::string& className);
+
 public:
-  static void registerFunctions(CTinyJS* tinyJS);
+	DECL_INSTANCE(String)
 };
 
 };

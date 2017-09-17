@@ -1,11 +1,11 @@
 #ifndef JSM_DEBUG
 #define JSM_DEBUG
 
-#include "../../TinyJS/TinyJS.h"
+#include "../../TinyJS/ClassLoader.h"
 
 namespace JSM {
 
-class Debug {
+class Debug : public ClassLoader {
   static void print(CScriptVar *v, void *userdata) {
     printf("%s\n", v->getParameter("text")->getString().c_str());
   }
@@ -15,12 +15,16 @@ class Debug {
     js->root->trace("> ");
   }
 
-public:
-  static void registerFunctions(CTinyJS* js) {
-    js->addNative("function print(text)", &Debug::print, 0);
-    js->addNative("function Debug.print(text)", &Debug::print, 0);
-    js->addNative("function Debug.dump()", &Debug::dump, js);
+protected:
+  void registerFunctions(CTinyJS* tinyJS, const std::string& className) {
+		ClassLoader::addFunction(tinyJS, "", "print(text)", print, NULL);
+		ClassLoader::addFunction(tinyJS, className, "print(text)", print, NULL);
+		ClassLoader::addFunction(tinyJS, className, "dump()", dump, NULL);
   }
+
+public:
+	DECL_INSTANCE(Debug)
+
 };
 
 };

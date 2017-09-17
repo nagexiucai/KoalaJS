@@ -6,9 +6,9 @@
 int main(int argc, char** argv) {
   CTinyJS tinyJS;
 
-  JSM::Debug::registerFunctions(&tinyJS);
-  JSM::String::registerFunctions(&tinyJS);
-  JSM::Array::registerFunctions(&tinyJS);
+  JSM::Debug::instance().load(&tinyJS, "Debug");
+  JSM::String::instance().load(&tinyJS, "String");
+  JSM::Array::instance().load(&tinyJS, "Array");
 
   tinyJS.execute("var _terminated = 0; function exit() { _terminated = 1; } ");
 
