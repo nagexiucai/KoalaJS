@@ -19,3 +19,6 @@
 
 	.to compile arm elf:
 		make arm
+
+.Demos
+	There are some examples showing how to extend native classes at dir 'demos' 
