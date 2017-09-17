@@ -1,6 +1,18 @@
-download arm-toolchain for macosx from:
-https://github.com/downloads/UnhandledException/ARMx/ARMx-2009q3-67.tar.bz2
+.Author
+	Misa.Z misa@rokid.com
 
-tar -zx -C ./ --strip-components 1 -f ARMx-2009q3-67.tar.bz2 
+.About
+	This TinyJS engine was forked from https://code.google.com/p/tiny-js/, but do lots of jobs on native interface design.
 
+.How to do arm cross compile on mac osx:
+ 
+	download arm-toolchain for macosx from:
+	https://github.com/downloads/UnhandledException/ARMx/ARMx-2009q3-67.tar.bz2
 
+	tar -zx -C ./ --strip-components 1 -f ARMx-2009q3-67.tar.bz2 
+
+	.to compile intel pc elf:
+		make
+
+	.to compile arm elf:
+		make arm

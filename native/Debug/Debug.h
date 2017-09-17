@@ -5,7 +5,7 @@
 
 namespace JSM {
 
-class Debug : public ClassLoader {
+class Debug : public JSClass {
   static void print(CScriptVar *v, void *userdata) {
     printf("%s\n", v->getParameter("text")->getString().c_str());
   }
@@ -17,9 +17,9 @@ class Debug : public ClassLoader {
 
 protected:
   void registerFunctions(CTinyJS* tinyJS, const std::string& className) {
-		ClassLoader::addFunction(tinyJS, "", "print(text)", print, NULL);
-		ClassLoader::addFunction(tinyJS, className, "print(text)", print, NULL);
-		ClassLoader::addFunction(tinyJS, className, "dump()", dump, NULL);
+		addFunction(tinyJS, "", "print(text)", print, NULL);
+		addFunction(tinyJS, className, "print(text)", print, NULL);
+		addFunction(tinyJS, className, "dump()", dump, NULL);
   }
 
 public:

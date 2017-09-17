@@ -1,8 +1,8 @@
 CFLAG = -g -I../
-SRCS = demoNativeClass.cpp \
+SRCS = demoClass.cpp \
 	  ../TinyJS/TinyJS.cpp \
 
-TARGET = demoNativeClass
+TARGET = demoClass
 all:
 	g++ ${CFLAG} -o ${TARGET} ${SRCS}
 

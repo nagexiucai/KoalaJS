@@ -6,7 +6,7 @@
 
 namespace JSM {
 
-class Math : public ClassLoader {
+class Math : public JSClass {
 	//Math.abs(x) - returns absolute of given value
 	static void abs(CScriptVar *c, void *userdata);
 

@@ -5,7 +5,7 @@
 
 namespace JSM {
 
-class String : public ClassLoader {
+class String : public JSClass {
   static void indexOf(CScriptVar *c, void *);
 
   static void substring(CScriptVar *c, void *);

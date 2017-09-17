@@ -5,7 +5,7 @@
 
 namespace JSM {
 
-class VM : public ClassLoader {
+class VM : public JSClass {
   static void exec(CScriptVar *c, void *);
 
   static void eval(CScriptVar *c, void *);

@@ -68,11 +68,11 @@ void String::fromCharCode(CScriptVar *c, void *) {
 }
 
 void String::registerFunctions(CTinyJS* tinyJS, const std::string& className) {
-	ClassLoader::addFunction(tinyJS, className, "indexOf(search)", indexOf, NULL); // find the position of a string in a string, -1 if not
-	ClassLoader::addFunction(tinyJS, className, "substring(lo,hi)", substring, NULL);
-  ClassLoader::addFunction(tinyJS, className, "charAt(pos)", charAt, NULL);
-  ClassLoader::addFunction(tinyJS, className, "charCodeAt(pos)", charCodeAt, NULL);
-  ClassLoader::addFunction(tinyJS, className, "fromCharCode(char)", fromCharCode, NULL);
-  ClassLoader::addFunction(tinyJS, className, "split(separator)", split, NULL);
+	addFunction(tinyJS, className, "indexOf(search)", indexOf, NULL); // find the position of a string in a string, -1 if not
+	addFunction(tinyJS, className, "substring(lo,hi)", substring, NULL);
+  addFunction(tinyJS, className, "charAt(pos)", charAt, NULL);
+  addFunction(tinyJS, className, "charCodeAt(pos)", charCodeAt, NULL);
+  addFunction(tinyJS, className, "fromCharCode(char)", fromCharCode, NULL);
+  addFunction(tinyJS, className, "split(separator)", split, NULL);
 }
 

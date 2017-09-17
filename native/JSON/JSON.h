@@ -5,7 +5,7 @@
 
 namespace JSM {
 
-class JSON : public ClassLoader {
+class JSON : public JSClass {
   static void stringify(CScriptVar *c, void *);
 
   static void parse(CScriptVar *c, void *);

@@ -64,7 +64,7 @@ void Array::join(CScriptVar *c, void *data) {
 
 
 void Array::registerFunctions(CTinyJS *tinyJS, const std::string& className) {
-	ClassLoader::addFunction(tinyJS, className, "contains(obj)", &Array::contains, NULL);
-	ClassLoader::addFunction(tinyJS, className, "remove(obj)", &Array::remove, NULL);
-	ClassLoader::addFunction(tinyJS, className, "join(separator)", &Array::join, NULL);
+	addFunction(tinyJS, className, "contains(obj)", &Array::contains, NULL);
+	addFunction(tinyJS, className, "remove(obj)", &Array::remove, NULL);
+	addFunction(tinyJS, className, "join(separator)", &Array::join, NULL);
 }

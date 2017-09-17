@@ -13,7 +13,7 @@
     cls->func(var, userData); \
   }
 
-class ClassLoader {
+class JSClass {
 protected:
 	void addFunction(CTinyJS* tinyJS, const std::string& className, const std::string& decl, JSCallback ptr, void* data) {
 		std::string s = "function ";
@@ -26,15 +26,15 @@ protected:
 	}
 
 	virtual void registerFunctions(CTinyJS* tinyJS, const std::string& className)  = 0;
-public: 
 
+public: 
   void load(CTinyJS* tinyJS, const std::string& className) {
 		registerFunctions(tinyJS, className);
 	}
 
 };
 
-template<class T> class NativeClassLoader: public ClassLoader {
+template<class T> class NativeClassLoader: public JSClass {
   static void destroy(void* p) {
     delete (T*)p;
   }
@@ -55,7 +55,6 @@ protected:
     cls->setNativeConstructor(constructor, constructData);
     tinyJS->addClass(className, cls);
 	}
-
 
 public:
   void load(CTinyJS* tinyJS, const std::string& className, void* constructData) {

@@ -5,7 +5,7 @@
 
 namespace JSM {
 
-class Array : public ClassLoader {
+class Array : public JSClass {
   static void contains(CScriptVar *c, void *data);
 
   static void remove(CScriptVar *c, void *data);

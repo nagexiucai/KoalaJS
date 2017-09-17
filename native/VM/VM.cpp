@@ -15,9 +15,9 @@ void VM::eval(CScriptVar *c, void *userdata) {
 }
 
 void VM::registerFunctions(CTinyJS* tinyJS, const std::string& className) {
-  ClassLoader::addFunction(tinyJS, "", "exec(src)", exec, tinyJS);
-  ClassLoader::addFunction(tinyJS, "", "eval(src)", eval, tinyJS);
-  ClassLoader::addFunction(tinyJS, className, "exec(src)", exec, tinyJS);
-  ClassLoader::addFunction(tinyJS, className, "eval(src)", eval, tinyJS);
+  addFunction(tinyJS, "", "exec(src)", exec, tinyJS);
+  addFunction(tinyJS, "", "eval(src)", eval, tinyJS);
+  addFunction(tinyJS, className, "exec(src)", exec, tinyJS);
+  addFunction(tinyJS, className, "eval(src)", eval, tinyJS);
 }
 
