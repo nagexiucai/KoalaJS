@@ -1,7 +1,7 @@
 #ifndef TINYJS_MATHFUNCTIONS_H
 #define TINYJS_MATHFUNCTIONS_H
 
-#include "../../TinyJS/ClassLoader.h"
+#include "../ClassLoader.h"
 
 
 namespace JSM {

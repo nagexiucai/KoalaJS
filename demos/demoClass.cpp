@@ -1,4 +1,4 @@
-#include "../TinyJS/ClassLoader.h"
+#include "../native/ClassLoader.h"
 
 //demo how to implement native class
 class MyNativeClass {

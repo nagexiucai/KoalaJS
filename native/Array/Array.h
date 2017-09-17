@@ -1,7 +1,7 @@
 #ifndef JSM_ARRAY
 #define JSM_ARRAY
 
-#include "../../TinyJS/ClassLoader.h"
+#include "../ClassLoader.h"
 
 namespace JSM {
 

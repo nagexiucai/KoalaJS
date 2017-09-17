@@ -1,7 +1,7 @@
 #ifndef JSM_VM
 #define JSM_VM
 
-#include "../../TinyJS/ClassLoader.h"
+#include "../ClassLoader.h"
 
 namespace JSM {
 

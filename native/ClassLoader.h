@@ -1,7 +1,7 @@
 #ifndef JS_CLASS_LOADER_HH
 #define JS_CLASS_LOADER_HH
 
-#include "TinyJS.h"
+#include "TinyJS/TinyJS.h"
 
 
 #define IGNORE_PARAMETER(n) ((void)n)

@@ -1,7 +1,7 @@
 #ifndef JSM_DEBUG
 #define JSM_DEBUG
 
-#include "../../TinyJS/ClassLoader.h"
+#include "../ClassLoader.h"
 
 namespace JSM {
 

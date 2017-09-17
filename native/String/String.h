@@ -1,7 +1,7 @@
 #ifndef JSM_STRING
 #define JSM_STRING
 
-#include "../../TinyJS/ClassLoader.h"
+#include "../ClassLoader.h"
 
 namespace JSM {
 

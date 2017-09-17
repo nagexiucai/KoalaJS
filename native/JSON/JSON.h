@@ -1,7 +1,7 @@
 #ifndef JSM_JSON
 #define JSM_JSON
 
-#include "../../TinyJS/ClassLoader.h"
+#include "../ClassLoader.h"
 
 namespace JSM {
 
