@@ -3,6 +3,8 @@ SRCS = jsm.cpp \
 	  TinyJS/TinyJS.cpp \
 	  native/String/String.cpp \
 	  native/Math/Math.cpp \
+	  native/JSON/JSON.cpp \
+	  native/VM/VM.cpp \
 	  native/Array/Array.cpp 
 
 TARGET = jsm

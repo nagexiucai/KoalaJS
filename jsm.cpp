@@ -3,6 +3,8 @@
 #include "native/String/String.h"
 #include "native/Array/Array.h"
 #include "native/Math/Math.h"
+#include "native/JSON/JSON.h"
+#include "native/VM/VM.h"
 
 int main(int argc, char** argv) {
   CTinyJS tinyJS;
@@ -11,6 +13,8 @@ int main(int argc, char** argv) {
   JSM::String::instance().load(&tinyJS, "String");
   JSM::Array::instance().load(&tinyJS, "Array");
   JSM::Math::instance().load(&tinyJS, "Math");
+  JSM::JSON::instance().load(&tinyJS, "JSON");
+  JSM::VM::instance().load(&tinyJS, "VM");
 
 	std::string input;
 
