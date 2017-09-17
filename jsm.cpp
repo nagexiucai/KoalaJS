@@ -12,16 +12,20 @@ int main(int argc, char** argv) {
   JSM::Array::instance().load(&tinyJS, "Array");
   JSM::Math::instance().load(&tinyJS, "Math");
 
-  tinyJS.execute("var _terminated = 0; function exit() { _terminated = 1; } ");
+	std::string input;
 
-  while(tinyJS.evaluate("_terminated") == "0") {
-    char buffer[2048];
-    fgets ( buffer, sizeof(buffer), stdin );
+	while(true) {
+    char buffer[2048+1];
+    if(fgets ( buffer, 2048, stdin ) == NULL)
+			break;
+		input += buffer;
+	}	
 
-    try {
-      tinyJS.execute(buffer);
-    } catch (CScriptException *e) {
-      printf("ERROR: %s\n", e->text.c_str());
-    }
+	try {
+		tinyJS.execute(input);
+	} catch (CScriptException *e) {
+		printf("ERROR: %s\n", e->text.c_str());
   }
+
+	return 0;
 }

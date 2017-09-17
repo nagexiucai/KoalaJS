@@ -91,6 +91,12 @@ class Math : public ClassLoader {
 	//Math.sqrt(a) - returns square root of given value
 	static void sqrt(CScriptVar *c, void *userdata);
 
+	//Math.rand() - returns random double number
+	static void rand(CScriptVar *c, void *userdata);
+
+	//Math.randInt(min, max) - returns random int number
+	static void randInt(CScriptVar *c, void *userdata);
+
 protected:
 	void registerFunctions(CTinyJS* tinyJS, const std::string& className);
 

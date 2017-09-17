@@ -38,8 +38,8 @@
 #define TRACE printf
 #endif // TRACE
 
-
-const int TINYJS_LOOP_MAX_ITERATIONS = 8192;
+//const int TINYJS_LOOP_MAX_ITERATIONS = 8192;
+const int TINYJS_LOOP_MAX_ITERATIONS = 0;
 
 typedef enum {
     LEX_EOF = 0,

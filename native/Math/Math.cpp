@@ -244,6 +244,24 @@ void Math::sqrt(CScriptVar *c, void *userdata) {
     scReturnDouble( sqrtf( scGetDouble("a") ) );
 }
 
+//Math.rand() - returns random double number
+void Math::rand(CScriptVar *c, void *userdata) {
+    IGNORE_PARAMETER(c);
+    IGNORE_PARAMETER(userdata);
+ 
+    scReturnDouble((double)::rand()/RAND_MAX);
+}
+
+//Math.randInt(min, max) - returns random int number
+void Math::randInt(CScriptVar *c, void *userdata) {
+    IGNORE_PARAMETER(userdata);
+    int min = c->getParameter("min")->getInt();
+    int max = c->getParameter("max")->getInt();
+    int val = min + (int)(::rand()%(1+max-min));
+    scReturnInt(val);
+}
+
+
 // ----------------------------------------------- Register Functions
 void Math::registerFunctions(CTinyJS *tinyJS, const std::string& className) {
      
@@ -279,4 +297,6 @@ void Math::registerFunctions(CTinyJS *tinyJS, const std::string& className) {
     
     ClassLoader::addFunction(tinyJS, className, "sqr(a)", Math::sqr, 0);
     ClassLoader::addFunction(tinyJS, className, "sqrt(a)", Math::sqrt, 0);    
+    ClassLoader::addFunction(tinyJS, className, "rand()", Math::rand, 0);
+    ClassLoader::addFunction(tinyJS, className, "randInt(min, max)", Math::randInt, 0);    
 }

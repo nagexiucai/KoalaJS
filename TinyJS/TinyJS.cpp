@@ -1249,6 +1249,7 @@ void CScriptVar::trace(std::string indentStr, const std::string &name) {
       link = link->nextSibling;
     }
 }
+
 std::string CScriptVar::trace2(void) {
     std::string str;
     CScriptVarLink *link = firstChild;
@@ -2198,7 +2199,7 @@ LEX_TYPES  CTinyJS::statement(bool &execute) {
         CScriptLex *whileBody = l->getSubLex(whileBodyStart);
         CScriptLex *oldLex = l;
         int loopCount = TINYJS_LOOP_MAX_ITERATIONS;
-        while (loopCond && loopCount-->0) {
+        while (loopCond && (TINYJS_LOOP_MAX_ITERATIONS <= 0 || loopCount-->0)) {
             whileCond->reset();
             l = whileCond;
             cond = base(execute);
@@ -2220,8 +2221,8 @@ LEX_TYPES  CTinyJS::statement(bool &execute) {
         delete whileCond;
         delete whileBody;
 
-        if (loopCount<=0) {
-            root->trace();
+        if (loopCount<=0 && TINYJS_LOOP_MAX_ITERATIONS > 0) {
+///            root->trace();
             TRACE("WHILE Loop exceeded %d iterations at %s\n", TINYJS_LOOP_MAX_ITERATIONS, l->getPosition().c_str());
             throw new CScriptException("LOOP_ERROR");
         }
@@ -2261,7 +2262,7 @@ LEX_TYPES  CTinyJS::statement(bool &execute) {
             CLEAN(base(execute));
         }
         int loopCount = TINYJS_LOOP_MAX_ITERATIONS;
-        while (execute && loopCond && loopCount-->0) {
+        while (execute && loopCond && (TINYJS_LOOP_MAX_ITERATIONS <= 0 || loopCount-->0)) {
             forCond->reset();
             l = forCond;
             cond = base(execute);
@@ -2288,8 +2289,8 @@ LEX_TYPES  CTinyJS::statement(bool &execute) {
         delete forCond;
         delete forIter;
         delete forBody;
-        if (loopCount<=0) {
-            root->trace();
+        if (loopCount<=0 && TINYJS_LOOP_MAX_ITERATIONS > 0) {
+///            root->trace();
             TRACE("FOR Loop exceeded %d iterations at %s\n", TINYJS_LOOP_MAX_ITERATIONS, l->getPosition().c_str());
             throw new CScriptException("LOOP_ERROR");
         }
