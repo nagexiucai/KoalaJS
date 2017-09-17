@@ -2,7 +2,8 @@
 	Misa.Z misa@rokid.com
 
 .About
-	This TinyJS engine was forked from https://code.google.com/p/tiny-js/, but do lots of jobs on native interface design.
+	This TinyJS engine core was forked from https://github.com/gfwilliams/tiny-js.git, by Gordon Williams <gw@pur3.co.uk>.
+	fixed some bugs and done lots of jobs on native interface framework design.
 
 .How to do arm cross compile on mac osx:
  
@@ -10,6 +11,8 @@
 	https://github.com/downloads/UnhandledException/ARMx/ARMx-2009q3-67.tar.bz2
 
 	tar -zx -C ./ --strip-components 1 -f ARMx-2009q3-67.tar.bz2 
+
+	add the path which has 'arm-none-linux-gnueabi-g++' to default paths. 
 
 	.to compile intel pc elf:
 		make

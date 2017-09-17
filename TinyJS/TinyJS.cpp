@@ -168,7 +168,6 @@ bool isWhitespace(unsigned char ch) {
     return (cmap[ch]&1);//(ch==' ') || (ch=='\t') || (ch=='\n') || (ch=='\r');
 }
 ////////////////////////////////////////////////////////////////////////////////
-//数字チェック
 bool isNumeric(unsigned char ch) {
     return (cmap[ch]&2);//(ch>='0') && (ch<='9');
 }
@@ -181,19 +180,16 @@ bool isNumber(const std::string &str) {
     return true;
 }
 ////////////////////////////////////////////////////////////////////////////////
-//１６進チェック
 bool isHexadecimal(unsigned char ch) {
     return ((ch>='0') && (ch<='9')) ||
            ((ch>='a') && (ch<='f')) ||
            ((ch>='A') && (ch<='F'));
 }
 ////////////////////////////////////////////////////////////////////////////////
-//アルファベットチェック
 bool isAlpha(unsigned char ch) {
     return (cmap[ch]&4);//((ch>='a') && (ch<='z')) || ((ch>='A') && (ch<='Z')) || ch=='_';
 }
 ////////////////////////////////////////////////////////////////////////////////
-//ID文字列になるかチェック
 //bool isIDString(const char *s) {
 //    if (!isAlpha(*s)){
 //        return false;
@@ -207,7 +203,6 @@ bool isAlpha(unsigned char ch) {
 //    return true;
 //}
 ////////////////////////////////////////////////////////////////////////////////
-//エラー時1行出力
 char* oneLine(char *s, int ptr,int end)
 {
     size_t cnt=0;
@@ -264,7 +259,6 @@ std::string getJSString(const std::string &str) {
 }
 
 /** Is the std::string alphanumeric */
-//英字+[英字|数値]
 bool isAlphaNum(const std::string &str) {
     if (str.size()==0){
       return true;
@@ -281,15 +275,13 @@ bool isAlphaNum(const std::string &str) {
 }
 
 // ----------------------------------------------------------------------------------- CSCRIPTEXCEPTION
-// 例外はtextに格納
 CScriptException::CScriptException(const std::string &exceptionText) {
     text = exceptionText;
 }
 
 // ----------------------------------------------------------------------------------- CSCRIPTLEX
-// スクリプト語彙クラス
 CScriptLex::CScriptLex(const std::string &input) {
-    data = strdup(input.c_str());//寿命の点からコピーする。deleteで消す
+    data = strdup(input.c_str());
     dataOwned = true;
     dataStart = 0;
     dataEnd = strlen(data);
@@ -303,6 +295,7 @@ CScriptLex::CScriptLex(CScriptLex *owner, int startChar, int endChar) {
     dataEnd = endChar;
     reset();
 }
+
 CScriptLex::~CScriptLex(void)
 {
     if (dataOwned){
@@ -317,12 +310,11 @@ void CScriptLex::reset() {
     tokenLastEnd = 0;
     tk           = LEX_EOF;
     tkStr        = "";
-    getNextCh();//currch設定 nextchは不定
-    getNextCh();//currch,nextch設定
-    getNextToken();//１ワード取り込んだ状態で開始
+    getNextCh();
+    getNextCh();
+    getNextToken();
 }
-//期待する語をチェックして次の１トークンを先読み
-//期待はずれなら例外
+
 void CScriptLex::chkread(int expected_tk) {
     if (tk!=expected_tk) {
 				std::stringstream ss;
@@ -335,7 +327,6 @@ void CScriptLex::chkread(int expected_tk) {
     getNextToken();
 }
 
-//エラー用等にトークンを語彙に変換
 std::string CScriptLex::getTokenStr(int token) {
     if (token>32 && token<128) {
         char buf[4] = "' '";
@@ -387,7 +378,7 @@ std::string CScriptLex::getTokenStr(int token) {
     }
     return "?[UNKNOW]";
 }
-//次の１文字を取り込む。EOFは０
+
 void CScriptLex::getNextCh() {
     currCh = nextCh;
     if (dataPos < dataEnd){
@@ -397,11 +388,11 @@ void CScriptLex::getNextCh() {
     }
     dataPos++;
 }
-//１トークン取得
+
 void CScriptLex::getNextToken() {
     tk = LEX_EOF;
     tkStr.clear();
-    //無駄文字読み飛ばし
+
     while (currCh && isWhitespace(currCh)){
       getNextCh();
     }
@@ -614,7 +605,7 @@ void CScriptLex::getNextToken() {
     tokenLastEnd = tokenEnd;
     tokenEnd = dataPos-3;
 }
-//部分文字列を返す
+
 std::string CScriptLex::getSubString(int lastPosition) {
     int lastCharIdx = tokenLastEnd+1;
     if (lastCharIdx < dataEnd) {
@@ -630,7 +621,6 @@ std::string CScriptLex::getSubString(int lastPosition) {
     }
 }
 
-//部分語彙を返す
 CScriptLex *CScriptLex::getSubLex(int lastPosition) {
     int lastCharIdx = tokenLastEnd+1;
     if (lastCharIdx < dataEnd)
@@ -638,7 +628,7 @@ CScriptLex *CScriptLex::getSubLex(int lastPosition) {
     else
         return new CScriptLex(this, lastPosition, dataEnd );
 }
-//指定位置を行数、列数に変換
+
 std::string CScriptLex::getPosition(int pos) {
     if (pos<0) pos=tokenLastEnd;
     int line = 1;
@@ -667,7 +657,7 @@ CScriptVarLink::CScriptVarLink(CScriptVar *var, const std::string &myname) {
     this->name = myname;
     this->nextSibling = 0;
     this->prevSibling = 0;
-    this->var         = var->ref();//thisを参照を増やして返す
+    this->var = var->ref();
     this->owned = false;
 }
 
@@ -696,11 +686,11 @@ void CScriptVarLink::replaceWith(CScriptVarLink *newVar) {
     else
       replaceWith(new CScriptVar());
 }
-//名前を数値に変換
+
 int CScriptVarLink::getIntName() {
     return atoi(name.c_str());
 }
-//名前を設定
+
 void CScriptVarLink::setIntName(int n) {
     char sIdx[64];
     snprintf(sIdx, sizeof(sIdx), "%d", n);
@@ -797,7 +787,7 @@ void CScriptVar::setReturnVar(CScriptVar *var) {
 CScriptVar *CScriptVar::getParameter(const std::string &name) {
     return findChildOrCreate(name)->var;
 }
-//親変数で子供が見つかったらlinkを返す。なければ0
+
 CScriptVarLink *CScriptVar::findChild(const std::string &childName) {
     CScriptVarLink *v = firstChild;
     while (v) {
@@ -1176,7 +1166,6 @@ CScriptVar *CScriptVar::mathsOp(CScriptVar *b, int op) {
            default: throw new CScriptException("Operation "+CScriptLex::getTokenStr(op)+" not supported on the std::string datatype");
        }
     }
-    //実行されないコード
     //ASSERT(0);
     //return 0;
 }
@@ -1411,7 +1400,6 @@ void CTinyJS::trace() {
 }
 
 void CTinyJS::execute(const std::string &code) {
-    //退避する
     CScriptLex *oldLex                 = l;
     std::vector<CScriptVar*> oldScopes = scopes;
 
@@ -1443,11 +1431,10 @@ void CTinyJS::execute(const std::string &code) {
         throw new CScriptException(msg.c_str());
     }
     delete l;
-    //復帰する
-    l      = oldLex;
+    l = oldLex;
     scopes = oldScopes;
 }
-//複合式
+
 CScriptVarLink CTinyJS::evaluateComplex(const std::string &code) {
     CScriptLex *oldLex = l;
     std::vector<CScriptVar*> oldScopes = scopes;
@@ -1494,7 +1481,7 @@ CScriptVarLink CTinyJS::evaluateComplex(const std::string &code) {
     // return undefined...
     return CScriptVarLink(new CScriptVar());
 }
-//式の評価
+
 std::string CTinyJS::evaluate(const std::string &code) {
     return evaluateComplex(code).var->getString();
 }
@@ -1527,7 +1514,6 @@ void CTinyJS::removeClasses() {
   classes.clear();
 }
 
-//Cで実装されたコードの実行
 void CTinyJS::addNative(const std::string &funcDesc, JSCallback ptr, void *userdata) {
     CScriptLex *oldLex = l;
     l = new CScriptLex(funcDesc);
@@ -1733,13 +1719,11 @@ CScriptVarLink *CTinyJS::factor(bool &execute) {
                     }
                   }
                   parent = a->var;
-                  //不明な変数にchildを作らない                  
                   if( a == alone){
                       std::string errorMsg = "Object variable not defined '";
                       errorMsg = errorMsg + a->name + "' must be defined";
                         throw new CScriptException(errorMsg.c_str());
                     }
-                    //多分aをCLEANしないとメモリーリーク ひでえ実装
                     if( aa == 1 ){
                       CLEAN(a);
                   }
@@ -1857,7 +1841,7 @@ CScriptVarLink *CTinyJS::factor(bool &execute) {
     l->chkread(LEX_EOF);
     return 0;
 }
-//単項演算子!
+
 CScriptVarLink *CTinyJS::unary(bool &execute) {
     CScriptVarLink *a;
     if (l->tk=='!') {
@@ -1889,7 +1873,6 @@ CScriptVarLink *CTinyJS::term(bool &execute) {
     return a;
 }
 ////////////////////////////////////////////////////////////////////////////////
-//表現(-a++とか)
 CScriptVarLink *CTinyJS::expression(bool &execute) {
     bool negate = false;
     if (l->tk=='-') {
@@ -1930,7 +1913,6 @@ CScriptVarLink *CTinyJS::expression(bool &execute) {
     return a;
 }
 ////////////////////////////////////////////////////////////////////////////////
-//シフト演算子
 CScriptVarLink *CTinyJS::shift(bool &execute) {
   CScriptVarLink *a = expression(execute);
   if (l->tk==LEX_LSHIFT || l->tk==LEX_RSHIFT || l->tk==LEX_RSHIFTUNSIGNED) {
@@ -1948,7 +1930,6 @@ CScriptVarLink *CTinyJS::shift(bool &execute) {
   return a;
 }
 ////////////////////////////////////////////////////////////////////////////////
-//条件式
 CScriptVarLink *CTinyJS::condition(bool &execute) {
     CScriptVarLink *a = shift(execute);
     CScriptVarLink *b;
@@ -1968,7 +1949,6 @@ CScriptVarLink *CTinyJS::condition(bool &execute) {
     return a;
 }
 ////////////////////////////////////////////////////////////////////////////////
-//結合条件式
 CScriptVarLink *CTinyJS::logic(bool &execute) {
     CScriptVarLink *a = condition(execute);
     CScriptVarLink *b;
@@ -2006,7 +1986,6 @@ CScriptVarLink *CTinyJS::logic(bool &execute) {
     return a;
 }
 ////////////////////////////////////////////////////////////////////////////////
-//三項演算子
 CScriptVarLink *CTinyJS::ternary(bool &execute) {
   CScriptVarLink *lhs = logic(execute);
   bool noexec = false;
@@ -2034,7 +2013,6 @@ CScriptVarLink *CTinyJS::ternary(bool &execute) {
   return lhs;
 }
 ////////////////////////////////////////////////////////////////////////////////
-//a=1、a+=1、a-=等
 CScriptVarLink *CTinyJS::base(bool &execute) {
     CScriptVarLink *lhs = ternary(execute);
     if (l->tk=='=' || l->tk==LEX_PLUSEQUAL || l->tk==LEX_MINUSEQUAL) {
@@ -2067,16 +2045,14 @@ CScriptVarLink *CTinyJS::base(bool &execute) {
     }
     return lhs;
 }
-//execute==trueならblock内を実施
+
 LEX_TYPES CTinyJS::block(bool &execute) {
     LEX_TYPES ret=LEX_EOF;
     l->chkread('{');
     if (execute) {
             while (l->tk && l->tk!='}'){
                 ret = statement(execute);
-                //この場合のみ末尾まで読み飛ばし
                 if( ret == LEX_R_BREAK || ret == LEX_R_CONTINUE){
-                    //末尾まで読み飛ばし
                     int brackets = 1;
                     while (l->tk && brackets) {
                         if (l->tk == '{') brackets++;
@@ -2098,7 +2074,7 @@ LEX_TYPES CTinyJS::block(bool &execute) {
     }
     return ret;
 }
-//記述
+
 LEX_TYPES  CTinyJS::statement(bool &execute) {
     LEX_TYPES ret;
     if (l->tk==LEX_ID    ||
@@ -2112,7 +2088,6 @@ LEX_TYPES  CTinyJS::statement(bool &execute) {
     } else if (l->tk=='{') {
         /* A block of code */
         ret = block(execute);
-        //単なるreturnでいいのでは？
         if( ret == LEX_R_BREAK || ret == LEX_R_CONTINUE){
             return ret;
         }
