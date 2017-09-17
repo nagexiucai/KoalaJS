@@ -7,20 +7,20 @@
 #include "native/VM/VM.h"
 
 int main(int argc, char** argv) {
-  CTinyJS tinyJS;
+	CTinyJS tinyJS;
 
-  JSM::Debug::instance().load(&tinyJS, "Debug");
-  JSM::String::instance().load(&tinyJS, "String");
-  JSM::Array::instance().load(&tinyJS, "Array");
-  JSM::Math::instance().load(&tinyJS, "Math");
-  JSM::JSON::instance().load(&tinyJS, "JSON");
-  JSM::VM::instance().load(&tinyJS, "VM");
+	JSM::Debug::instance().load(&tinyJS, "Debug");
+	JSM::String::instance().load(&tinyJS, "String");
+	JSM::Array::instance().load(&tinyJS, "Array");
+	JSM::Math::instance().load(&tinyJS, "Math");
+	JSM::JSON::instance().load(&tinyJS, "JSON");
+	JSM::VM::instance().load(&tinyJS, "VM");
 
 	std::string input;
 
 	while(true) {
-    char buffer[2048+1];
-    if(fgets ( buffer, 2048, stdin ) == NULL)
+		char buffer[2048+1];
+		if(fgets ( buffer, 2048, stdin ) == NULL)
 			break;
 		input += buffer;
 	}	
@@ -29,7 +29,7 @@ int main(int argc, char** argv) {
 		tinyJS.execute(input);
 	} catch (CScriptException *e) {
 		printf("ERROR: %s\n", e->text.c_str());
-  }
+	}
 
 	return 0;
 }

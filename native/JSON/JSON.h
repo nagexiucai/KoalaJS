@@ -5,17 +5,17 @@
 
 namespace JSM {
 
-class JSON : public JSClass {
-  static void stringify(CScriptVar *c, void *);
+	class JSON : public JSClass {
+		static void stringify(CScriptVar *c, void *);
 
-  static void parse(CScriptVar *c, void *);
+		static void parse(CScriptVar *c, void *);
 
-protected:
-	void registerFunctions(CTinyJS* tinyJS, const std::string& className);
+		protected:
+		void registerFunctions(CTinyJS* tinyJS, const std::string& className);
 
-public:
-	DECL_INSTANCE(JSON)
-};
+		public:
+		DECL_INSTANCE(JSON)
+	};
 
 };
 
