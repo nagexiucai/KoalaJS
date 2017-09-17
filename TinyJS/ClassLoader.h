@@ -4,6 +4,8 @@
 #include "TinyJS.h"
 
 
+#define IGNORE_PARAMETER(n) ((void)n)
+
 #define DECL_INSTANCE(T) static T& instance() { static T t; return t; }
 
 #define MAP_FUNC(func) static void func (CScriptVar* var, void *userData) { \
