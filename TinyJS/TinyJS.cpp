@@ -172,7 +172,6 @@ bool isNumeric(unsigned char ch) {
 	return (cmap[ch]&2);//(ch>='0') && (ch<='9');
 }
 ////////////////////////////////////////////////////////////////////////////////
-//数値チェック
 bool isNumber(const std::string &str) {
 	for (size_t i=0;i<str.size();i++){
 		if (!isNumeric(str[i])) return false;
@@ -369,6 +368,7 @@ std::string CScriptLex::getTokenStr(int token) {
 		case LEX_R_CONTINUE     : return "continue";
 		case LEX_R_FUNCTION     : return "function";
 		case LEX_R_RETURN       : return "return";
+		case LEX_R_CONST        : return "CONST";
 		case LEX_R_VAR          : return "var";
 		case LEX_R_TRUE         : return "true";
 		case LEX_R_FALSE        : return "false";
@@ -434,6 +434,7 @@ void CScriptLex::getNextToken() {
 		else if (tkStr=="function")  tk = LEX_R_FUNCTION;
 		else if (tkStr=="return")    tk = LEX_R_RETURN;
 		else if (tkStr=="var")       tk = LEX_R_VAR;
+		else if (tkStr=="const")     tk = LEX_R_CONST;
 		else if (tkStr=="true")      tk = LEX_R_TRUE;
 		else if (tkStr=="false")     tk = LEX_R_FALSE;
 		else if (tkStr=="null")      tk = LEX_R_NULL;
@@ -659,6 +660,7 @@ CScriptVarLink::CScriptVarLink(CScriptVar *var, const std::string &myname) {
 	this->prevSibling = 0;
 	this->var = var->ref();
 	this->owned = false;
+	this->beConst = false;
 }
 
 CScriptVarLink::CScriptVarLink(const CScriptVarLink &link) {
@@ -668,6 +670,7 @@ CScriptVarLink::CScriptVarLink(const CScriptVarLink &link) {
 	this->prevSibling = 0;
 	this->var = link.var->ref();
 	this->owned = false;
+	this->beConst = false;
 }
 
 CScriptVarLink::~CScriptVarLink() {
@@ -681,6 +684,11 @@ void CScriptVarLink::replaceWith(CScriptVar *newVar) {
 }
 
 void CScriptVarLink::replaceWith(CScriptVarLink *newVar) {
+	if(beConst) {
+		TRACE("Can not modify const value of %s\n", name.c_str());
+		return;
+	}
+
 	if (newVar)
 		replaceWith(newVar->var);
 	else
@@ -2120,11 +2128,21 @@ LEX_TYPES  CTinyJS::statement(bool &execute) {
 		l->chkread(LEX_R_CONTINUE);
 		l->chkread(';');
 		return LEX_R_CONTINUE;
-	} else if (l->tk==LEX_R_VAR) {
+	} else if (l->tk==LEX_R_VAR || l->tk == LEX_R_CONST) {
 		/* variable creation. TODO - we need a better way of parsing the left
 		 * hand side. Maybe just have a flag called can_create_var that we
 		 * set and then we parse as if we're doing a normal equals.*/
-		l->chkread(LEX_R_VAR);
+		bool beConst;
+
+		if(l->tk == LEX_R_VAR) {
+			l->chkread(LEX_R_VAR);
+			beConst = false;
+		}
+		else {
+			l->chkread(LEX_R_CONST);
+			beConst = true;
+		}
+
 		while (l->tk != ';') {
 			CScriptVarLink *a = 0;
 			if (execute)
@@ -2148,6 +2166,8 @@ LEX_TYPES  CTinyJS::statement(bool &execute) {
 				}
 				CLEAN(var);
 			}
+			a->beConst = beConst;
+		
 			if (l->tk != ';')
 				l->chkread(',');
 		}       
