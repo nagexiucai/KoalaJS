@@ -1,6 +1,6 @@
 CFLAG = -g -I../
 SRCS = demoClass.cpp \
-	  ../TinyJS/TinyJS.cpp \
+	  ../TinyJS/TinyJS.cpp 
 
 TARGET = demoClass
 all:
