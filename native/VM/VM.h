@@ -12,6 +12,8 @@ namespace JSM {
 
 		static void thread(CScriptVar *c, void *);
 
+		static void require(CScriptVar *c, void *);
+
 		protected:
 		void registerFunctions(CTinyJS* tinyJS, const std::string& className);
 
