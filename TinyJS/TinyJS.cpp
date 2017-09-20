@@ -124,6 +124,8 @@ Arrays are implemented as a linked list - hence a lookup time is O(n)
 #include <sstream>
 #include <stdlib.h>
 
+#include "libs/Thread/Thread.h"
+
 #define ASSERT(X) assert(X)
 	/* Frees the given link IF it isn't owned by anything else */
 #define CLEAN(x) { CScriptVarLink *__v = x; if (__v && !__v->owned) { delete __v; } }
@@ -834,6 +836,7 @@ CScriptVarLink *CScriptVar::addChild(const std::string &childName, CScriptVar *c
 		firstChild = link;
 		lastChild = link;
 	}
+
 	return link;
 }
 
@@ -853,6 +856,7 @@ CScriptVarLink *CScriptVar::addChildNoDup(const std::string &childName, CScriptV
 }
 
 void CScriptVar::removeChild(CScriptVar *child) {
+	
 	CScriptVarLink *link = firstChild;
 	while (link) {
 		if (link->var == child){
@@ -862,10 +866,12 @@ void CScriptVar::removeChild(CScriptVar *child) {
 	}
 	ASSERT(link);
 	removeLink(link);
+	
 }
 
 void CScriptVar::removeLink(CScriptVarLink *link) {
 	if (!link) return;
+
 	if (link->nextSibling){
 		link->nextSibling->prevSibling = link->prevSibling;
 	}
@@ -1350,16 +1356,24 @@ void CScriptVar::setNativeConstructor(JSCallback callback, void *userdata) {
 	jsNativeConstructorUserData = userdata;
 }
 
+static ThreadLock _locker;
+
 CScriptVar *CScriptVar::ref() {
+	_locker.lock();
 	refs++;
+	_locker.unlock();
 	return this;
 }
 
 void CScriptVar::unref() {
+	_locker.lock();
 	if (refs<=0) printf("OMFG, we have unreffed too far!\n");
 	if ((--refs)==0) {
+		_locker.unlock();
 		delete this;
 	}
+	else
+		_locker.unlock();
 }
 
 int CScriptVar::getRefs() {

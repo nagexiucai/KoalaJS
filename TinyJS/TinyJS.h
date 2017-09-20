@@ -37,6 +37,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
+
 #ifndef TRACE
 #define TRACE printf
 #endif // TRACE
@@ -174,6 +175,7 @@ typedef void (*JSCallback)(CScriptVar *var, void *userdata);
 class CScriptVarLink
 {
 	public:
+
 		std::string name;               //•Ï”–¼
 		CScriptVarLink *nextSibling;//Ÿ‚ÌƒŠƒ“ƒN
 		CScriptVarLink *prevSibling;//‘O‚ÌƒŠƒ“ƒN
@@ -196,6 +198,7 @@ typedef void (*JSDestroy)(void *p);
 class CScriptVar
 {
 	public:
+
 		CScriptVarLink *firstChild;
 		CScriptVarLink *lastChild;
 
@@ -306,8 +309,10 @@ class CScriptVar
 		friend class CTinyJS;
 };
 
+
 class CTinyJS {
 	public:
+
 		CTinyJS();
 		~CTinyJS();
 

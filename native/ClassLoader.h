@@ -50,7 +50,7 @@ template<class T> class NativeClassLoader: public JSClass {
 		return cls;	
 	}
 
-	static void registerClass(CTinyJS* tinyJS, const std::string& className, void* constructData ) {
+	static void registerClass(CTinyJS* tinyJS, const std::string& className, void* constructData) {
 		CScriptVar* cls = new CScriptVar(TINYJS_BLANK_DATA, SCRIPTVAR_OBJECT);
 		cls->setNativeConstructor(constructor, constructData);
 		tinyJS->addClass(className, cls);
