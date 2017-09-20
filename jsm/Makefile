@@ -7,10 +7,10 @@ SRCS = jsm.cpp \
 	  ../native/VM/VM.cpp \
 	  ../native/Base64/Base64.cpp \
 	  ../native/Array/Array.cpp \
-#	  ../native/MD5/MD5.cpp 
+	  ../native/MD5/MD5.cpp 
 
 LIBS = ../libs/Base64/Base64.cpp \
-#		../libs/MD5/md5.cpp
+		../libs/MD5/md5.cpp
 
 TARGET = jsm
 all:
