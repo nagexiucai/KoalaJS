@@ -84,6 +84,7 @@ typedef enum {
 	LEX_R_FUNCTION,
 	LEX_R_RETURN,
 	LEX_R_VAR,
+	LEX_R_CONST,
 	LEX_R_TRUE,
 	LEX_R_FALSE,
 	LEX_R_NULL,
@@ -181,6 +182,9 @@ class CScriptVarLink
 		CScriptVarLink *prevSibling;//‘O‚ÌƒŠƒ“ƒN
 		CScriptVar     *var;        //•Ï”‚ÌÀ‘Ì
 		bool           owned;       //ì¬Ò?
+
+		//added by Misa.Z for const data
+		bool beConst;
 
 		CScriptVarLink(CScriptVar *var, const std::string &name = TINYJS_TEMP_NAME);
 		CScriptVarLink(const CScriptVarLink &link); ///< Copy constructor
@@ -280,10 +284,12 @@ class CScriptVar
 		CScriptVar *ref();        ///< Add reference to this variable
 		void unref();             ///< Remove a reference, and delete this variable if required
 		int  getRefs();           ///< Get the number of references to this script variable
+
 	protected:
 		int refs;                 ///< The number of references held to this - used for garbage collection
 
-		void *pData; //added by Misa.Z for point type data
+		//added by Misa.Z for point type data
+		void *pData; 
 		JSDestroy destroyFunc;
 		bool needDestroyed;
 
@@ -356,6 +362,10 @@ class CTinyJS {
 		//added by Misa.Z for class addition
 		void addClass(const std::string& name, CScriptVar* cls);
 		void removeClasses();
+
+		//added by Misa.Z for new object
+		CScriptVar *newObject(const std::string &className);
+		
 
 		CScriptVar *root;   /// root of symbol table
 	private:
