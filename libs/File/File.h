@@ -8,7 +8,7 @@
 class FReader {
 public:
 	static std::string read(const std::string& fname) {
-		std::ifstream t(fname);
+		std::ifstream t(fname.c_str());
 		if(!t)
 			return "";
 
