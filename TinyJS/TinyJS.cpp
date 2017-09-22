@@ -1392,7 +1392,9 @@ int CScriptVar::getRefs() {
 // ----------------------------------------------------------------------------------- CSCRIPT
 
 CTinyJS::CTinyJS() {
+	moduleLoader = NULL;
 	l = 0;
+
 	root = (new CScriptVar(TINYJS_BLANK_DATA, SCRIPTVAR_OBJECT))->ref();
 	// Add built-in classes
 	stringClass = (new CScriptVar(TINYJS_BLANK_DATA, SCRIPTVAR_OBJECT))->ref();

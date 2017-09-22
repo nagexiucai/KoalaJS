@@ -316,6 +316,10 @@ class CScriptVar
 };
 
 
+class CTinyJS; 
+//added by Misa.Z for native module loading.
+typedef void (*JSModuleLoader)(CTinyJS *tinyJS);
+
 class CTinyJS {
 	public:
 
@@ -368,7 +372,25 @@ class CTinyJS {
 		
 
 		CScriptVar *root;   /// root of symbol table
+
+		//added by Misa.Z for native module loading.
+		inline void loadModule()	{
+			if(moduleLoader != NULL) {
+				moduleLoader(this);
+			}
+		}
+
+		inline JSModuleLoader getModuleLoader() {
+			return moduleLoader;
+		}
+		
+		inline void setModuleLoader(JSModuleLoader loader) {
+			moduleLoader = loader;
+		}
 	private:
+		//added by Misa.Z for native module loading.
+		JSModuleLoader moduleLoader;
+
 		CScriptLex *l;             /// current lexer
 		std::vector<CScriptVar*> scopes; /// stack of scopes when parsing
 

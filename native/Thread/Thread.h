@@ -1,24 +1,24 @@
-#ifndef JSM_VM
-#define JSM_VM
+#ifndef JSM_Thread
+#define JSM_Thread
 
 #include "../ClassLoader.h"
 
 namespace JSM {
 
-	class VM : public JSClass {
+	class JSThread : public JSClass {
 		static void exec(CScriptVar *c, void *);
 
 		static void run(CScriptVar *c, void *);
 
-		static void eval(CScriptVar *c, void *);
+		static void sleep(CScriptVar *c, void *);
 
-		static void require(CScriptVar *c, void *);
+		static void usleep(CScriptVar *c, void *);
 
 		protected:
 		void registerFunctions(CTinyJS* tinyJS, const std::string& className);
 
 		public:
-		DECL_INSTANCE(VM)
+		DECL_INSTANCE(JSThread)
 	};
 
 };
