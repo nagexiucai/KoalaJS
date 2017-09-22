@@ -7,27 +7,40 @@
 #include "native/VM/VM.h"
 #include "native/Base64/Base64.h"
 #include "native/MD5/MD5.h"
+#include "native/Thread/Thread.h"
+#include "libs/File/File.h"
+
+static void moduleLoader(CTinyJS* tinyJS) {
+	JSM::Debug::instance().load(tinyJS, "Debug");
+	JSM::String::instance().load(tinyJS, "String");
+	JSM::Array::instance().load(tinyJS, "Array");
+	JSM::Math::instance().load(tinyJS, "Math");
+	JSM::JSON::instance().load(tinyJS, "JSON");
+	JSM::VM::instance().load(tinyJS, "VM");
+	JSM::JSBase64::instance().load(tinyJS, "Base64");
+	JSM::JSMD5::instance().load(tinyJS, "MD5");
+	JSM::JSThread::instance().load(tinyJS, "Thread");
+}
+
 
 int main(int argc, char** argv) {
 	CTinyJS tinyJS;
-
-	JSM::Debug::instance().load(&tinyJS, "Debug");
-	JSM::String::instance().load(&tinyJS, "String");
-	JSM::Array::instance().load(&tinyJS, "Array");
-	JSM::Math::instance().load(&tinyJS, "Math");
-	JSM::JSON::instance().load(&tinyJS, "JSON");
-	JSM::VM::instance().load(&tinyJS, "VM");
-	JSM::JSBase64::instance().load(&tinyJS, "Base64");
-	JSM::JSMD5::instance().load(&tinyJS, "MD5");
-
 	std::string input;
 
-	while(true) {
-		char buffer[2048+1];
-		if(fgets ( buffer, 2048, stdin ) == NULL)
-			break;
-		input += buffer;
-	}	
+	tinyJS.setModuleLoader(moduleLoader);
+	tinyJS.loadModule();
+
+	if(argc <= 1) {
+		while(true) {
+			char buffer[2048+1];
+			if(fgets ( buffer, 2048, stdin ) == NULL)
+				break;
+			input += buffer;
+		}	
+	}
+	else {
+		input = FReader::read(argv[1]);
+	}
 
 	try {
 		tinyJS.execute(input);
