@@ -1395,9 +1395,9 @@ CTinyJS::CTinyJS() {
 	l = 0;
 	root = (new CScriptVar(TINYJS_BLANK_DATA, SCRIPTVAR_OBJECT))->ref();
 	// Add built-in classes
-	stringClass = (new CScriptVar(TINYJS_BLANK_DATA, SCRIPTVAR_OBJECT))->ref();
-	arrayClass = (new CScriptVar(TINYJS_BLANK_DATA, SCRIPTVAR_OBJECT))->ref();
-	objectClass = (new CScriptVar(TINYJS_BLANK_DATA, SCRIPTVAR_OBJECT))->ref();
+	stringClass = (new CScriptVar(TINYJS_BLANK_DATA, SCRIPTVAR_OBJECT));
+	arrayClass = (new CScriptVar(TINYJS_BLANK_DATA, SCRIPTVAR_OBJECT));
+	objectClass = (new CScriptVar(TINYJS_BLANK_DATA, SCRIPTVAR_OBJECT));
 	root->addChild("String", stringClass);
 	root->addChild("Array", arrayClass);
 	root->addChild("Object", objectClass);
@@ -1410,9 +1410,9 @@ CTinyJS::~CTinyJS() {
 	//added by Misa.Z
 	removeClasses();
 
-	stringClass->unref();
-	arrayClass->unref();
-	objectClass->unref();
+	//stringClass->unref();
+	//arrayClass->unref();
+	//objectClass->unref();
 	root->unref();
 
 }
@@ -1540,11 +1540,12 @@ void CTinyJS::removeClasses() {
 CScriptVar* CTinyJS::newObject(const std::string &className) {
 	CScriptVarLink *objClassOrFunc = findInScopes(className);
 	if (!objClassOrFunc) {
-		TRACE("%s is not a valid class name", className.c_str());
+		TRACE("%s is not a valid class name.", className.c_str());
 		return NULL;
 	}
 	CScriptVar *obj = new CScriptVar(TINYJS_BLANK_DATA, SCRIPTVAR_OBJECT);
 	if (objClassOrFunc->var->isFunction()) {
+		TRACE("%s is a function, not a class.", className.c_str());
 		return NULL;
 	} 
 
