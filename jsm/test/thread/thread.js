@@ -1,5 +1,9 @@
 
 while(true) {
-	print("hello");
-	Thread.usleep(10000);
+	var v = Global.get('count');
+
+	if(v != undefined)
+		print("Sub thread get : " + v);
+
+	Thread.usleep(100000);
 }

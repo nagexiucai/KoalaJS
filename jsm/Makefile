@@ -8,6 +8,7 @@ SRCS = jsm.cpp \
 	  ../native/Base64/Base64.cpp \
 	  ../native/Array/Array.cpp \
 	  ../native/Thread/Thread.cpp \
+	  ../native/Global/Global.cpp \
 	  ../native/MD5/MD5.cpp 
 
 LIBS = ../libs/Base64/Base64.cpp \

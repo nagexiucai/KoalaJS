@@ -1,7 +1,13 @@
+var i = 0;
 
 Thread.run("thread.js");
 
 while(true) { 
-	print("Main Thread.");
-	Thread.usleep(10000);
+	var a = "" + i;
+	i++;
+
+	Global.set('count', a);
+
+	print("main thread set : " + a);
+	Thread.usleep(100000);
 }

@@ -8,6 +8,7 @@
 #include "native/Base64/Base64.h"
 #include "native/MD5/MD5.h"
 #include "native/Thread/Thread.h"
+#include "native/Global/Global.h"
 #include "libs/File/File.h"
 
 static void moduleLoader(CTinyJS* tinyJS) {
@@ -20,6 +21,7 @@ static void moduleLoader(CTinyJS* tinyJS) {
 	JSM::JSBase64::instance().load(tinyJS, "Base64");
 	JSM::JSMD5::instance().load(tinyJS, "MD5");
 	JSM::JSThread::instance().load(tinyJS, "Thread");
+	JSM::Global::instance().load(tinyJS, "Global");
 }
 
 
