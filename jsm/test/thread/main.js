@@ -1,13 +1,14 @@
-var i = 0;
+include('comm.js');
 
 Thread.run("thread.js");
 
+var i = 0;
+
 while(true) { 
-	var a = "" + i;
 	i++;
 
-	Global.set('count', a);
+	print("main thread set : " + i);
+	set('count', ""+i);
 
-	print("main thread set : " + a);
 	Thread.usleep(100000);
 }

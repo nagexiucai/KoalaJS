@@ -1,9 +1,10 @@
+include('comm.js');
 
 while(true) {
-	var v = Global.get('count');
+	var v = get('count');
 
 	if(v != undefined)
-		print("Sub thread get : " + v);
+		print("sub thread get : " + v);
 
 	Thread.usleep(100000);
 }
