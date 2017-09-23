@@ -1,3 +1,4 @@
+// Main thread, start child thread and go dead loop to set Global value. 
 var i = 0;
 
 Thread.run("thread.js");
