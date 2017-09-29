@@ -326,6 +326,10 @@ class CTinyJS {
 		CTinyJS();
 		~CTinyJS();
 
+		//added by Misa.Z for running filename
+		std::string fullname(const std::string& fname);
+		void run(const std::string &fname);
+
 		void execute(const std::string &code);
 		/** Evaluate the given code and return a link to a javascript object,
 		 * useful for (dangerous) JSON parsing. If nothing to return, will return
@@ -387,7 +391,18 @@ class CTinyJS {
 		inline void setModuleLoader(JSModuleLoader loader) {
 			moduleLoader = loader;
 		}
+		
+		inline const std::string& getcwd() {
+			return cwd;
+		}
+	
+		inline void setcwd(const std::string& cwd) {
+			this->cwd = cwd;
+		}
 	private:
+		//added by Misa.Z for running file
+		std::string cwd;
+
 		//added by Misa.Z for native module loading.
 		JSModuleLoader moduleLoader;
 

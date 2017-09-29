@@ -13,9 +13,8 @@ void VM::exec(CScriptVar *c, void *userdata) {
 void VM::run(CScriptVar *c, void *userdata) {
 	CTinyJS *tinyJS = (CTinyJS *)userdata;
 	std::string fname = c->getParameter("file")->getString();
-	std::string src = FReader::read(fname);
 
-	tinyJS->execute(src);
+	tinyJS->run(fname);
 }
 
 void VM::eval(CScriptVar *c, void *userdata) {

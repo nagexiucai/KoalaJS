@@ -39,15 +39,20 @@ int main(int argc, char** argv) {
 				break;
 			input += buffer;
 		}	
+
+		try {
+			tinyJS.execute(input);
+		} catch (CScriptException *e) {
+			printf("ERROR: %s\n", e->text.c_str());
+		}
 	}
 	else {
-		input = FReader::read(argv[1]);
-	}
+		try {
+			tinyJS.run(argv[1]);
+		} catch (CScriptException *e) {
+			printf("ERROR: %s\n", e->text.c_str());
+		}
 
-	try {
-		tinyJS.execute(input);
-	} catch (CScriptException *e) {
-		printf("ERROR: %s\n", e->text.c_str());
 	}
 
 	return 0;

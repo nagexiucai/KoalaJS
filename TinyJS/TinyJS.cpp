@@ -120,6 +120,7 @@ Arrays are implemented as a linked list - hence a lookup time is O(n)
 	*/
 
 #include "TinyJS.h"
+#include "../libs/File/File.h"
 #include <assert.h>
 #include <sstream>
 #include <stdlib.h>
@@ -1392,6 +1393,8 @@ int CScriptVar::getRefs() {
 // ----------------------------------------------------------------------------------- CSCRIPT
 
 CTinyJS::CTinyJS() {
+	cwd = "";
+
 	moduleLoader = NULL;
 	l = 0;
 
@@ -1421,6 +1424,47 @@ CTinyJS::~CTinyJS() {
 
 void CTinyJS::trace() {
 	root->trace();
+}
+
+//added by Misa.Z for running file
+std::string  CTinyJS::fullname(const std::string& fname) {
+
+	if(fname.length() == 0)
+		return "";
+
+	std::string full;
+
+	if(fname[0] == '/') {
+		full = fname;
+	}
+	else {
+		if(cwd.length() == 0) 
+			full = File::getcwd() + '/' + fname;
+		else 
+			full = cwd + fname;
+	}
+
+	size_t i = full.rfind('/');
+	if(i == std::string::npos)
+		return "";
+	cwd = full.substr(0, i+1);
+
+	return full;
+}
+
+void CTinyJS::run(const std::string &fname) {
+	std::string full, oldCwd;
+
+	oldCwd = cwd;
+	full = fullname(fname);
+
+	std::string input = File::read(full);
+	if(input.length() > 0) {
+		execute(input);
+	}
+	
+	if(oldCwd.length() > 0)
+		cwd = oldCwd;
 }
 
 void CTinyJS::execute(const std::string &code) {

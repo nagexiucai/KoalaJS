@@ -12,7 +12,8 @@ SRCS = jsm.cpp \
 	  ../native/MD5/MD5.cpp 
 
 LIBS = ../libs/Base64/Base64.cpp \
-		../libs/MD5/md5.cpp
+		../libs/MD5/md5.cpp \
+		../libs/File/File.cpp
 
 LDFLAG = -lpthread
 

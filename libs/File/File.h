@@ -5,18 +5,12 @@
 #include <fstream>  
 #include <sstream>  
 
-class FReader {
+class File {
 public:
-	static std::string read(const std::string& fname) {
-		std::ifstream t(fname.c_str());
-		if(!t)
-			return "";
+	static std::string read(const std::string& fname);
 
-		std::stringstream buffer;  
-		buffer << t.rdbuf();  
-		t.close();
-		return buffer.str();
-	}
+	static std::string getcwd();
+
 };
 
 #endif

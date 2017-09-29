@@ -10,6 +10,7 @@ using namespace JSM;
 typedef struct ThreadData {
 	CTinyJS* tinyJS;
 	std::string src;
+	bool code;
 } ThreadDataT;
 
 static void* _vmThread(void* data) {
@@ -19,13 +20,20 @@ static void* _vmThread(void* data) {
 
 	CTinyJS* tinyJS = td->tinyJS;
 	std::string src = td->src;
-	delete td; 
+	bool code = td->code;
+
+	delete td;
 
 	CTinyJS tJS;
 	tJS.setModuleLoader(tinyJS->getModuleLoader());
 	tJS.loadModule();
+	tJS.setcwd(tinyJS->getcwd());
 
-	tJS.execute(src);
+	if(code)
+		tJS.execute(src);
+	else
+		tJS.run(src);
+
 	return NULL;
 }
 
@@ -34,6 +42,7 @@ void JSThread::exec(CScriptVar *c, void *userdata) {
 
 	data->tinyJS = (CTinyJS *)userdata;
 	data->src = c->getParameter("src")->getString();
+	data->code = true;
 
 	Thread::run(_vmThread, data);
 }
@@ -42,8 +51,8 @@ void JSThread::run(CScriptVar *c, void *userdata) {
 	ThreadDataT *data = new ThreadDataT();
 
 	data->tinyJS = (CTinyJS *)userdata;
-	std::string fname = c->getParameter("file")->getString();
-	data->src = FReader::read(fname);
+	data->src = c->getParameter("file")->getString();
+	data->code = false;
 	Thread::run(_vmThread, data);
 }
 
