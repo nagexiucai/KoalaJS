@@ -402,6 +402,7 @@ class CTinyJS {
 	private:
 		//added by Misa.Z for running file
 		std::string cwd;
+		std::string cname;
 
 		//added by Misa.Z for native module loading.
 		JSModuleLoader moduleLoader;

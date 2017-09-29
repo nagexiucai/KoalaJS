@@ -1394,6 +1394,7 @@ int CScriptVar::getRefs() {
 
 CTinyJS::CTinyJS() {
 	cwd = "";
+	cname = "";
 
 	moduleLoader = NULL;
 	l = 0;
@@ -1453,14 +1454,17 @@ std::string  CTinyJS::fullname(const std::string& fname) {
 }
 
 void CTinyJS::run(const std::string &fname) {
-	std::string full, oldCwd;
+	std::string oldCwd;
 
 	oldCwd = cwd;
-	full = fullname(fname);
+	cname = fullname(fname);
 
-	std::string input = File::read(full);
+	std::string input = File::read(cname);
 	if(input.length() > 0) {
 		execute(input);
+	}
+	else {
+		TRACE("Can not run file \"%s\" at \"%s\" %s.\n", fname.c_str(), cname.c_str(), l->getPosition().c_str());
 	}
 	
 	if(oldCwd.length() > 0)
