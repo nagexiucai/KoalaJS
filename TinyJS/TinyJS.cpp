@@ -720,7 +720,7 @@ CScriptVar::CScriptVar(const std::string &str) {
 	refs = 0;
 	init();
 	flags = SCRIPTVAR_STRING;
-	data = str;
+	strData = str;
 }
 
 
@@ -733,7 +733,7 @@ CScriptVar::CScriptVar(const std::string &varData, int varFlags) {
 	} else if (varFlags & SCRIPTVAR_DOUBLE) {
 		doubleData = strtod(varData.c_str(),0);
 	} else
-		data = varData;
+		strData = varData;
 }
 
 CScriptVar::CScriptVar(double val) {
@@ -755,10 +755,11 @@ CScriptVar::CScriptVar(bool val){
 
 
 //added by Misa.Z for point type data
-CScriptVar::CScriptVar(void* val, JSDestroy destroy,  bool needDestroyed){
+//if size >= 0, means val is a byte buffer, pData is a byte buffer point, and intData is the size of it.
+CScriptVar::CScriptVar(void* val, int size, JSDestroy destroy,  bool needDestroyed){
 	refs = 0;
 	init();
-	setPoint(val, destroy, needDestroyed);	
+	setPoint(val, size, destroy, needDestroyed);	
 }
 
 CScriptVar::~CScriptVar(void) {
@@ -772,7 +773,7 @@ void CScriptVar::init() {
 	flags = 0;
 	jsCallback = 0;
 	jsCallbackUserData = 0;
-	data = TINYJS_BLANK_DATA;
+	strData = TINYJS_BLANK_DATA;
 	intData = 0;
 	doubleData = 0;
 
@@ -958,7 +959,8 @@ int CScriptVar::getChildren() {
 
 int CScriptVar::getInt() {
 	/* strtol understands about hex and octal */
-	if (isInt()) return intData;
+	//modified by Misa.Z for buffer size
+	if (isInt() || isObject()) return intData;
 	if (isNull()) return 0;
 	if (isUndefined()) return 0;
 	if (isDouble()) return (int)doubleData;
@@ -983,23 +985,23 @@ const std::string &CScriptVar::getString() {
 	if (isInt()) {
 		//char buffer[32];
 		//snprintf(buffer, sizeof(buffer), "%ld", intData);
-		//data = buffer;
+		//strData = buffer;
 		ss << intData;
-		data = ss.str();
-		return data;
+		strData = ss.str();
+		return strData;
 	}
 	if (isDouble()) {
 		//char buffer[32];
 		//snprintf(buffer, sizeof(buffer), "%f", doubleData);
-		//data = buffer;
+		//strData = buffer;
 		ss << doubleData;
-		data = ss.str();
-		return data;
+		strData = ss.str();
+		return strData;
 	}
 	if (isNull()) return s_null;
 	if (isUndefined()) return s_undefined;
 	// are we just a std::string here?
-	return data;
+	return strData;
 }
 
 //added by Misa.Z for point type data
@@ -1016,6 +1018,8 @@ void CScriptVar::destroy() {
 	if(isObject() && pData != NULL && needDestroyed) {
 		if(destroyFunc != NULL)
 			destroyFunc(pData);
+		else
+			delete (unsigned char*)pData;
 	}
 
 	pData = NULL;
@@ -1028,7 +1032,7 @@ void CScriptVar::setInt(int val) {
 	intData = val;
 	doubleData = 0;
 	destroy();
-	data = TINYJS_BLANK_DATA;
+	strData = TINYJS_BLANK_DATA;
 }
 
 void CScriptVar::setDouble(double val) {
@@ -1036,13 +1040,13 @@ void CScriptVar::setDouble(double val) {
 	doubleData = val;
 	intData = 0;
 	destroy();
-	data = TINYJS_BLANK_DATA;
+	strData = TINYJS_BLANK_DATA;
 }
 
 void CScriptVar::setString(const std::string &str) {
 	// name sure it's not still a number or integer
 	flags = (flags&~SCRIPTVAR_VARTYPEMASK) | SCRIPTVAR_STRING;
-	data = str;
+	strData = str;
 	intData = 0;
 	doubleData = 0;
 	destroy();
@@ -1051,7 +1055,7 @@ void CScriptVar::setString(const std::string &str) {
 void CScriptVar::setUndefined() {
 	// name sure it's not still a number or integer
 	flags = (flags&~SCRIPTVAR_VARTYPEMASK) | SCRIPTVAR_UNDEFINED;
-	data = TINYJS_BLANK_DATA;
+	strData = TINYJS_BLANK_DATA;
 	intData = 0;
 	doubleData = 0;
 	removeAllChildren();
@@ -1061,7 +1065,7 @@ void CScriptVar::setUndefined() {
 void CScriptVar::setArray() {
 	// name sure it's not still a number or integer
 	flags = (flags&~SCRIPTVAR_VARTYPEMASK) | SCRIPTVAR_ARRAY;
-	data = TINYJS_BLANK_DATA;
+	strData = TINYJS_BLANK_DATA;
 	intData = 0;
 	doubleData = 0;
 	removeAllChildren();
@@ -1069,11 +1073,17 @@ void CScriptVar::setArray() {
 }
 
 //added by Misa.Z for point type data
-void CScriptVar::setPoint(void* val, JSDestroy destroyFunc, bool needDestroyed) {
+//if size >= 0, means val is a byte buffer, pData is a byte buffer point, and intData is the size of it.
+void CScriptVar::setPoint(void* val, int size, JSDestroy destroyFunc, bool needDestroyed) {
 	flags = (flags&~SCRIPTVAR_VARTYPEMASK) | SCRIPTVAR_OBJECT;
+
+	if(size < 0)
+		intData = 0;
+	else 
+		intData = size;
+
 	doubleData = 0;
-	intData = 0;
-	data = TINYJS_BLANK_DATA;
+	strData = TINYJS_BLANK_DATA;
 	destroy();
 	pData = val;
 	this->destroyFunc = destroyFunc;
@@ -1186,7 +1196,7 @@ CScriptVar *CScriptVar::mathsOp(CScriptVar *b, int op) {
 }
 
 void CScriptVar::copySimpleData(CScriptVar *val) {
-	data = val->data;
+	strData = val->strData;
 	intData = val->intData;
 	doubleData = val->doubleData;
 
@@ -1624,7 +1634,7 @@ CScriptVarLink *CTinyJS::parseFunctionDefinition() {
 	int funcBegin = l->tokenStart;
 	bool noexecute = false;
 	block(noexecute);
-	funcVar->var->data = l->getSubString(funcBegin);
+	funcVar->var->strData = l->getSubString(funcBegin);
 	return funcVar;
 }
 

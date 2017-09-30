@@ -41,7 +41,7 @@ template<class T> class NativeClassLoader: public JSClass {
 
 	static void constructor(CScriptVar* var, void *userData) {
 		void* nativeClass = new T(userData);
-		var->setPoint(nativeClass, destroy, true);
+		var->setPoint(nativeClass, -1, destroy, true);
 	}
 
 	protected:

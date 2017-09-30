@@ -214,7 +214,8 @@ class CScriptVar
 		CScriptVar(bool val);
 
 		//added by Misa.Z for point type data
-		CScriptVar(void* p, JSDestroy destroy, bool needDestroyed);
+		//if size >= 0, means val is a byte buffer, pData is a byte buffer point, and intData is the size of it.
+		CScriptVar(void* p, int size, JSDestroy destroy, bool needDestroyed);
 
 		~CScriptVar(void);
 
@@ -251,7 +252,8 @@ class CScriptVar
 		void setArray();
 
 		//added by Misa.Z for point type data
-		void setPoint(void* p, JSDestroy destroy, bool needDestroyed);
+		//if size >= 0, means val is a byte buffer, pData is a byte buffer point, and intData is the size of it.
+		void setPoint(void* p, int size, JSDestroy destroy, bool needDestroyed);
 
 		bool equals(CScriptVar *v);
 
@@ -293,7 +295,7 @@ class CScriptVar
 		JSDestroy destroyFunc;
 		bool needDestroyed;
 
-		std::string data;             ///< The contents of this variable if it is a string
+		std::string strData;             ///< The contents of this variable if it is a string
 		long intData;             ///< The contents of this variable if it is an int
 		double doubleData;        ///< The contents of this variable if it is a double
 		int flags;                ///< the flags determine the type of the variable - int/double/string/etc

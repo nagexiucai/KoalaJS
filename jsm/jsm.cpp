@@ -1,4 +1,4 @@
-#include "TinyJS/TinyJS.h"
+	#include "TinyJS/TinyJS.h"
 #include "native/Debug/Debug.h"
 #include "native/String/String.h"
 #include "native/Array/Array.h"
@@ -9,6 +9,7 @@
 #include "native/MD5/MD5.h"
 #include "native/Thread/Thread.h"
 #include "native/Global/Global.h"
+#include "native/Buffer/Buffer.h"
 #include "libs/File/File.h"
 
 static void moduleLoader(CTinyJS* tinyJS) {
@@ -17,14 +18,15 @@ static void moduleLoader(CTinyJS* tinyJS) {
 	JSM::String::instance().load(tinyJS, "String");
 	JSM::Array::instance().load(tinyJS, "Array");
 
-//load Rokid extended classes
-	JSM::Math::instance().load(tinyJS, "R.Math");
-	JSM::JSON::instance().load(tinyJS, "R.JSON");
-	JSM::VM::instance().load(tinyJS, "R.VM");
-	JSM::JSBase64::instance().load(tinyJS, "R.Base64");
-	JSM::JSMD5::instance().load(tinyJS, "R.MD5");
-	JSM::JSThread::instance().load(tinyJS, "R.Thread");
-	JSM::Global::instance().load(tinyJS, "R.Global");
+//load Rkid extended classes
+	JSM::Math::instance().load(tinyJS, "RMath");
+	JSM::JSON::instance().load(tinyJS, "RJSON");
+	JSM::VM::instance().load(tinyJS, "RVM");
+	JSM::JSBase64::instance().load(tinyJS, "RBase64");
+	JSM::JSMD5::instance().load(tinyJS, "RMD5");
+	JSM::JSThread::instance().load(tinyJS, "RThread");
+	JSM::Global::instance().load(tinyJS, "RGlobal");
+	JSM::Buffer::instance().load(tinyJS, "RBuffer");
 }
 
 
