@@ -1428,36 +1428,12 @@ void CTinyJS::trace() {
 }
 
 //added by Misa.Z for running file
-std::string  CTinyJS::fullname(const std::string& fname) {
-
-	if(fname.length() == 0)
-		return "";
-
-	std::string full;
-
-	if(fname[0] == '/') {
-		full = fname;
-	}
-	else {
-		if(cwd.length() == 0) 
-			full = File::getcwd() + '/' + fname;
-		else 
-			full = cwd + fname;
-	}
-
-	size_t i = full.rfind('/');
-	if(i == std::string::npos)
-		return "";
-	cwd = full.substr(0, i+1);
-
-	return full;
-}
-
 void CTinyJS::run(const std::string &fname) {
 	std::string oldCwd;
 
 	oldCwd = cwd;
-	cname = fullname(fname);
+	cname = File::getFullname(cwd, fname);
+	cwd = File::getPath(cname);
 
 	std::string input = File::read(cname);
 	if(input.length() > 0) {

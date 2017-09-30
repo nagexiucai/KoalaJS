@@ -327,7 +327,6 @@ class CTinyJS {
 		~CTinyJS();
 
 		//added by Misa.Z for running filename
-		std::string fullname(const std::string& fname);
 		void run(const std::string &fname);
 
 		void execute(const std::string &code);
