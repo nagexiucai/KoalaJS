@@ -243,9 +243,9 @@ std::string getJSString(const std::string &str) {
 			default: {
 								 int nCh = ((int)nStr[i]) &0xFF;
 								 if (nCh<32 || nCh>127) {
-									 char buffer[5];
-									 snprintf(buffer, 5, "\\x%02X", nCh);
-									 replaceWith = buffer;
+									 char bytes[5];
+									 snprintf(bytes, 5, "\\x%02X", nCh);
+									 replaceWith = bytes;
 								 } else {
 									 replace=false;
 								 }
@@ -755,7 +755,7 @@ CScriptVar::CScriptVar(bool val){
 
 
 //added by Misa.Z for point type data
-//if size >= 0, means val is a byte buffer, pData is a byte buffer point, and intData is the size of it.
+//if size != NO_BYTES, means val is a byte bytes, pData is a byte bytes point, and intData is the size of it.
 CScriptVar::CScriptVar(void* val, int size, JSDestroy destroy,  bool needDestroyed){
 	refs = 0;
 	init();
@@ -959,8 +959,8 @@ int CScriptVar::getChildren() {
 
 int CScriptVar::getInt() {
 	/* strtol understands about hex and octal */
-	//modified by Misa.Z for buffer size
-	if (isInt() || isObject()) return intData;
+	//modified by Misa.Z for bytes size
+	if (isInt() || isBytes()) return intData;
 	if (isNull()) return 0;
 	if (isUndefined()) return 0;
 	if (isDouble()) return (int)doubleData;
@@ -983,17 +983,17 @@ const std::string &CScriptVar::getString() {
 	std::stringstream ss;
 
 	if (isInt()) {
-		//char buffer[32];
-		//snprintf(buffer, sizeof(buffer), "%ld", intData);
-		//strData = buffer;
+		//char bytes[32];
+		//snprintf(bytes, sizeof(bytes), "%ld", intData);
+		//strData = bytes;
 		ss << intData;
 		strData = ss.str();
 		return strData;
 	}
 	if (isDouble()) {
-		//char buffer[32];
-		//snprintf(buffer, sizeof(buffer), "%f", doubleData);
-		//strData = buffer;
+		//char bytes[32];
+		//snprintf(bytes, sizeof(bytes), "%f", doubleData);
+		//strData = bytes;
 		ss << doubleData;
 		strData = ss.str();
 		return strData;
@@ -1015,7 +1015,7 @@ void* CScriptVar::getPoint() {
 
 //added by Misa.Z for point type data
 void CScriptVar::destroy() {
-	if(isObject() && pData != NULL && needDestroyed) {
+	if((isObject() || pData != NULL) && needDestroyed) {
 		if(destroyFunc != NULL)
 			destroyFunc(pData);
 		else
@@ -1073,14 +1073,16 @@ void CScriptVar::setArray() {
 }
 
 //added by Misa.Z for point type data
-//if size >= 0, means val is a byte buffer, pData is a byte buffer point, and intData is the size of it.
+//if size != NO_BYTES, means val is a byte bytes, pData is a byte bytes point, and intData is the size of it.
 void CScriptVar::setPoint(void* val, int size, JSDestroy destroyFunc, bool needDestroyed) {
 	flags = (flags&~SCRIPTVAR_VARTYPEMASK) | SCRIPTVAR_OBJECT;
 
-	if(size < 0)
+	if(size == NO_BYTES)
 		intData = 0;
-	else 
+	else {
+		flags |= SCRIPTVAR_BYTES;
 		intData = size;
+	}
 
 	doubleData = 0;
 	strData = TINYJS_BLANK_DATA;
@@ -1284,6 +1286,7 @@ std::string CScriptVar::getFlagsAsString() {
 	if (flags&SCRIPTVAR_DOUBLE)   flagstr += "DOUBLE ";
 	if (flags&SCRIPTVAR_INTEGER)  flagstr += "INTEGER ";
 	if (flags&SCRIPTVAR_STRING)   flagstr += "STRING ";
+	if (flags&SCRIPTVAR_BYTES)   flagstr += "BYTES ";
 	return flagstr;
 }
 
@@ -1375,24 +1378,16 @@ void CScriptVar::setNativeConstructor(JSCallback callback, void *userdata) {
 	jsNativeConstructorUserData = userdata;
 }
 
-static ThreadLock _locker;
-
 CScriptVar *CScriptVar::ref() {
-	_locker.lock();
 	refs++;
-	_locker.unlock();
 	return this;
 }
 
 void CScriptVar::unref() {
-	_locker.lock();
 	if (refs<=0) printf("OMFG, we have unreffed too far!\n");
 	if ((--refs)==0) {
-		_locker.unlock();
 		delete this;
 	}
-	else
-		_locker.unlock();
 }
 
 int CScriptVar::getRefs() {
@@ -1414,9 +1409,11 @@ CTinyJS::CTinyJS() {
 	stringClass = (new CScriptVar(TINYJS_BLANK_DATA, SCRIPTVAR_OBJECT));
 	arrayClass = (new CScriptVar(TINYJS_BLANK_DATA, SCRIPTVAR_OBJECT));
 	objectClass = (new CScriptVar(TINYJS_BLANK_DATA, SCRIPTVAR_OBJECT));
+	bytesClass = (new CScriptVar(TINYJS_BLANK_DATA, SCRIPTVAR_OBJECT));
 	root->addChild("String", stringClass);
 	root->addChild("Array", arrayClass);
 	root->addChild("Object", objectClass);
+	root->addChild("Bytes", bytesClass);
 }
 
 CTinyJS::~CTinyJS() {
@@ -1572,25 +1569,6 @@ void CTinyJS::removeClasses() {
 	classes.clear();
 }
 
-//added by Misa.Z for new object
-CScriptVar* CTinyJS::newObject(const std::string &className) {
-	CScriptVarLink *objClassOrFunc = findInScopes(className);
-	if (!objClassOrFunc) {
-		TRACE("%s is not a valid class name.", className.c_str());
-		return NULL;
-	}
-	CScriptVar *obj = new CScriptVar(TINYJS_BLANK_DATA, SCRIPTVAR_OBJECT);
-	if (objClassOrFunc->var->isFunction()) {
-		TRACE("%s is a function, not a class.", className.c_str());
-		return NULL;
-	} 
-
-	obj->addChild(TINYJS_PROTOTYPE_CLASS, objClassOrFunc->var);
-	objClassOrFunc->var->nativeConstructor();
-
-	return obj;
-}
-
 void CTinyJS::addNative(const std::string &funcDesc, JSCallback ptr, void *userdata) {
 	CScriptLex *oldLex = l;
 	l = new CScriptLex(funcDesc);
@@ -1710,6 +1688,7 @@ CScriptVarLink *CTinyJS::functionCall(bool &execute, CScriptVarLink *function, C
 		if (!call_stack.empty()) call_stack.pop_back();
 #endif
 		scopes.pop_back();
+
 		/* get the real return var before we remove it from our function */
 		returnVar = new CScriptVarLink(returnVarLink->var);
 		functionRoot->removeLink(returnVarLink);
@@ -2448,22 +2427,29 @@ CScriptVarLink *CTinyJS::findInScopes(const std::string &childName) {
 CScriptVarLink *CTinyJS::findInParentClasses(CScriptVar *object, const std::string &name) {
 	// Look for links to actual parent classes
 	CScriptVarLink *parentClass = object->findChild(TINYJS_PROTOTYPE_CLASS);
+
+	CScriptVarLink *implementation; 
 	while (parentClass) {
-		CScriptVarLink *implementation = parentClass->var->findChild(name);
-		if (implementation) return implementation;
+		implementation = parentClass->var->findChild(name);
+		if (implementation) 
+			return implementation;
 		parentClass = parentClass->var->findChild(TINYJS_PROTOTYPE_CLASS);
 	}
+ 
 	// else fake it for strings and finally objects
-	if (object->isString()) {
-		CScriptVarLink *implementation = stringClass->findChild(name);
-		if (implementation) return implementation;
-	}
-	if (object->isArray()) {
-		CScriptVarLink *implementation = arrayClass->findChild(name);
-		if (implementation) return implementation;
-	}
-	CScriptVarLink *implementation = objectClass->findChild(name);
-	if (implementation) return implementation;
+ 	implementation = NULL; 
 
-	return 0;
+	if (object->isString()) {
+		implementation = stringClass->findChild(name);
+	}
+	else if (object->isArray()) {
+		implementation = arrayClass->findChild(name);
+	}
+	else if (object->isBytes()) {
+		implementation = bytesClass->findChild(name);
+	}
+	else {
+		implementation = objectClass->findChild(name);
+	}
+	return implementation;
 }

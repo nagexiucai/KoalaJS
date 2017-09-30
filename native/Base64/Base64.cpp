@@ -5,21 +5,37 @@ using namespace std;
 using namespace JSM;
 
 void JSBase64::encode(CScriptVar *c, void *userdata) {
-	std::string src = c->getParameter("src")->getString();
-	src = Base64::encode((const unsigned char*)src.c_str(), src.length());
+	std::string s = "";
+	CScriptVar* v = c->getParameter("src");
+	
+	if(v->isString()) {
+		s = v->getString();
+		s = Base64::encode((const unsigned char*)s.c_str(), s.length());
+	}
+	else if(v->isBytes()) {
+		unsigned char* p = (unsigned char*)v->getPoint();
+		int size = v->getInt();
+		
+		if(size > 0 && p != NULL)
+			s = Base64::encode(p, size);
+	}
 
-	c->getReturnVar()->setString(src);
+	c->getReturnVar()->setString(s);
 }
 
 void JSBase64::decode(CScriptVar *c, void *userdata) {
 	std::string src = c->getParameter("src")->getString();
-	src = Base64::decode(src);
+	CTinyJS* tinyJS = (CTinyJS*)userdata;
 
-	c->getReturnVar()->setString(src);
+	size_t size = 0;
+	unsigned char* p = Base64::decode(src, size);
+
+	CScriptVar* v = c->getReturnVar();
+	v->setPoint(p, size, NULL, true);
 }
 
 void JSBase64::registerFunctions(CTinyJS* tinyJS, const std::string& className) {
 	addFunction(tinyJS, className, "encode(src)", encode, NULL);
-	addFunction(tinyJS, className, "decode(src)", decode, NULL);
+	addFunction(tinyJS, className, "decode(src)", decode, tinyJS);
 }
 

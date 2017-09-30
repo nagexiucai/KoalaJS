@@ -1,20 +1,24 @@
-#ifndef JSM_Buffer
-#define JSM_Buffer
+#ifndef JSM_Bytes
+#define JSM_Bytes
 
 #include "../ClassLoader.h"
 
 namespace JSM {
 
-	class Buffer: public JSClass {
+	class Bytes: public JSClass {
 		static void size(CScriptVar* var, void* data);
 
 		static void from(CScriptVar* var, void* data);
+
+		static void toString(CScriptVar* var, void* data);
+
+		static void append(CScriptVar* var, void* data);
 
 		protected:
   	void registerFunctions(CTinyJS* tinyJS, const std::string& className);
 
 		public:
-		DECL_INSTANCE(Buffer)
+		DECL_INSTANCE(Bytes)
 	};
 
 };

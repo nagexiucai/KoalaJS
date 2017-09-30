@@ -102,18 +102,22 @@ enum SCRIPTVAR_FLAGS {
 	SCRIPTVAR_DOUBLE      = 8,  // floating point double
 	SCRIPTVAR_INTEGER     = 16, // integer number
 	SCRIPTVAR_STRING      = 32, // string
-	SCRIPTVAR_NULL        = 64, // it seems null is its own data type
+	SCRIPTVAR_BYTES      = 64, // bytes
+	SCRIPTVAR_NULL        = 128, // it seems null is its own data type
 
-	SCRIPTVAR_NATIVE      = 128, // to specify this is a native function
+	SCRIPTVAR_NATIVE      = 256, // to specify this is a native function
+
 	SCRIPTVAR_NUMERICMASK = SCRIPTVAR_NULL |
 		SCRIPTVAR_DOUBLE |
 		SCRIPTVAR_INTEGER,
+
 	SCRIPTVAR_VARTYPEMASK = SCRIPTVAR_DOUBLE |
 		SCRIPTVAR_INTEGER |
 		SCRIPTVAR_STRING |
 		SCRIPTVAR_FUNCTION |
 		SCRIPTVAR_OBJECT |
 		SCRIPTVAR_ARRAY |
+		SCRIPTVAR_BYTES |
 		SCRIPTVAR_NULL,
 
 };
@@ -198,11 +202,12 @@ class CScriptVarLink
 //added by Misa.Z for point type data
 typedef void (*JSDestroy)(void *p);
 
+const int NO_BYTES = -1;
+
 /// Variable class (containing a doubly-linked list of children)
 class CScriptVar
 {
 	public:
-
 		CScriptVarLink *firstChild;
 		CScriptVarLink *lastChild;
 
@@ -214,7 +219,7 @@ class CScriptVar
 		CScriptVar(bool val);
 
 		//added by Misa.Z for point type data
-		//if size >= 0, means val is a byte buffer, pData is a byte buffer point, and intData is the size of it.
+		//if size != NO_BYTES, means val is a byte bytes, pData is a byte bytes point, and intData is the size of it.
 		CScriptVar(void* p, int size, JSDestroy destroy, bool needDestroyed);
 
 		~CScriptVar(void);
@@ -252,11 +257,12 @@ class CScriptVar
 		void setArray();
 
 		//added by Misa.Z for point type data
-		//if size >= 0, means val is a byte buffer, pData is a byte buffer point, and intData is the size of it.
+		//if size >= 0, means val is a byte bytes, pData is a byte bytes point, and intData is the size of it.
 		void setPoint(void* p, int size, JSDestroy destroy, bool needDestroyed);
 
 		bool equals(CScriptVar *v);
 
+		bool isBytes()    { return (flags&SCRIPTVAR_BYTES)       !=0; }
 		bool isInt()       { return (flags&SCRIPTVAR_INTEGER)    !=0; }
 		bool isDouble()    { return (flags&SCRIPTVAR_DOUBLE)     !=0; }
 		bool isString()    { return (flags&SCRIPTVAR_STRING)     !=0; }
@@ -372,10 +378,6 @@ class CTinyJS {
 		void addClass(const std::string& name, CScriptVar* cls);
 		void removeClasses();
 
-		//added by Misa.Z for new object
-		CScriptVar *newObject(const std::string &className);
-		
-
 		CScriptVar *root;   /// root of symbol table
 
 		//added by Misa.Z for native module loading.
@@ -417,6 +419,8 @@ class CTinyJS {
 		CScriptVar *stringClass; /// Built in std::string class
 		CScriptVar *objectClass; /// Built in object class
 		CScriptVar *arrayClass;  /// Built in array class
+		//added by Misa.Z for Bytes class
+		CScriptVar *bytesClass;  /// Built in Bytes class
 
 		// parsing - in order of precedence
 		CScriptVarLink *functionCall(bool &execute, CScriptVarLink *function, CScriptVar *parent);
