@@ -12,16 +12,19 @@
 #include "libs/File/File.h"
 
 static void moduleLoader(CTinyJS* tinyJS) {
+//load basic classes
 	JSM::Debug::instance().load(tinyJS, "Debug");
 	JSM::String::instance().load(tinyJS, "String");
 	JSM::Array::instance().load(tinyJS, "Array");
-	JSM::Math::instance().load(tinyJS, "Math");
-	JSM::JSON::instance().load(tinyJS, "JSON");
-	JSM::VM::instance().load(tinyJS, "VM");
-	JSM::JSBase64::instance().load(tinyJS, "Base64");
-	JSM::JSMD5::instance().load(tinyJS, "MD5");
-	JSM::JSThread::instance().load(tinyJS, "Thread");
-	JSM::Global::instance().load(tinyJS, "Global");
+
+//load Rokid extended classes
+	JSM::Math::instance().load(tinyJS, "R.Math");
+	JSM::JSON::instance().load(tinyJS, "R.JSON");
+	JSM::VM::instance().load(tinyJS, "R.VM");
+	JSM::JSBase64::instance().load(tinyJS, "R.Base64");
+	JSM::JSMD5::instance().load(tinyJS, "R.MD5");
+	JSM::JSThread::instance().load(tinyJS, "R.Thread");
+	JSM::Global::instance().load(tinyJS, "R.Global");
 }
 
 

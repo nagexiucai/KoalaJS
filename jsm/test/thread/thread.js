@@ -7,5 +7,5 @@ while(true) {
 	if(v != undefined)
 		print("sub thread get : " + v);
 
-	Thread.usleep(100000);
+	R.Thread.usleep(100000);
 }

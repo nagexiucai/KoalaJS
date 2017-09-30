@@ -3,7 +3,7 @@
 include('comm.js');
 var i = 0;
 
-Thread.run("thread.js");
+R.Thread.run("thread.js");
 
 var i = 0;
 
@@ -13,5 +13,5 @@ while(true) {
 	print("main thread set : " + i);
 	set('count', ""+i);
 
-	Thread.usleep(100000);
+	R.Thread.usleep(100000);
 }

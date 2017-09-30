@@ -32,11 +32,12 @@ void VM::require(CScriptVar *c, void *userdata) {
 }
 
 void VM::registerFunctions(CTinyJS* tinyJS, const std::string& className) {
-	addFunction(tinyJS, "", "require(cls)", exec, tinyJS);
+/*	addFunction(tinyJS, "", "require(cls)", exec, tinyJS);
 	addFunction(tinyJS, "", "exec(src)", exec, tinyJS);
 	addFunction(tinyJS, "", "run(file)", run, tinyJS);
+	addFunction(tinyJS, "", "eval(src)", eval, tinyJS); */
+
 	addFunction(tinyJS, "", "include(file)", run, tinyJS);
-	addFunction(tinyJS, "", "eval(src)", eval, tinyJS);
 	addFunction(tinyJS, className, "exec(src)", exec, tinyJS);
 	addFunction(tinyJS, className, "run(file)", run, tinyJS);
 	addFunction(tinyJS, className, "include(file)", run, tinyJS);
