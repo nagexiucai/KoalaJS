@@ -29,8 +29,7 @@ int main(int argc, char** argv) {
 	CTinyJS tinyJS;
 	std::string input;
 
-	tinyJS.setModuleLoader(moduleLoader);
-	tinyJS.loadModule();
+	tinyJS.loadModule(moduleLoader);
 
 	if(argc <= 1) {
 		while(true) {

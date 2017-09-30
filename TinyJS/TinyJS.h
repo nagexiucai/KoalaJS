@@ -377,7 +377,9 @@ class CTinyJS {
 		CScriptVar *root;   /// root of symbol table
 
 		//added by Misa.Z for native module loading.
-		inline void loadModule()	{
+		inline void loadModule(JSModuleLoader loader) {
+			moduleLoader = loader;
+
 			if(moduleLoader != NULL) {
 				moduleLoader(this);
 			}
@@ -386,11 +388,7 @@ class CTinyJS {
 		inline JSModuleLoader getModuleLoader() {
 			return moduleLoader;
 		}
-		
-		inline void setModuleLoader(JSModuleLoader loader) {
-			moduleLoader = loader;
-		}
-		
+			
 		inline const std::string& getcwd() {
 			return cwd;
 		}

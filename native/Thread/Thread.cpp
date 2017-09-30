@@ -25,8 +25,7 @@ static void* _vmThread(void* data) {
 	delete td;
 
 	CTinyJS tJS;
-	tJS.setModuleLoader(tinyJS->getModuleLoader());
-	tJS.loadModule();
+	tJS.loadModule(tinyJS->getModuleLoader());
 	tJS.setcwd(tinyJS->getcwd());
 
 	if(code)

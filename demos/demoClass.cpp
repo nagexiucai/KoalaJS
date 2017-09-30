@@ -42,13 +42,19 @@ class MyClass : public JSClass {
 };
 
 
+static void moduleLoader(CTinyJS* tinyJS) {
+	MyClass::instance().load(tinyJS, "MyClass");
+	MyNativeClassLoader<MyNativeClass>::instance().load(tinyJS, "MyNativeClass", NULL);
+}
+
+
+
 int main(int argc, char** argv) {
 
 	while(true) { //Don't be scared, just for memory test:P.
 		CTinyJS tinyJS;
 
-		MyClass::instance().load(&tinyJS, "MyClass");
-		MyNativeClassLoader<MyNativeClass>::instance().load(&tinyJS, "MyNativeClass", NULL);
+		tinyJS.loadModule(moduleLoader);
 
 		tinyJS.execute("var a = new MyNativeClass(); a.test(); var b = new MyClass(); b.test();");
 	}
