@@ -1369,9 +1369,9 @@ void CScriptVar::setCallback(JSCallback callback, void *userdata) {
 }
 
 //added by Misa.Z for native constructor
-void CScriptVar::nativeConstructor() {
+void CScriptVar::nativeConstructor(CScriptVar* var) {
 	if(jsNativeConstructor != NULL) {
-		jsNativeConstructor(this, jsNativeConstructorUserData);
+		jsNativeConstructor(var, jsNativeConstructorUserData);
 	}
 }
 
@@ -1895,7 +1895,7 @@ CScriptVarLink *CTinyJS::factor(bool &execute) {
 					l->chkread('(');
 					l->chkread(')');
 					//call constructor function. added by Misa.Z
-					objClassOrFunc->var->nativeConstructor();
+					objClassOrFunc->var->nativeConstructor(obj);
 				}
 			}
 			return objLink;

@@ -22,6 +22,16 @@ JSFileNative::JSFileNative(void* data) {
 }
 
 void JSFileNative::size(CScriptVar* var, void* data) {
+	CScriptVar * r = var->getReturnVar();
+	r->setInt(-1);
+
+	if(fid < 0)
+		return;
+
+	struct stat st;
+	fstat(fid, &st);
+	
+	r->setInt(st.st_size);
 }
 
 void JSFileNative::close(CScriptVar* var, void* data) {

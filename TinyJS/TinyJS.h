@@ -289,7 +289,7 @@ class CScriptVar
 		void setCallback(JSCallback callback, void *userdata);           ///< Set the callback for native functions
 
 		void setNativeConstructor(JSCallback callback, void *userdata); ///< Set the callback for native constructor, added by Misa.Z
-		void nativeConstructor();
+		void nativeConstructor(CScriptVar *var);
 
 		/// For memory management/garbage collection
 		CScriptVar *ref();        ///< Add reference to this variable

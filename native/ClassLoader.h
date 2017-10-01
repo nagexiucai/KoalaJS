@@ -46,7 +46,9 @@ template<class T> class NativeClassLoader: public JSClass {
 
 	protected:
 	static T* getClass(CScriptVar* var) {
-		T* cls = (T*)var->getPoint();
+		CScriptVar* v = var->getParameter("this");
+
+		T* cls = (T*)v->getPoint();
 		return cls;	
 	}
 
