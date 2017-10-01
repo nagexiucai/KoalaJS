@@ -180,6 +180,8 @@ typedef void (*JSCallback)(CScriptVar *var, void *userdata);
 class CScriptVarLink
 {
 	public:
+		//added Misa.Z for tmp return val
+		bool isTmpReturn;
 
 		std::string name;               //•Ï”–¼
 		CScriptVarLink *nextSibling;//Ÿ‚ÌƒŠƒ“ƒN
@@ -208,6 +210,7 @@ const int NO_BYTES = -1;
 class CScriptVar
 {
 	public:
+
 		CScriptVarLink *firstChild;
 		CScriptVarLink *lastChild;
 

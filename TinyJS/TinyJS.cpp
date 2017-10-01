@@ -658,6 +658,8 @@ std::string CScriptLex::getPosition(int pos) {
 // ----------------------------------------------------------------------------------- CSCRIPTVARLINK
 
 CScriptVarLink::CScriptVarLink(CScriptVar *var, const std::string &myname) {
+	isTmpReturn = false;
+
 	this->name = myname;
 	this->nextSibling = 0;
 	this->prevSibling = 0;
@@ -667,6 +669,7 @@ CScriptVarLink::CScriptVarLink(CScriptVar *var, const std::string &myname) {
 }
 
 CScriptVarLink::CScriptVarLink(const CScriptVarLink &link) {
+	isTmpReturn = false;
 	// Copy constructor
 	this->name = link.name;
 	this->nextSibling = 0;
@@ -1691,6 +1694,9 @@ CScriptVarLink *CTinyJS::functionCall(bool &execute, CScriptVarLink *function, C
 
 		/* get the real return var before we remove it from our function */
 		returnVar = new CScriptVarLink(returnVarLink->var);
+		if(returnVarLink->var->getRefs() <= 2)
+			returnVar->isTmpReturn = true;
+
 		functionRoot->removeLink(returnVarLink);
 		delete functionRoot;
 		if (returnVar)  return returnVar;
@@ -1741,7 +1747,7 @@ CScriptVarLink *CTinyJS::factor(bool &execute) {
 		CScriptVarLink *a = execute ? findInScopes(l->tkStr) : new CScriptVarLink(new CScriptVar());
 		//printf("0x%08X for %s at %s\n", (unsigned int)a, l->tkStr.c_str(), l->getPosition().c_str());
 		/* The parent if we're executing a method call */
-		CScriptVar *parent = 0;
+		CScriptVarLink *parent = 0;
 
 		void* alone = NULL;
 		if (execute && !a) {
@@ -1753,7 +1759,14 @@ CScriptVarLink *CTinyJS::factor(bool &execute) {
 		l->chkread(LEX_ID);
 		while (l->tk=='(' || l->tk=='.' || l->tk=='[') {
 			if (l->tk=='(') { // ------------------------------------- Function Call
-				a = functionCall(execute, a, parent);
+				if(parent)
+					a = functionCall(execute, a, parent->var);
+				else
+					a = functionCall(execute, a, NULL);
+
+				if(parent && parent->isTmpReturn) {
+					delete parent;
+				}
 			} else if (l->tk == '.') { // ------------------------------------- Record Access
 				l->chkread('.');
 				if (execute) {
@@ -1774,7 +1787,8 @@ CScriptVarLink *CTinyJS::factor(bool &execute) {
 							child = a->var->addChild(name);
 						}
 					}
-					parent = a->var;
+
+					parent = a;
 					if( a == alone){
 						std::string errorMsg = "Object variable not defined '";
 						errorMsg = errorMsg + a->name + "' must be defined";
@@ -1792,7 +1806,7 @@ CScriptVarLink *CTinyJS::factor(bool &execute) {
 				l->chkread(']');
 				if (execute) {
 					CScriptVarLink *child = a->var->findChildOrCreate(index->var->getString());
-					parent = a->var;
+					parent = a;
 					a = child;
 				}
 				CLEAN(index);
