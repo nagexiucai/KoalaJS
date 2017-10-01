@@ -2,12 +2,14 @@
 
 //demo how to implement native class
 class MyNativeClass {
+		int i;
 	public:
 		void test(CScriptVar* var, void* data) {
-			printf("NativeClass test function %d.\r\n", (*(int*)data)++);
+			printf("NativeClass test function %d.%d\r\n", (*(int*)data)++, i++);
 		}
 
 		MyNativeClass(void *p) {
+			i = 0;
 		}	
 };
 

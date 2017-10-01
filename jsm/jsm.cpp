@@ -10,6 +10,7 @@
 #include "native/Thread/Thread.h"
 #include "native/Global/Global.h"
 #include "native/Bytes/Bytes.h"
+#include "native/File/File.h"
 #include "libs/File/File.h"
 
 static void moduleLoader(CTinyJS* tinyJS) {
@@ -20,13 +21,16 @@ static void moduleLoader(CTinyJS* tinyJS) {
 	JSM::Bytes::instance().load(tinyJS, "Bytes");
 
 //load Rkid extended classes
+	JSM::Global::instance().load(tinyJS, "RGlobal");
+
 	JSM::Math::instance().load(tinyJS, "RMath");
 	JSM::JSON::instance().load(tinyJS, "RJSON");
 	JSM::VM::instance().load(tinyJS, "RVM");
 	JSM::JSBase64::instance().load(tinyJS, "RBase64");
 	JSM::JSMD5::instance().load(tinyJS, "RMD5");
 	JSM::JSThread::instance().load(tinyJS, "RThread");
-	JSM::Global::instance().load(tinyJS, "RGlobal");
+
+	JSM::JSFile<JSM::JSFileNative>::instance().load(tinyJS, "RFile", NULL);
 }
 
 

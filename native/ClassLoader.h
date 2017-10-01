@@ -8,7 +8,7 @@
 
 #define DECL_INSTANCE(T) static T& instance() { static T t; return t; }
 
-#define MAP_FUNC(func) static void func (CScriptVar* var, void *userData) { \
+#define MAP_FUNC(func) static inline void func (CScriptVar* var, void *userData) { \
 	T* cls = NativeClassLoader<T>::getClass(var); \
 	cls->func(var, userData); \
 }
