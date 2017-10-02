@@ -1572,6 +1572,25 @@ void CTinyJS::removeClasses() {
 	classes.clear();
 }
 
+//added by Misa.Z for new object
+CScriptVar* CTinyJS::newObject(const std::string &className) {
+	CScriptVarLink *objClassOrFunc = findInScopes(className);
+	if (!objClassOrFunc) {
+		TRACE("%s is not a valid class name.", className.c_str());
+		return NULL;
+	}
+	CScriptVar *obj = new CScriptVar(TINYJS_BLANK_DATA, SCRIPTVAR_OBJECT);
+	if (objClassOrFunc->var->isFunction()) {
+		TRACE("%s is a function, not a class.", className.c_str());
+		return NULL;
+	} 
+
+	obj->addChild(TINYJS_PROTOTYPE_CLASS, objClassOrFunc->var);
+	objClassOrFunc->var->nativeConstructor(obj);
+
+	return obj;
+}
+
 void CTinyJS::addNative(const std::string &funcDesc, JSCallback ptr, void *userdata) {
 	CScriptLex *oldLex = l;
 	l = new CScriptLex(funcDesc);

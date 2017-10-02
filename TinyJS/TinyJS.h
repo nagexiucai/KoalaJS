@@ -380,6 +380,9 @@ class CTinyJS {
 		//added by Misa.Z for class addition
 		void addClass(const std::string& name, CScriptVar* cls);
 		void removeClasses();
+	
+		//added by Misa.Z for new object
+		CScriptVar *newObject(const std::string &className);
 
 		CScriptVar *root;   /// root of symbol table
 

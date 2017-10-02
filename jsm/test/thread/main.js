@@ -9,9 +9,8 @@ var i = 0;
 
 while(true) { 
 	i++;
-
+	set('count', i);
 	print("main thread set : " + i);
-	set('count', ""+i);
 
 	RThread.usleep(100000);
 }
