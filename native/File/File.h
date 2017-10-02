@@ -14,6 +14,12 @@ public:
 
 	void close(CScriptVar* var, void* data);
 
+	void read(CScriptVar* var, void* data);
+
+	void write(CScriptVar* var, void* data);
+
+	void seek(CScriptVar* var, void* data);
+
 	~JSFileNative();
 
 	JSFileNative(void* data);
@@ -25,12 +31,18 @@ class JSFile: public NativeClassLoader<T> {
 	MAP_FUNC(size)
 	MAP_FUNC(open)
 	MAP_FUNC(close)
+	MAP_FUNC(read)
+	MAP_FUNC(write)
+	MAP_FUNC(seek)
 
 	protected:
 	void registerFunctions(CTinyJS* tinyJS, const std::string& className) {
 		JSClass::addFunction(tinyJS, className, "size()", size, NULL);
 		JSClass::addFunction(tinyJS, className, "close()", close, NULL);
 		JSClass::addFunction(tinyJS, className, "open(fname, mode)", open, NULL);
+		JSClass::addFunction(tinyJS, className, "read(size)", read, NULL);
+		JSClass::addFunction(tinyJS, className, "write(buf, size)", write, NULL);
+		JSClass::addFunction(tinyJS, className, "seek(pos)", seek, NULL);
 	}
 
 	public:

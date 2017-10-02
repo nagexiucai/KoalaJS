@@ -41,6 +41,60 @@ void JSFileNative::close(CScriptVar* var, void* data) {
 	fid = -1;
 }
 
+void JSFileNative::seek(CScriptVar* var, void* data) {
+	int pos = var->getParameter("pos")->getInt();
+	if(pos <= 0 || fid < 0)
+		return;
+
+	pos = ::lseek(fid, pos, SEEK_SET);
+	
+	CScriptVar* v = var->getReturnVar();
+  v->setInt(pos);	
+}
+
+
+void JSFileNative::write(CScriptVar* var, void* data) {
+	CScriptVar* v = var->getParameter("buf");
+	int size = var->getParameter("size")->getInt();
+	if(size <= 0 || fid < 0 || !v->isBytes())
+		return;
+
+	if(size > v->getInt())
+		size = v->getInt();
+
+	char* p = (char*)v->getPoint();
+
+	v = var->getReturnVar();
+
+	if(p != NULL) {
+		size = ::write(fid, p, size);
+		v->setInt(size);
+	}
+	else
+  	v->setInt(-1);	
+}
+
+
+void JSFileNative::read(CScriptVar* var, void* data) {
+	int size = var->getParameter("size")->getInt();
+	if(size <= 0 || fid < 0)
+		return;
+	
+	char* buf = new char[size];
+	if(buf == NULL)
+		return;
+
+	size = ::read(fid, buf, size);
+	if(size < 0) {
+		delete []buf;
+		return;
+	}
+	
+	CScriptVar* v = var->getReturnVar();
+  v->setPoint(buf, size, NULL, true);	
+}
+
+
 void JSFileNative::open(CScriptVar* var, void* data) {
 	std::string fname = var->getParameter("fname")->getString();
 	std::string mode = var->getParameter("mode")->getString();
@@ -66,7 +120,7 @@ void JSFileNative::open(CScriptVar* var, void* data) {
 	if(mode.find('a') != string::npos) 
 		m |= O_APPEND;
 
-	int f = ::open(fname.c_str(), m); 
+	int f = ::open(fname.c_str(), m, S_IRUSR | S_IWUSR | S_IRGRP); 
 	if(f < 0)
 		return;
 
