@@ -2,11 +2,11 @@
 #include "libs/DNS/DNS.h"
 #include <cstdlib>
 #include <sys/ioctl.h>
-#include <sys/types.h>
 #include <unistd.h>
 #include <fcntl.h>
-#include <sys/socket.h>
 #include <arpa/inet.h> 
+#include <sys/socket.h>
+#include <sys/types.h>
 
 
 using namespace std;
@@ -17,6 +17,7 @@ JSTCPNative::~JSTCPNative() {
 	if(sid >= 0)
 		::close(sid);
 
+	memset(&addr, 0, sizeof(addr)); 
 	sid = -1;
 }
 
@@ -28,6 +29,7 @@ void JSTCPNative::close(CScriptVar* var, void* data) {
 	if(sid >= 0)
 		::close(sid);
 
+	memset(&addr, 0, sizeof(addr)); 
 	sid = -1;
 }
 
@@ -98,6 +100,71 @@ void JSTCPNative::recv(CScriptVar* var, void* data) {
 	var->setReturnVar(v);
 }
 
+void JSTCPNative::bind(CScriptVar* var, void* data) {
+	std::string ip = var->getParameter("ip")->getString();
+	int port = var->getParameter("port")->getInt();
+
+	var->getReturnVar()->setInt(0);
+
+	if(sid < 0 || port <= 0)
+		return;
+
+	memset(&addr, 0, sizeof(addr)); 
+	addr.sin_family = AF_INET; 
+	addr.sin_port=htons(port);
+
+	if(ip.length() > 0)
+		addr.sin_addr.s_addr = inet_addr(ip.c_str());
+	else
+		addr.sin_addr.s_addr = htonl(INADDR_ANY);
+
+	if(::bind(sid,(struct sockaddr *)&addr,sizeof(struct sockaddr)) < 0) {
+		return;
+	}
+
+	var->getReturnVar()->setInt(1);
+}
+
+void JSTCPNative::accept(CScriptVar* var, void* data) {
+	CTinyJS* tinyJS = (CTinyJS*)data;
+	if(sid < 0)
+		return;
+
+	struct sockaddr_in in;
+	memset(&addr, 0, sizeof(in)); 
+	in.sin_family = AF_INET; 
+	socklen_t size = sizeof(struct sockaddr);
+
+	int cid = ::accept(sid,(struct sockaddr *)&in, &size);
+	if(cid < 0) {
+		return;
+	}
+	
+	CScriptVar* obj = tinyJS->newObject("RTCP");
+	JSTCPNative* nobj = (JSTCPNative*)obj->getPoint();
+	if(nobj == NULL) {
+		obj->unref();
+		return;
+	}
+
+	nobj->set(cid, in);
+	var->setReturnVar(obj);
+}
+
+void JSTCPNative::listen(CScriptVar* var, void* data) {
+	int backlog = var->getParameter("backlog")->getInt();
+
+	var->getReturnVar()->setInt(0);
+
+	if(sid < 0)
+		return;
+
+	if(::listen(sid, backlog) < 0) {
+		return;
+	}
+
+	var->getReturnVar()->setInt(1);
+}
 
 void JSTCPNative::connect(CScriptVar* var, void* data) {
 	std::string host = var->getParameter("host")->getString();
@@ -110,15 +177,14 @@ void JSTCPNative::connect(CScriptVar* var, void* data) {
 	if(host.length() == 0 || port <= 0)
 		return;
 
-	struct sockaddr_in remote_addr; 
-	memset(&remote_addr, 0, sizeof(remote_addr)); 
-	remote_addr.sin_family = AF_INET; 
-	remote_addr.sin_addr.s_addr = inet_addr(host.c_str());
-	remote_addr.sin_port=htons(port);
+	memset(&addr, 0, sizeof(addr)); 
+	addr.sin_family = AF_INET; 
+	addr.sin_addr.s_addr = inet_addr(host.c_str());
+	addr.sin_port=htons(port);
 
 
 	if(to <= 0) {
-		if(::connect(sid,(struct sockaddr *)&remote_addr,sizeof(struct sockaddr)) < 0) {
+		if(::connect(sid,(struct sockaddr *)&addr,sizeof(struct sockaddr)) < 0) {
 			return;
 		}
 	}
@@ -127,7 +193,7 @@ void JSTCPNative::connect(CScriptVar* var, void* data) {
 		unsigned long ul = 1;
 		ioctl(sid, FIONBIO, &ul);
 
-		if(::connect(sid,(struct sockaddr *)&remote_addr,sizeof(struct sockaddr)) < 0) {
+		if(::connect(sid,(struct sockaddr *)&addr,sizeof(struct sockaddr)) < 0) {
 			int error=-1, len;
 
 			timeval tm;
