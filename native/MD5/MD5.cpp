@@ -35,18 +35,45 @@ std::string JSMD5::hashHex(const unsigned char* s, unsigned int size) {
 }
 
 void JSMD5::hashString(CScriptVar *c, void *userdata) {
-	std::string src = c->getParameter("src")->getString();
+	unsigned char* p = NULL;
+	int size = 0;
 
-	std::string ret = hashString((const unsigned char*)src.c_str(), src.length());
-	c->getReturnVar()->setString(ret);
+	CScriptVar *v = c->getParameter("src");
+	if(v->isString()) {
+		std::string src = v->getString();
+		p = (unsigned char*)src.c_str();
+		size = src.length();
+	}
+	else if(v->isBytes()) {
+		p = (unsigned char*)v->getPoint();
+		size = v->getInt();
+	}
+
+	if(p != NULL && size > 0) {
+		std::string ret = hashString(p, size);
+		c->getReturnVar()->setString(ret);
+	}
 }
 
 void JSMD5::hashHex(CScriptVar *c, void *userdata) {
+	unsigned char* p = NULL;
+	int size = 0;
 
-	std::string src = c->getParameter("src")->getString();
-	std::string ret = hashHex((const unsigned char*)src.c_str(), src.length());
+	CScriptVar *v = c->getParameter("src");
+	if(v->isString()) {
+		std::string src = v->getString();
+		p = (unsigned char*)src.c_str();
+		size = src.length();
+	}
+	else if(v->isBytes()) {
+		p = (unsigned char*)v->getPoint();
+		size = v->getInt();
+	}
 
-	c->getReturnVar()->setString(ret);
+	if(p != NULL && size > 0) {
+		std::string ret = hashHex(p, size);
+		c->getReturnVar()->setString(ret);
+	}
 }
 
 void JSMD5::registerFunctions(CTinyJS* tinyJS, const std::string& className) {
