@@ -11,18 +11,20 @@
 #include "native/Global/Global.h"
 #include "native/Bytes/Bytes.h"
 #include "native/File/File.h"
+#include "native/Socket/TCP.h"
+#include "native/Socket/DNS.h"
 #include "libs/File/File.h"
 
 static void moduleLoader(CTinyJS* tinyJS) {
 //load basic classes
-	JSM::Debug::instance().load(tinyJS, "Debug");
 	JSM::String::instance().load(tinyJS, "String");
 	JSM::Array::instance().load(tinyJS, "Array");
 	JSM::Bytes::instance().load(tinyJS, "Bytes");
 
 //load Rkid extended classes
-	JSM::Global::instance().load(tinyJS, "RGlobal");
+	JSM::Debug::instance().load(tinyJS, "Debug");
 
+	JSM::Global::instance().load(tinyJS, "RGlobal");
 	JSM::Math::instance().load(tinyJS, "RMath");
 	JSM::JSON::instance().load(tinyJS, "RJSON");
 	JSM::VM::instance().load(tinyJS, "RVM");
@@ -31,6 +33,8 @@ static void moduleLoader(CTinyJS* tinyJS) {
 	JSM::JSThread::instance().load(tinyJS, "RThread");
 
 	JSM::JSFile<JSM::JSFileNative>::instance().load(tinyJS, "RFile", NULL);
+	JSM::JSTCP<JSM::JSTCPNative>::instance().load(tinyJS, "RTCP", NULL);
+	JSM::JSDNS::instance().load(tinyJS, "RDNS");
 }
 
 

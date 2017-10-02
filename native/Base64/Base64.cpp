@@ -30,7 +30,7 @@ void JSBase64::decode(CScriptVar *c, void *userdata) {
 	size_t size = 0;
 	unsigned char* p = Base64::decode(src, size);
 
-	CScriptVar* v = tinyJS->newObject("Bytes"); //c->getReturnVar();
+	CScriptVar* v = tinyJS->newObject("Bytes"); 
 	v->setPoint(p, size, NULL, true);
 	c->setReturnVar(v);
 }

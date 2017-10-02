@@ -65,18 +65,19 @@ void JSFileNative::write(CScriptVar* var, void* data) {
 	char* p = (char*)v->getPoint();
 
 	v = var->getReturnVar();
+ 	v->setInt(-1);	
 
 	if(p != NULL) {
 		size = ::write(fid, p, size);
 		v->setInt(size);
 	}
-	else
-  	v->setInt(-1);	
 }
 
 
 void JSFileNative::read(CScriptVar* var, void* data) {
 	int size = var->getParameter("size")->getInt();
+	CTinyJS* tinyJS = (CTinyJS*)data;
+
 	if(size <= 0 || fid < 0)
 		return;
 	
@@ -90,8 +91,9 @@ void JSFileNative::read(CScriptVar* var, void* data) {
 		return;
 	}
 	
-	CScriptVar* v = var->getReturnVar();
-  v->setPoint(buf, size, NULL, true);	
+	CScriptVar* v = tinyJS->newObject("Bytes"); 
+	v->setPoint(buf, size, NULL, true);
+	var->setReturnVar(v);
 }
 
 
@@ -99,7 +101,7 @@ void JSFileNative::open(CScriptVar* var, void* data) {
 	std::string fname = var->getParameter("fname")->getString();
 	std::string mode = var->getParameter("mode")->getString();
 
-	var->getReturnVar()->setInt(0);
+	var->getReturnVar()->setInt(-1);
 	
 	if(fname.length() == 0)
 		return;

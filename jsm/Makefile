@@ -11,6 +11,8 @@ SRCS = jsm.cpp \
 	  ../native/Global/Global.cpp \
 	  ../native/Bytes/Bytes.cpp \
 	  ../native/File/File.cpp \
+	  ../native/Socket/TCP.cpp \
+	  ../native/Socket/DNS.cpp \
 	  ../native/MD5/MD5.cpp 
 
 LIBS = ../libs/Base64/Base64.cpp \
