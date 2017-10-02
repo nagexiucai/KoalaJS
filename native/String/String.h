@@ -19,7 +19,14 @@ namespace JSM {
 		static void fromCharCode(CScriptVar *c, void *);
 
 		protected:
-		void registerFunctions(CTinyJS* tinyJS, const std::string& className);
+		inline void registerFunctions(CTinyJS* tinyJS, const std::string& className) {
+			addFunction(tinyJS, className, "indexOf(search)", indexOf, NULL); // find the position of a string in a string, -1 if not
+			addFunction(tinyJS, className, "substring(lo,hi)", substring, NULL);
+			addFunction(tinyJS, className, "charAt(pos)", charAt, NULL);
+			addFunction(tinyJS, className, "charCodeAt(pos)", charCodeAt, NULL);
+			addFunction(tinyJS, className, "fromCharCode(char)", fromCharCode, NULL);
+			addFunction(tinyJS, className, "split(separator)", split, NULL);
+		}
 
 		public:
 		DECL_INSTANCE(String)

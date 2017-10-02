@@ -67,12 +67,3 @@ void String::fromCharCode(CScriptVar *c, void *) {
 	c->getReturnVar()->setString(str);
 }
 
-void String::registerFunctions(CTinyJS* tinyJS, const std::string& className) {
-	addFunction(tinyJS, className, "indexOf(search)", indexOf, NULL); // find the position of a string in a string, -1 if not
-	addFunction(tinyJS, className, "substring(lo,hi)", substring, NULL);
-	addFunction(tinyJS, className, "charAt(pos)", charAt, NULL);
-	addFunction(tinyJS, className, "charCodeAt(pos)", charCodeAt, NULL);
-	addFunction(tinyJS, className, "fromCharCode(char)", fromCharCode, NULL);
-	addFunction(tinyJS, className, "split(separator)", split, NULL);
-}
-

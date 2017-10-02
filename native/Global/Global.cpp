@@ -103,8 +103,4 @@ void Global::set(CScriptVar *c, void *userdata) {
 	_locker.unlock();
 }
 
-void Global::registerFunctions(CTinyJS* tinyJS, const std::string& className) {
-	addFunction(tinyJS, className, "get(name)", get, NULL);
-	addFunction(tinyJS, className, "set(name, value)", set, NULL);
-}
 

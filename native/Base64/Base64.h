@@ -11,7 +11,10 @@ namespace JSM {
 		static void decode(CScriptVar *c, void *);
 
 		protected:
-		void registerFunctions(CTinyJS* tinyJS, const std::string& className);
+		inline void registerFunctions(CTinyJS* tinyJS, const std::string& className) {
+			addFunction(tinyJS, className, "encode(src)", encode, NULL);
+			addFunction(tinyJS, className, "decode(src)", decode, tinyJS);
+		}
 
 		public:
 		DECL_INSTANCE(JSBase64)

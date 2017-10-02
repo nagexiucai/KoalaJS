@@ -22,16 +22,3 @@ void VM::eval(CScriptVar *c, void *userdata) {
 	c->setReturnVar(tinyJS->evaluateComplex(c->getParameter("src")->getString()).var);
 }
 
-void VM::registerFunctions(CTinyJS* tinyJS, const std::string& className) {
-/*	addFunction(tinyJS, "", "require(cls)", exec, tinyJS);
-	addFunction(tinyJS, "", "exec(src)", exec, tinyJS);
-	addFunction(tinyJS, "", "run(file)", run, tinyJS);
-	addFunction(tinyJS, "", "eval(src)", eval, tinyJS); */
-
-	addFunction(tinyJS, "", "include(file)", run, tinyJS);
-	addFunction(tinyJS, className, "exec(src)", exec, tinyJS);
-	addFunction(tinyJS, className, "run(file)", run, tinyJS);
-	addFunction(tinyJS, className, "include(file)", run, tinyJS);
-	addFunction(tinyJS, className, "eval(src)", eval, tinyJS);
-}
-

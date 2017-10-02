@@ -35,8 +35,3 @@ void JSBase64::decode(CScriptVar *c, void *userdata) {
 	c->setReturnVar(v);
 }
 
-void JSBase64::registerFunctions(CTinyJS* tinyJS, const std::string& className) {
-	addFunction(tinyJS, className, "encode(src)", encode, NULL);
-	addFunction(tinyJS, className, "decode(src)", decode, tinyJS);
-}
-

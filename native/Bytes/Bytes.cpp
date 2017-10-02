@@ -96,10 +96,3 @@ void Bytes::toString(CScriptVar* var, void* data) {
 }
 
 
-void Bytes::registerFunctions(CTinyJS* tinyJS, const std::string& className) {
-	addFunction(tinyJS, className, "size()", size, NULL);
-	addFunction(tinyJS, className, "from(src)", from, NULL);
-	addFunction(tinyJS, className, "append(src)", append, NULL);
-	addFunction(tinyJS, className, "toString()", toString, NULL);
-}
-

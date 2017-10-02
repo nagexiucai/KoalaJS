@@ -16,8 +16,3 @@ void JSON::parse(CScriptVar *c, void *userdata) {
 	c->setReturnVar(tinyJS->evaluateComplex(c->getParameter("src")->getString()).var);
 }
 
-void JSON::registerFunctions(CTinyJS* tinyJS, const std::string& className) {
-	addFunction(tinyJS, className, "stringify(obj)", stringify, NULL);
-	addFunction(tinyJS, className, "parse(src)", parse, tinyJS);
-}
-

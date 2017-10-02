@@ -11,7 +11,10 @@ namespace JSM {
 		static void parse(CScriptVar *c, void *);
 
 		protected:
-		void registerFunctions(CTinyJS* tinyJS, const std::string& className);
+		inline void registerFunctions(CTinyJS* tinyJS, const std::string& className) {
+			addFunction(tinyJS, className, "stringify(obj)", stringify, NULL);
+			addFunction(tinyJS, className, "parse(src)", parse, tinyJS);
+		}
 
 		public:
 		DECL_INSTANCE(JSON)

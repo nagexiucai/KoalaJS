@@ -65,10 +65,3 @@ void JSThread::usleep(CScriptVar *c, void *userdata) {
 	::usleep(sec);
 }
 
-void JSThread::registerFunctions(CTinyJS* tinyJS, const std::string& className) {
-	addFunction(tinyJS, className, "exec(src)", exec, tinyJS);
-	addFunction(tinyJS, className, "run(file)", run, tinyJS);
-	addFunction(tinyJS, className, "sleep(sec)", sleep, NULL);
-	addFunction(tinyJS, className, "usleep(usec)", usleep, NULL);
-}
-

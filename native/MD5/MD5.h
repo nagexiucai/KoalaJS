@@ -15,7 +15,10 @@ namespace JSM {
 		static void hashHex(CScriptVar *c, void *);
 
 		protected:
-		void registerFunctions(CTinyJS* tinyJS, const std::string& className);
+		inline void registerFunctions(CTinyJS* tinyJS, const std::string& className) {
+			addFunction(tinyJS, className, "hashString(src)", hashString, NULL);
+			addFunction(tinyJS, className, "hashHex(src)", hashHex, NULL);
+		}
 
 		public:
 		DECL_INSTANCE(JSMD5)

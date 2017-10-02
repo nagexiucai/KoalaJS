@@ -76,8 +76,3 @@ void JSMD5::hashHex(CScriptVar *c, void *userdata) {
 	}
 }
 
-void JSMD5::registerFunctions(CTinyJS* tinyJS, const std::string& className) {
-	addFunction(tinyJS, className, "hashString(src)", hashString, NULL);
-	addFunction(tinyJS, className, "hashHex(src)", hashHex, NULL);
-}
-
