@@ -44,21 +44,21 @@ int main(int argc, char** argv) {
 
 	tinyJS.loadModule(moduleLoader);
 
-	printf("[Help] JSM Javascript engine, input javascript code, then input 'go!' to run or 'exit!' to quit.\n\n");
-
 	if(argc <= 1) {
+		printf("\033[4m\033[40;33m[Help] JSM Javascript engine, input javascript code, then input ':go' to run or ':quit' to quit.\033[0m\n\n");
+
 		while(true) {
-			printf("JSM> ");
+			printf("\033[4m\033[40;32mJSM>\033[0m ");
 
 			char buffer[2048+1];
 			if(fgets ( buffer, 2048, stdin ) == NULL)
 				break;
 
-			if(strncmp(buffer, "quit!", 5) == 0 ||
-					strncmp(buffer, "exit!", 5) == 0) {
+			if(strncmp(buffer, ":quit", 2) == 0) {
+				printf("\n\033[4m\033[40;33m[Bye!]\033[0m\n");
 				break;
 			}
-			else if(strncmp(buffer, "go!", 3) == 0) {
+			else if(strncmp(buffer, ":go", 2) == 0) {
 				try {
 					tinyJS.exec(input);
 				} catch (CScriptException *e) {

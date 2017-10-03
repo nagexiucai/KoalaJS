@@ -1262,7 +1262,7 @@ void CScriptVar::trace(std::string indentStr, const std::string &name) {
 			name.c_str(),
 			getString().c_str(),
 			getFlagsAsString().c_str());
-	std::string indent = indentStr+" ";
+	std::string indent = indentStr+"  ";
 	CScriptVarLink *link = firstChild;
 	while (link) {
 		link->var->trace(indent, link->name);

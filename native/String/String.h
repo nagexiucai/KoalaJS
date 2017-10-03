@@ -18,6 +18,10 @@ namespace JSM {
 
 		static void fromCharCode(CScriptVar *c, void *);
 
+		static void lastIndexOf(CScriptVar *c, void *);
+
+		static void replace(CScriptVar *c, void *);
+
 		protected:
 		inline void registerFunctions(CTinyJS* tinyJS, const std::string& className) {
 			addFunction(tinyJS, className, "indexOf(search)", indexOf, NULL); // find the position of a string in a string, -1 if not
@@ -26,6 +30,9 @@ namespace JSM {
 			addFunction(tinyJS, className, "charCodeAt(pos)", charCodeAt, NULL);
 			addFunction(tinyJS, className, "fromCharCode(char)", fromCharCode, NULL);
 			addFunction(tinyJS, className, "split(separator)", split, NULL);
+			addFunction(tinyJS, className, "indexOf(sub)", indexOf, NULL);
+			addFunction(tinyJS, className, "lastIndexOf(sub)", lastIndexOf, NULL);
+			addFunction(tinyJS, className, "replace(key, with)", replace, NULL);
 		}
 
 		public:

@@ -19,7 +19,7 @@ namespace JSM {
 		void registerFunctions(CTinyJS* tinyJS, const std::string& className) {
 			addFunction(tinyJS, "", "print(text)", print, NULL);
 			addFunction(tinyJS, className, "print(text)", print, NULL);
-			addFunction(tinyJS, className, "dump()", dump, NULL);
+			addFunction(tinyJS, className, "dump()", dump, tinyJS);
 		}
 
 		public:
