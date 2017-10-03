@@ -1459,7 +1459,7 @@ void CTinyJS::run(const std::string &fname) {
 //	TRACE("Runing file \"%s\n", cname.c_str());
 	std::string input = File::read(cname);
 	if(input.length() > 0) {
-		execute(input);
+		exec(input);
 	}
 	else {
 //		TRACE("Can not run file \"%s\" at \"%s\" %s.\n", fname.c_str(), cname.c_str(), l->getPosition().c_str());
@@ -1469,7 +1469,7 @@ void CTinyJS::run(const std::string &fname) {
 		cwd = oldCwd;
 }
 
-void CTinyJS::execute(const std::string &code) {
+void CTinyJS::exec(const std::string &code) {
 	CScriptLex *oldLex                 = l;
 	std::vector<CScriptVar*> oldScopes = scopes;
 
@@ -2257,7 +2257,9 @@ LEX_TYPES  CTinyJS::statement(bool &execute) {
 		CLEAN(var);
 		bool noexecute = false; // because we need to be able to write to it
 		ret = statement(cond ? execute : noexecute);
-		if( ret == LEX_R_BREAK || ret == LEX_R_CONTINUE){
+		//modified by Misa.Z
+		//if(ret == LEX_R_BREAK || ret == LEX_R_CONTINUE)) {
+		if(cond && ( ret == LEX_R_BREAK || ret == LEX_R_CONTINUE)) {
 			return ret;
 		}
 		if (l->tk==LEX_R_ELSE) {
@@ -2280,12 +2282,13 @@ LEX_TYPES  CTinyJS::statement(bool &execute) {
 		l->chkread(')');
 		int whileBodyStart = l->tokenStart;
 		ret = statement(loopCond ? execute : noexecute);
-		//if( ret != LEX_R_BREAK && ret != LEX_R_CONTINUE && ret != LEX_EOF ){
-		if(ret != LEX_EOF ){
+
+		if(ret != LEX_R_CONTINUE && ret != LEX_R_BREAK && ret != LEX_EOF ){
 			std::stringstream ss;
 			ss << "Syntax error at " << l->getPosition(l->tokenStart).c_str() << ": " << l->getTokenStr(ret).c_str();
 			throw new CScriptException(ss.str());
 		}
+
 		CScriptLex *whileBody = l->getSubLex(whileBodyStart);
 		CScriptLex *oldLex = l;
 		int loopCount = TINYJS_LOOP_MAX_ITERATIONS;
@@ -2320,7 +2323,6 @@ LEX_TYPES  CTinyJS::statement(bool &execute) {
 		l->chkread(LEX_R_FOR);
 		l->chkread('(');
 		ret = statement(execute); // initialisation
-		//if( ret != LEX_R_BREAK && ret != LEX_R_CONTINUE && ret != LEX_EOF ){
 		if(ret != LEX_EOF ){
 			std::stringstream ss;
 			ss << "Syntax error at " << l->getPosition(l->tokenStart).c_str() << ": " << l->getTokenStr(ret).c_str();
@@ -2339,7 +2341,8 @@ LEX_TYPES  CTinyJS::statement(bool &execute) {
 		CScriptLex *forIter = l->getSubLex(forIterStart);
 		l->chkread(')');
 		int forBodyStart = l->tokenStart;
-		ret = statement(loopCond ? execute : noexecute);
+		//ret = statement(loopCond ? execute : noexecute); //disabled by Misa.Z for fix bug.
+		ret = statement(noexecute);
 		/*if( ret == LEX_R_BREAK || ret == LEX_R_CONTINUE ){
 			std::stringstream ss;
 			ss << "Syntax error at " << l->getPosition(l->tokenStart).c_str() << ": " << l->getTokenStr(ret).c_str();
@@ -2348,11 +2351,13 @@ LEX_TYPES  CTinyJS::statement(bool &execute) {
 		*/
 		CScriptLex *forBody = l->getSubLex(forBodyStart);
 		CScriptLex *oldLex = l;
-		if (loopCond) {
+		//disabled by Misa.Z for loop bug. 
+		/*if (loopCond) {
 			forIter->reset();
 			l = forIter;
 			CLEAN(base(execute));
 		}
+		*/
 		int loopCount = TINYJS_LOOP_MAX_ITERATIONS;
 		while (execute && loopCond && (TINYJS_LOOP_MAX_ITERATIONS <= 0 || loopCount-->0)) {
 			forCond->reset();
@@ -2367,9 +2372,11 @@ LEX_TYPES  CTinyJS::statement(bool &execute) {
 				if( ret == LEX_R_BREAK ){
 					break;
 				}
-				if( ret == LEX_R_CONTINUE ){
+				//added by Misa.Z for fix loop bug. don't have to deal coninue.
+				/*if( ret == LEX_R_CONTINUE ){
 					continue;
 				}
+				*/
 			}
 			if (execute && loopCond) {
 				forIter->reset();

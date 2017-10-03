@@ -340,7 +340,7 @@ class CTinyJS {
 		//added by Misa.Z for running filename
 		void run(const std::string &fname);
 
-		void execute(const std::string &code);
+		void exec(const std::string &code);
 		/** Evaluate the given code and return a link to a javascript object,
 		 * useful for (dangerous) JSON parsing. If nothing to return, will return
 		 * 'undefined' variable type. CScriptVarLink is returned as this will

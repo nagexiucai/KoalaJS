@@ -7,7 +7,7 @@ using namespace JSM;
 
 void VM::exec(CScriptVar *c, void *userdata) {
 	CTinyJS *tinyJS = (CTinyJS *)userdata;
-	tinyJS->execute(c->getParameter("src")->getString());
+	tinyJS->exec(c->getParameter("src")->getString());
 }
 
 void VM::run(CScriptVar *c, void *userdata) {

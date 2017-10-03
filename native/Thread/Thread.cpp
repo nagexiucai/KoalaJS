@@ -34,7 +34,7 @@ static void* _vmThread(void* data) {
 	arg->unref();
 
 	if(code)
-		tJS->execute(src);
+		tJS->exec(src);
 	else {
 		tJS->run(src);
 	}

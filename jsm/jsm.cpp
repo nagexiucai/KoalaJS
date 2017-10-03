@@ -55,7 +55,7 @@ int main(int argc, char** argv) {
 		}	
 
 		try {
-			tinyJS.execute(input);
+			tinyJS.exec(input);
 		} catch (CScriptException *e) {
 			printf("ERROR: %s\n", e->text.c_str());
 		}
