@@ -24,7 +24,15 @@ JSTCPNative::~JSTCPNative() {
 }
 
 JSTCPNative::JSTCPNative(void* data) {
-	sid = socket(PF_INET, SOCK_STREAM, 0);
+	sid = -1;
+}
+
+void JSTCPNative::set(int sid, const struct sockaddr_in& addr) {
+	if(this->sid >= 0)
+		::close(this->sid);
+
+	this->sid = sid;
+	memcpy(&this->addr, &addr, sizeof(struct sockaddr_in));
 }
 
 void JSTCPNative::close(CScriptVar* var, void* data) {
@@ -109,6 +117,9 @@ void JSTCPNative::bind(CScriptVar* var, void* data) {
 
 	var->getReturnVar()->setInt(0);
 
+	if(sid >=0)
+		::close(sid);
+	sid = socket(PF_INET, SOCK_STREAM, 0);
 	if(sid < 0 || port <= 0)
 		return;
 
@@ -179,6 +190,12 @@ void JSTCPNative::connect(CScriptVar* var, void* data) {
 
 	host = DNS::ip(host);
 	if(host.length() == 0 || port <= 0)
+		return;
+
+	if(sid >=0)
+		::close(sid);
+	sid = socket(PF_INET, SOCK_STREAM, 0);
+	if(sid < 0)
 		return;
 
 	memset(&addr, 0, sizeof(addr)); 

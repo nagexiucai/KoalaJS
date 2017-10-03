@@ -1451,9 +1451,8 @@ void CTinyJS::trace() {
 
 //added by Misa.Z for running file
 void CTinyJS::run(const std::string &fname) {
-	std::string oldCwd;
-
-	oldCwd = cwd;
+	std::string oldCwd = cwd;
+	
 	cname = File::getFullname(cwd, fname);
 	cwd = File::getPath(cname);
 
@@ -2281,7 +2280,8 @@ LEX_TYPES  CTinyJS::statement(bool &execute) {
 		l->chkread(')');
 		int whileBodyStart = l->tokenStart;
 		ret = statement(loopCond ? execute : noexecute);
-		if( ret != LEX_EOF ){
+		//if( ret != LEX_R_BREAK && ret != LEX_R_CONTINUE && ret != LEX_EOF ){
+		if(ret != LEX_EOF ){
 			std::stringstream ss;
 			ss << "Syntax error at " << l->getPosition(l->tokenStart).c_str() << ": " << l->getTokenStr(ret).c_str();
 			throw new CScriptException(ss.str());
@@ -2320,7 +2320,8 @@ LEX_TYPES  CTinyJS::statement(bool &execute) {
 		l->chkread(LEX_R_FOR);
 		l->chkread('(');
 		ret = statement(execute); // initialisation
-		if( ret > LEX_EOF ){
+		//if( ret != LEX_R_BREAK && ret != LEX_R_CONTINUE && ret != LEX_EOF ){
+		if(ret != LEX_EOF ){
 			std::stringstream ss;
 			ss << "Syntax error at " << l->getPosition(l->tokenStart).c_str() << ": " << l->getTokenStr(ret).c_str();
 			throw new CScriptException(ss.str());
@@ -2339,11 +2340,12 @@ LEX_TYPES  CTinyJS::statement(bool &execute) {
 		l->chkread(')');
 		int forBodyStart = l->tokenStart;
 		ret = statement(loopCond ? execute : noexecute);
-		if( ret == LEX_R_BREAK || ret == LEX_R_CONTINUE ){
+		/*if( ret == LEX_R_BREAK || ret == LEX_R_CONTINUE ){
 			std::stringstream ss;
 			ss << "Syntax error at " << l->getPosition(l->tokenStart).c_str() << ": " << l->getTokenStr(ret).c_str();
 			throw new CScriptException(ss.str());
 		}
+		*/
 		CScriptLex *forBody = l->getSubLex(forBodyStart);
 		CScriptLex *oldLex = l;
 		if (loopCond) {

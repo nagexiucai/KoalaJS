@@ -28,10 +28,7 @@ public:
 
 	void accept(CScriptVar* var, void* data);
 
-	inline void set(int sid, const struct sockaddr_in& addr) {
-		this->sid = sid;
-		memcpy(&this->addr, &addr, sizeof(struct sockaddr_in));
-	}
+	void set(int sid, const struct sockaddr_in& addr);
 	
 	~JSTCPNative();
 

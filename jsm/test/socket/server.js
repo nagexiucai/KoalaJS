@@ -1,4 +1,3 @@
-i=0;
 function run(port) {
 	tcp = new RTCP();
 
@@ -18,10 +17,7 @@ function run(port) {
 			print("accept failed.");
 		}
 		else {
-			print("accept ." + i);
-			i++;
 			RThread.run("task.js", c);
-			//RThread.exec(' var cs = _threadArg; b = new Bytes(); b.from("Hello, world! "); cs.send(b, b.size(), 1); print("task end."); cs.shutdown(); cs.close();', c);
 		}
 	}
 

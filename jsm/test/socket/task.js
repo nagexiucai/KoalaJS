@@ -1,8 +1,14 @@
+//echo task
 var cs = _threadArg;
 
-b = new Bytes();
-b.from("Hello, world! "); 
-cs.send(b, b.size(), 1); 
+while(true) {
+	b = cs.read(100);
 
-cs.shutdown(); 
+	if(b == undefined || b.size() == 0) 
+		break;
+
+	cs.write(b, b.size()); 
+}
+
+print("closed");
 cs.close();
