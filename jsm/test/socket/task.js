@@ -1,14 +1,10 @@
 //echo task
 var cs = _threadArg;
 
-while(true) {
-	b = cs.read(100);
+b = cs.read(100);
 
-	if(b == undefined || b.size() == 0) 
-		break;
-
+if(b != undefined) 
 	cs.write(b, b.size()); 
-}
 
 print("closed");
 cs.close();

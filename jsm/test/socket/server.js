@@ -15,6 +15,7 @@ function run(port) {
 		c = tcp.accept();
 		if(c == undefined) {
 			print("accept failed.");
+			break;
 		}
 		else {
 			RThread.run("task.js", c);

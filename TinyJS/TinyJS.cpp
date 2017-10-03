@@ -2198,11 +2198,11 @@ LEX_TYPES  CTinyJS::statement(bool &execute) {
 	} else if (l->tk==LEX_R_BREAK){
 		l->chkread(LEX_R_BREAK);
 		l->chkread(';');
-		return LEX_R_BREAK;
+		return execute ? LEX_R_BREAK : LEX_EOF;
 	} else if (l->tk==LEX_R_CONTINUE){
 		l->chkread(LEX_R_CONTINUE);
 		l->chkread(';');
-		return LEX_R_CONTINUE;
+		return execute ? LEX_R_CONTINUE : LEX_EOF;
 	} else if (l->tk==LEX_R_VAR || l->tk == LEX_R_CONST) {
 		/* variable creation. TODO - we need a better way of parsing the left
 		 * hand side. Maybe just have a flag called can_create_var that we
@@ -2257,14 +2257,11 @@ LEX_TYPES  CTinyJS::statement(bool &execute) {
 		CLEAN(var);
 		bool noexecute = false; // because we need to be able to write to it
 		ret = statement(cond ? execute : noexecute);
-		//modified by Misa.Z
-		//if(ret == LEX_R_BREAK || ret == LEX_R_CONTINUE)) {
-		if(cond && ( ret == LEX_R_BREAK || ret == LEX_R_CONTINUE)) {
+		if(ret == LEX_R_BREAK || ret == LEX_R_CONTINUE) {
 			return ret;
 		}
 		if (l->tk==LEX_R_ELSE) {
 			l->chkread(LEX_R_ELSE);
-			//break continue対応. LEX_R_BREAK,LEX_R_CONTINUE以外ではLEX_EOFがかえる
 			return statement(cond ? noexecute : execute);
 		}
 		//WHILE
@@ -2281,7 +2278,9 @@ LEX_TYPES  CTinyJS::statement(bool &execute) {
 		CScriptLex *whileCond = l->getSubLex(whileCondStart);
 		l->chkread(')');
 		int whileBodyStart = l->tokenStart;
-		ret = statement(loopCond ? execute : noexecute);
+		//disabled by Misa.Z
+		//ret = statement(loopCond ? execute : noexecute);
+		ret = statement(noexecute);
 
 		if(ret != LEX_R_CONTINUE && ret != LEX_R_BREAK && ret != LEX_EOF ){
 			std::stringstream ss;
@@ -2341,14 +2340,15 @@ LEX_TYPES  CTinyJS::statement(bool &execute) {
 		CScriptLex *forIter = l->getSubLex(forIterStart);
 		l->chkread(')');
 		int forBodyStart = l->tokenStart;
-		//ret = statement(loopCond ? execute : noexecute); //disabled by Misa.Z for fix bug.
-		ret = statement(noexecute);
-		/*if( ret == LEX_R_BREAK || ret == LEX_R_CONTINUE ){
+		//disabled by Misa.Z
+		//ret = statement(loopCond ? execute : noexecute); 
+		ret = statement(noexecute); 
+
+		if( ret == LEX_R_BREAK || ret == LEX_R_CONTINUE ){
 			std::stringstream ss;
 			ss << "Syntax error at " << l->getPosition(l->tokenStart).c_str() << ": " << l->getTokenStr(ret).c_str();
 			throw new CScriptException(ss.str());
 		}
-		*/
 		CScriptLex *forBody = l->getSubLex(forBodyStart);
 		CScriptLex *oldLex = l;
 		//disabled by Misa.Z for loop bug. 

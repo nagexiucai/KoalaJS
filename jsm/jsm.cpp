@@ -44,21 +44,33 @@ int main(int argc, char** argv) {
 
 	tinyJS.loadModule(moduleLoader);
 
+	printf("[Help] JSM Javascript engine, input javascript code, then input 'go!' to run or 'exit!' to quit.\n\n");
+
 	if(argc <= 1) {
 		while(true) {
+			printf("JSM> ");
+
 			char buffer[2048+1];
 			if(fgets ( buffer, 2048, stdin ) == NULL)
 				break;
-			if(strncmp(buffer, "go!", 3) == 0)	
-				break;
-			input += buffer;
-		}	
 
-		try {
-			tinyJS.exec(input);
-		} catch (CScriptException *e) {
-			printf("ERROR: %s\n", e->text.c_str());
-		}
+			if(strncmp(buffer, "quit!", 5) == 0 ||
+					strncmp(buffer, "exit!", 5) == 0) {
+				break;
+			}
+			else if(strncmp(buffer, "go!", 3) == 0) {
+				try {
+					tinyJS.exec(input);
+				} catch (CScriptException *e) {
+					printf("ERROR: %s\n", e->text.c_str());
+				}
+				input = "";
+			}
+			else {
+				input += buffer;
+			}
+
+		}	
 	}
 	else {
 		try {
@@ -66,8 +78,6 @@ int main(int argc, char** argv) {
 		} catch (CScriptException *e) {
 			printf("ERROR: %s\n", e->text.c_str());
 		}
-
 	}
-
 	return 0;
 }
