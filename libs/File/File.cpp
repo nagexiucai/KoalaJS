@@ -1,16 +1,38 @@
 #include "File.h"
 #include <unistd.h>  
 #include <vector>  
+#include <cstdlib>
+#include <sys/stat.h>
+#include <unistd.h>
+#include <fcntl.h>
+
+
 
 std::string File::read(const std::string& fname) {
-	std::ifstream t(fname.c_str());
-	if(!t)
+	int fd = open(fname.c_str(), O_RDONLY);
+	if(fd < 0)
 		return "";
+	
+	struct stat st;
+	fstat(fd, &st);
+	int sz = st.st_size;
+	if(sz == 0) {
+		close(fd);
+		return "";
+	}
 
-	std::stringstream buffer;  
-	buffer << t.rdbuf();  
-	t.close();
-	return buffer.str();
+	char* p = new char[sz];
+	sz = ::read(fd, p, sz);
+	close(fd);
+
+	if(sz < 0) 
+		return "";
+	
+	std::string ret;
+	ret.append(p, sz);  
+	delete []p;
+
+	return ret;
 }
 
 #define MAX_PATH_LEN 1024

@@ -11,6 +11,7 @@ typedef struct ThreadData {
 	CTinyJS* tinyJS;
 	std::string src;
 	bool code;
+	CScriptVar* arg;
 } ThreadDataT;
 
 static void* _vmThread(void* data) {
@@ -21,18 +22,24 @@ static void* _vmThread(void* data) {
 	CTinyJS* tinyJS = td->tinyJS;
 	std::string src = td->src;
 	bool code = td->code;
+	CScriptVar* arg = td->arg;
 
 	delete td;
+	pthread_detach(pthread_self());
 
-	CTinyJS tJS;
-	tJS.loadModule(tinyJS->getModuleLoader());
-	tJS.setcwd(tinyJS->getcwd());
+	CTinyJS *tJS = new CTinyJS();
+	tJS->loadModule(tinyJS->getModuleLoader());
+	tJS->setcwd(tinyJS->getcwd());
+	tJS->root->addChild("_threadArg", arg);
+	arg->unref();
 
 	if(code)
-		tJS.execute(src);
-	else
-		tJS.run(src);
-
+		tJS->execute(src);
+	else {
+		tJS->run(src);
+	}
+	
+	delete tJS;
 	return NULL;
 }
 
@@ -42,6 +49,7 @@ void JSThread::exec(CScriptVar *c, void *userdata) {
 	data->tinyJS = (CTinyJS *)userdata;
 	data->src = c->getParameter("src")->getString();
 	data->code = true;
+	data->arg = c->getParameter("arg")->ref();
 
 	Thread::run(_vmThread, data);
 }
@@ -52,6 +60,7 @@ void JSThread::run(CScriptVar *c, void *userdata) {
 	data->tinyJS = (CTinyJS *)userdata;
 	data->src = c->getParameter("file")->getString();
 	data->code = false;
+	data->arg = c->getParameter("arg")->ref();
 	Thread::run(_vmThread, data);
 }
 

@@ -16,8 +16,8 @@ namespace JSM {
 
 		protected:
 		inline void registerFunctions(CTinyJS* tinyJS, const std::string& className) {
-			addFunction(tinyJS, className, "exec(src)", exec, tinyJS);
-			addFunction(tinyJS, className, "run(file)", run, tinyJS);
+			addFunction(tinyJS, className, "exec(src, arg)", exec, tinyJS);
+			addFunction(tinyJS, className, "run(file, arg)", run, tinyJS);
 			addFunction(tinyJS, className, "sleep(sec)", sleep, NULL);
 			addFunction(tinyJS, className, "usleep(usec)", usleep, NULL);
 		}

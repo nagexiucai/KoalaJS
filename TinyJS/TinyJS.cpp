@@ -1381,20 +1381,32 @@ void CScriptVar::setNativeConstructor(JSCallback callback, void *userdata) {
 	jsNativeConstructorUserData = userdata;
 }
 
+static ThreadLock _refLocker;
+
 CScriptVar *CScriptVar::ref() {
+	_refLocker.lock();
 	refs++;
+	_refLocker.unlock();
 	return this;
 }
 
 void CScriptVar::unref() {
-	if (refs<=0) printf("OMFG, we have unreffed too far!\n");
-	if ((--refs)==0) {
+	_refLocker.lock();
+	if (refs<=0)
+		 TRACE("OMFG, we have unreffed too far!\n");
+	refs--;
+	_refLocker.unlock();
+
+	if (refs == 0) {
 		delete this;
 	}
 }
 
 int CScriptVar::getRefs() {
-	return refs;
+	_refLocker.lock();
+	int ret = refs;
+	_refLocker.unlock();
+	return ret;
 }
 
 
@@ -1445,12 +1457,13 @@ void CTinyJS::run(const std::string &fname) {
 	cname = File::getFullname(cwd, fname);
 	cwd = File::getPath(cname);
 
+//	TRACE("Runing file \"%s\n", cname.c_str());
 	std::string input = File::read(cname);
 	if(input.length() > 0) {
 		execute(input);
 	}
 	else {
-		TRACE("Can not run file \"%s\" at \"%s\" %s.\n", fname.c_str(), cname.c_str(), l->getPosition().c_str());
+//		TRACE("Can not run file \"%s\" at \"%s\" %s.\n", fname.c_str(), cname.c_str(), l->getPosition().c_str());
 	}
 	
 	if(oldCwd.length() > 0)

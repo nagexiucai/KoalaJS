@@ -4,6 +4,7 @@
 #include <sys/ioctl.h>
 #include <unistd.h>
 #include <fcntl.h>
+#include <errno.h>
 #include <arpa/inet.h> 
 #include <sys/socket.h>
 #include <sys/types.h>
@@ -14,8 +15,9 @@ using namespace JSM;
 
 
 JSTCPNative::~JSTCPNative() {
-	if(sid >= 0)
+	if(sid >= 0) {
 		::close(sid);
+	}
 
 	memset(&addr, 0, sizeof(addr)); 
 	sid = -1;
@@ -26,8 +28,9 @@ JSTCPNative::JSTCPNative(void* data) {
 }
 
 void JSTCPNative::close(CScriptVar* var, void* data) {
-	if(sid >= 0)
+	if(sid >= 0) {
 		::close(sid);
+	}
 
 	memset(&addr, 0, sizeof(addr)); 
 	sid = -1;
@@ -137,6 +140,7 @@ void JSTCPNative::accept(CScriptVar* var, void* data) {
 
 	int cid = ::accept(sid,(struct sockaddr *)&in, &size);
 	if(cid < 0) {
+		TRACE("TCP accept failed, errno: %d\n", errno);
 		return;
 	}
 	

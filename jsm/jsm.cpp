@@ -49,6 +49,8 @@ int main(int argc, char** argv) {
 			char buffer[2048+1];
 			if(fgets ( buffer, 2048, stdin ) == NULL)
 				break;
+			if(strncmp(buffer, "go!", 3) == 0)	
+				break;
 			input += buffer;
 		}	
 

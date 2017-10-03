@@ -1,3 +1,4 @@
+i=0;
 function run(port) {
 	tcp = new RTCP();
 
@@ -6,23 +7,21 @@ function run(port) {
 		return;
 	}
 
-	if(!tcp.listen(10)) {
+	if(!tcp.listen(1000)) {
 		print("listening failed.");
 		return false;
 	}
 
-	b = new Bytes();
-	b.from("Hello, world!\n");
-
 	while(true) {
 		c = tcp.accept();
 		if(c == undefined) {
-			break;
+			print("accept failed.");
 		}
 		else {
-			print("accept." + c);
-			c.send(b, b.size(), 0);
-			c.close();
+			print("accept ." + i);
+			i++;
+			RThread.run("task.js", c);
+			//RThread.exec(' var cs = _threadArg; b = new Bytes(); b.from("Hello, world! "); cs.send(b, b.size(), 1); print("task end."); cs.shutdown(); cs.close();', c);
 		}
 	}
 

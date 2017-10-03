@@ -406,6 +406,10 @@ class CTinyJS {
 		inline void setcwd(const std::string& cwd) {
 			this->cwd = cwd;
 		}
+
+		inline std::string getLexPosition() {
+			return l->getPosition();
+		}	
 	private:
 		//added by Misa.Z for running file
 		std::string cwd;

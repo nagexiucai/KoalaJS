@@ -84,6 +84,7 @@ void Global::set(CScriptVar *c, void *userdata) {
 		}
 	}
 	else {
+		TRACE("Only can set global parameter with basic type %s.\n", tinyJS->getLexPosition().c_str());
 		value.type = BasicValueT::UNDEF;
 	}
 

@@ -3,7 +3,7 @@
 include('comm.js');
 var i = 0;
 
-RThread.run("thread.js");
+RThread.run("thread.js", "thread arg: xxxx");
 
 var i = 0;
 
