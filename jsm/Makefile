@@ -13,6 +13,7 @@ SRCS = jsm.cpp \
 	  ../native/File/File.cpp \
 	  ../native/Socket/TCP.cpp \
 	  ../native/Socket/DNS.cpp \
+	  ../native/System/System.cpp \
 	  ../native/MD5/MD5.cpp 
 
 LIBS = ../libs/Base64/Base64.cpp \

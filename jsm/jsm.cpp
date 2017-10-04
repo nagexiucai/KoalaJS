@@ -13,6 +13,7 @@
 #include "native/File/File.h"
 #include "native/Socket/TCP.h"
 #include "native/Socket/DNS.h"
+#include "native/System/System.h"
 #include "libs/File/File.h"
 
 static void moduleLoader(CTinyJS* tinyJS) {
@@ -31,10 +32,10 @@ static void moduleLoader(CTinyJS* tinyJS) {
 	JSM::JSBase64::instance().load(tinyJS, "RBase64");
 	JSM::JSMD5::instance().load(tinyJS, "RMD5");
 	JSM::JSThread::instance().load(tinyJS, "RThread");
-
 	JSM::JSFile<JSM::JSFileNative>::instance().load(tinyJS, "RFile", NULL);
 	JSM::JSTCP<JSM::JSTCPNative>::instance().load(tinyJS, "RTCP", NULL);
 	JSM::JSDNS::instance().load(tinyJS, "RDNS");
+	JSM::System::instance().load(tinyJS, "RSystem");
 }
 
 
