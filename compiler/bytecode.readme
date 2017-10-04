@@ -1,0 +1,15 @@
+VAR x								: declare var x
+CONST x							: declare const x
+
+INT int 						: push int
+FLOAT float					: push float 
+STR "str"						: push str
+
+LOAD x							: load and push x 
+STORE x							: pop and store to x
+
+FUNC x							: function definetion x
+FUNC_END						: function define end
+
+CALL x							: call function x and push res
+
