@@ -589,10 +589,7 @@ LEX_TYPES Compiler::statement() {
 	}
 	else if (l->tk=='{') {
 		/* A block of code */
-		ret = block();
-		if( ret == LEX_R_BREAK || ret == LEX_R_CONTINUE){
-			return ret;
-		}
+		block();
 	}
 	else if (l->tk==';') {
     /* Empty statement - to allow things like ;;; */
@@ -627,7 +624,7 @@ LEX_TYPES Compiler::statement() {
       // now do stuff defined with dots
       while (l->tk == '.') {
         l->chkread('.');
-				vname = vname + l->tkStr;
+				vname = vname + "." + l->tkStr;
         l->chkread(LEX_ID);
       }
 			OUT("%d %s %s\n", cindex++, beConst?"CONST":"VAR", vname.c_str());
@@ -646,6 +643,54 @@ LEX_TYPES Compiler::statement() {
 	else if(l->tk==LEX_R_FUNCTION) {
 		defFunc();
 	}
+	else if (l->tk==LEX_R_RETURN) {
+		l->chkread(LEX_R_RETURN);
+		if (l->tk != ';')
+			base();
+
+		OUT("%d RETURN\n", cindex++);
+		l->chkread(';');
+	} 
+	else if (l->tk==LEX_R_WHILE) {
+		l->chkread(LEX_R_WHILE);
+		OUT("%d WHILE\n", cindex++);
+
+		l->chkread('(');
+		OUT("%d CONDI\n", cindex++);
+		base(); //condition
+		l->chkread(')');
+		OUT("%d CONDI_END\n", cindex++);
+
+		OUT("%d BLOCK\n", cindex++);
+		statement();
+		OUT("%d BLOCK_END\n", cindex++);
+		OUT("%d WHILE_END\n", cindex++);
+	}
+	else if (l->tk==LEX_R_IF) {
+		l->chkread(LEX_R_IF);
+		OUT("%d IF\n", cindex++);
+		l->chkread('(');
+		OUT("%d CONDI\n", cindex++);
+		base(); //condition
+		l->chkread(')');
+		OUT("%d CONDI_END\n", cindex++);
+
+		OUT("%d BLOCK\n", cindex++);
+		statement();
+		OUT("%d BLOCK_END\n", cindex++);
+
+		if (l->tk==LEX_R_ELSE) {
+			l->chkread(LEX_R_ELSE);
+			OUT("%d ELSE\n", cindex++);
+			OUT("%d BLOCK\n", cindex++);
+			statement();
+			OUT("%d BLOCK_END\n", cindex++);
+			OUT("%d ELSE_END\n", cindex++);
+			return ret;
+		}
+		OUT("%d IF_END\n", cindex++);
+	}
+
 	else {
 		l->chkread(LEX_EOF);
 	}
@@ -655,8 +700,168 @@ LEX_TYPES Compiler::statement() {
 
 LEX_TYPES Compiler::base() {
 	LEX_TYPES ret = LEX_EOF;
-	ret = factor();
+	ret = ternary();
 	return ret;
+}
+
+LEX_TYPES Compiler::unary() {
+	LEX_TYPES ret = LEX_EOF;
+	ret = factor();
+	if (l->tk == '!') {
+		OUT("%d NOT\n", cindex++);
+	}
+	return ret;	
+}
+
+LEX_TYPES Compiler::term() {
+	LEX_TYPES ret = LEX_EOF;
+	ret = unary();
+
+	while (l->tk=='*' || l->tk=='/' || l->tk=='%') {
+		int op = l->tk;
+		l->chkread(l->tk);
+		unary();
+	
+		if(l->tk == '*')
+			OUT("%d MULTI\n", cindex++);
+		else if(l->tk == '/')
+			OUT("%d DIV\n", cindex++);
+		else
+			OUT("%d MOD\n", cindex++);
+	}
+
+
+	return ret;	
+}
+
+LEX_TYPES Compiler::expr() {
+	LEX_TYPES ret = LEX_EOF;
+	bool negate = false;
+	if (l->tk=='-') {
+		l->chkread('-');
+		negate = true;
+	}
+
+	ret = term();
+	if (negate) {
+		OUT("%d NEG\n", cindex++);
+	}
+
+	while (l->tk=='+' || l->tk=='-' ||
+			l->tk==LEX_PLUSPLUS || l->tk==LEX_MINUSMINUS) {
+		int op = l->tk;
+		l->chkread(l->tk);
+		if (op==LEX_PLUSPLUS) {
+			OUT("%d PPLUS\n", cindex++);
+		}
+		else if(op==LEX_MINUSMINUS) {
+			OUT("%d MMINUS\n", cindex++);
+		}
+		else {
+			ret = term();
+			if(op== '+') {
+				OUT("%d PLUS\n", cindex++);
+			}
+			else if(op=='-') {
+				OUT("%d MINUS\n", cindex++);
+			}
+		}
+	}
+
+	return ret;	
+}
+
+LEX_TYPES Compiler::shift() {
+	LEX_TYPES ret = LEX_EOF;
+	ret = expr();
+
+	if (l->tk==LEX_LSHIFT || l->tk==LEX_RSHIFT || l->tk==LEX_RSHIFTUNSIGNED) {
+		int op = l->tk;
+		l->chkread(op);
+		ret = base();
+
+		if (op==LEX_LSHIFT) 
+			OUT("%d LSHIFT\n", cindex++);
+		else if (op==LEX_RSHIFT)
+			OUT("%d RSHIFT\n", cindex++);
+		else
+			OUT("%d URSHIFT\n", cindex++);
+	}
+	return ret;	
+}
+
+LEX_TYPES Compiler::condition() {
+	LEX_TYPES ret = LEX_EOF;
+	ret = shift();
+
+	while (l->tk==LEX_EQUAL || l->tk==LEX_NEQUAL ||
+			l->tk==LEX_LEQUAL || l->tk==LEX_GEQUAL ||
+			l->tk=='<' || l->tk=='>') {
+		int op = l->tk;
+		l->chkread(l->tk);
+		ret = shift();
+
+		if(op == LEX_EQUAL)
+			OUT("%d EQ\n", cindex++);
+		else if(op == LEX_NEQUAL)
+			OUT("%d NEQ\n", cindex++);
+		else if(op == LEX_LEQUAL)
+			OUT("%d LEQ\n", cindex++);
+		else if(op == LEX_GEQUAL)
+			OUT("%d GEQ\n", cindex++);
+		else if(op == '>')
+			OUT("%d GRT\n", cindex++);
+		else if(op == '<')
+			OUT("%d LES\n", cindex++);
+	}
+
+	return ret;	
+}
+
+LEX_TYPES Compiler::logic() {
+	LEX_TYPES ret = LEX_EOF;
+	ret = condition();
+
+	while (l->tk=='&' || l->tk=='|' || l->tk=='^' || l->tk==LEX_ANDAND || l->tk==LEX_OROR) {
+		ret = condition();
+
+		int op = l->tk;
+		l->chkread(l->tk);
+		if (op==LEX_ANDAND) {
+			OUT("%d AAND\n", cindex++);
+		} 
+		else if (op==LEX_OROR) {
+			OUT("%d OOR\n", cindex++);
+		}
+		else if (op=='|') {
+			OUT("%d OR\n", cindex++);
+		}
+		else if (op=='&') {
+			OUT("%d AND\n", cindex++);
+		}
+		else if (op=='^') {
+			OUT("%d XOR\n", cindex++);
+		}
+	}
+	return ret;	
+}
+
+LEX_TYPES Compiler::ternary() {
+	LEX_TYPES ret = LEX_EOF;
+	ret = logic();
+
+	/*
+	if (l->tk=='?') {
+		l->chkread('?');
+		base();
+		l->chkread(':');
+		base();
+	} 
+	base(); //first choice
+	l->chkread(':');
+	base(); //second choice
+	*/
+	return ret;	
 }
 
 LEX_TYPES Compiler::callFunc() {
@@ -685,11 +890,11 @@ LEX_TYPES Compiler::defFunc() {
     l->chkread(LEX_ID);
   }
 
-	OUT("%d FUNC %s\n", cindex++, funcName.c_str());
+	OUT("\n%d FUNC %s\n", cindex++, funcName.c_str());
 	//do arguments
   l->chkread('(');
   while (l->tk!=')') {
-		OUT("%d VAR %s\n", cindex++, l->tkStr.c_str());
+		OUT("%d ARG %s\n", cindex++, l->tkStr.c_str());
     l->chkread(LEX_ID);
     if (l->tk!=')') l->chkread(',');
   }
@@ -697,7 +902,7 @@ LEX_TYPES Compiler::defFunc() {
 
   int funcBegin = l->tokenStart;
   block();
-	OUT("%d FUNC_END\n", cindex++);
+	OUT("%d FUNC_END\n\n", cindex++);
 	return ret;
 }
 
@@ -783,14 +988,6 @@ LEX_TYPES Compiler::block() {
 	l->chkread('{');
 	while (l->tk && l->tk!='}'){
 		ret = statement();
-		if( ret == LEX_R_BREAK || ret == LEX_R_CONTINUE){
-				int brackets = 1;
-			while (l->tk && brackets) {
-				if (l->tk == '{') brackets++;
-				if (l->tk == '}') brackets--;
-				l->chkread(l->tk);
-			}
-		}
 	}
 	l->chkread('}');
 	return ret;

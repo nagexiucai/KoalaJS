@@ -13,3 +13,31 @@ FUNC_END						: function define end
 
 CALL x							: call function x and push res
 
+NOT									: !
+MULTI								: *
+DIV									: /
+MOD									: %
+PLUS								: + 
+MINUS								: - 
+
+NEG									: negate -
+PPLUS								: ++
+MMINUS							: --
+
+LSHIFT							: <<
+RSHIFT							: >>
+URSHIFT							: >>>
+
+EQ									: ==
+NEQ									: !=
+LEQ									: <=
+GEQ									: >=
+GRT									: >
+LES									: <
+
+AAND								: &&
+OOR									: ||
+OR									: |
+XOR									: ^
+AND									: &
+

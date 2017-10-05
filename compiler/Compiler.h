@@ -138,6 +138,21 @@ class Compiler {
 		LEX_TYPES callFunc();
 
 		LEX_TYPES factor();
+
+		LEX_TYPES unary();
+
+		LEX_TYPES term();
+
+		LEX_TYPES expr();
+
+		LEX_TYPES shift();
+
+		LEX_TYPES condition();
+
+		LEX_TYPES logic();
+
+		LEX_TYPES ternary();
+
 };
 
 #endif

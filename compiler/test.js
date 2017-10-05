@@ -1,8 +1,21 @@
 var a.b=1, s="fff";
 const c=1.232;
 
+if(b == 0) {
+	print(a);
+}
+else if(b == 1) {
+	print(b);
+}
+
 function f1(j) {
-	j = 0;
+	while(j) {
+		j = 0;
+		if(true) 
+			continue;
+		else
+			break;
+	}
 }
 
 function f2(i, j) {
@@ -15,4 +28,4 @@ function f3(i, j) {
 }
 
 
-f3(1, 3);
+a.b = f3(1, 3);
