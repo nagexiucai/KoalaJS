@@ -1,10 +1,10 @@
 CFLAG = -g -I../
-SRCS = compiler.cpp TinyJS.cpp \
+SRCS = Compiler.cpp bc.cpp \
 		../libs/File/File.cpp 
 
 LDFLAG = -lpthread
 
-TARGET = compiler
+TARGET = bc
 
 all:
 	g++ ${CFLAG} -o ${TARGET} ${SRCS} ${LIBS} ${LDFLAG}
