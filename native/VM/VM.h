@@ -19,10 +19,8 @@ namespace JSM {
 					addFunction(tinyJS, "", "run(file)", run, tinyJS);
 					addFunction(tinyJS, "", "eval(src)", eval, tinyJS); */
 
-			addFunction(tinyJS, "", "include(file)", run, tinyJS);
 			addFunction(tinyJS, className, "exec(src)", exec, tinyJS);
 			addFunction(tinyJS, className, "run(file)", run, tinyJS);
-			addFunction(tinyJS, className, "include(file)", run, tinyJS);
 			addFunction(tinyJS, className, "eval(src)", eval, tinyJS);
 		}
 

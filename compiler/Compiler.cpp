@@ -244,6 +244,7 @@ std::string CScriptLex::getTokenStr(int token) {
 		case LEX_R_NULL         : return "null";
 		case LEX_R_UNDEFINED    : return "undefined";
 		case LEX_R_NEW          : return "new";
+		case LEX_R_INCLUDE      : return "include";
 	}
 	return "?[UNKNOW]";
 }
@@ -297,6 +298,7 @@ void CScriptLex::getNextToken() {
 		else if (tkStr=="else")      tk = LEX_R_ELSE;
 		else if (tkStr=="do")        tk = LEX_R_DO;
 		else if (tkStr=="while")     tk = LEX_R_WHILE;
+		else if (tkStr=="include")   tk = LEX_R_INCLUDE;
 		else if (tkStr=="for")       tk = LEX_R_FOR;
 		else if (tkStr=="break")     tk = LEX_R_BREAK;
 		else if (tkStr=="continue")  tk = LEX_R_CONTINUE;
@@ -556,6 +558,8 @@ void Compiler::run(const std::string &fname) {
 }
 
 void Compiler::exec(const std::string &code) {
+	CScriptLex* old = l;
+
 	l = new CScriptLex(code);
 
 	try {
@@ -574,11 +578,21 @@ void Compiler::exec(const std::string &code) {
 		throw new CScriptException(msg.c_str());
 	}
 	delete l;
+	l = old;
 }
 
 LEX_TYPES Compiler::statement() {
 	LEX_TYPES ret = LEX_EOF;
-	if (l->tk==LEX_ID    ||
+
+	if (l->tk==LEX_R_INCLUDE) {
+    l->chkread(LEX_R_INCLUDE);
+
+		run(l->tkStr);
+
+    l->chkread(LEX_STR);
+    l->chkread(';');
+	}
+	else if (l->tk==LEX_ID    ||
       l->tk==LEX_INT   ||
       l->tk==LEX_FLOAT ||
       l->tk==LEX_STR   ||
@@ -630,9 +644,10 @@ LEX_TYPES Compiler::statement() {
 			OUT("%d %s %s\n", cindex++, beConst?"CONST":"VAR", vname.c_str());
       // sort out initialiser
       if (l->tk == '=') {
+				OUT("%d LOAD %s\n", cindex++, vname.c_str());
         l->chkread('=');
         base();
-				OUT("%d STORE %s\n", cindex++, vname.c_str());
+				OUT("%d ASIGN\n", cindex++);
       }
 
       if (l->tk != ';')
@@ -690,7 +705,6 @@ LEX_TYPES Compiler::statement() {
 		}
 		OUT("%d IF_END\n", cindex++);
 	}
-
 	else {
 		l->chkread(LEX_EOF);
 	}
@@ -940,23 +954,33 @@ LEX_TYPES Compiler::factor() {
 	else if(l->tk==LEX_R_FUNCTION) {
 		defFunc();
 	}
+	else if (l->tk==LEX_R_NEW) {
+		// new -> create a new object
+		l->chkread(LEX_R_NEW);
+		const std::string className = l->tkStr;
+		l->chkread(LEX_ID);
+		if (l->tk == '(') {
+				l->chkread('(');
+				l->chkread(')');
+			OUT("%d NEW %s\n", cindex++, className.c_str());
+		}
+	}
 	else if(l->tk==LEX_ID) {
 		string name = l->tkStr;
-		bool load = true;
-
+		OUT("%d LOAD %s\n", cindex++, name.c_str());
     l->chkread(LEX_ID);
+
     while (l->tk=='(' || l->tk=='.' || l->tk=='[') {
       if (l->tk=='(') { // ------------------------------------- Function Call
 				callFunc();
 				OUT("%d CALL %s\n", cindex++, name.c_str());
-				load = false;
       } else if (l->tk == '.') { // ------------------------------------- Record Access
 				l->chkread('.');
-				if(load)
-					OUT("%d OBJ %s\n", cindex++, name.c_str());
 				name = l->tkStr;
-				load = true;	
 				l->chkread(LEX_ID);
+
+				if(l->tk != '(')
+					OUT("%d GET %s\n", cindex++, name.c_str());
 			} else if (l->tk == '[') { // ------------------------------------- Array Access
         /*l->chkread('[');
         base();
@@ -964,19 +988,14 @@ LEX_TYPES Compiler::factor() {
 				*/
       } 
 			else {
-				throw new CScriptException("Seriously issue");
+				//throw new CScriptException("Seriously issue");
 			}
-    }
-		if(load)  {
-			// sort out initialiser
-      if (l->tk == '=') {
-        l->chkread('=');
-        base();
-				OUT("%d STORE %s\n", cindex++, name.c_str());
-      }
-			else {
-				OUT("%d LOAD %s\n", cindex++, name.c_str());
-			}
+		}
+		// sort out initialiser
+		if (l->tk == '=') {
+			l->chkread('=');
+			base();
+			OUT("%d ASIGN\n", cindex++);
 		}
 	}
 

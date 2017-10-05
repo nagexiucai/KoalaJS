@@ -41,3 +41,4 @@ OR									: |
 XOR									: ^
 AND									: &
 
+ASIGN								: =

@@ -378,6 +378,7 @@ std::string CScriptLex::getTokenStr(int token) {
 		case LEX_R_NULL         : return "null";
 		case LEX_R_UNDEFINED    : return "undefined";
 		case LEX_R_NEW          : return "new";
+		case LEX_R_INCLUDE      : return "include";
 	}
 	return "?[UNKNOW]";
 }
@@ -443,6 +444,7 @@ void CScriptLex::getNextToken() {
 		else if (tkStr=="null")      tk = LEX_R_NULL;
 		else if (tkStr=="undefined") tk = LEX_R_UNDEFINED;
 		else if (tkStr=="new")       tk = LEX_R_NEW;
+		else if (tkStr=="include")   tk = LEX_R_INCLUDE;
 	} else if (isNumeric(currCh)) { // Numbers
 		bool isHex = false;
 		if (currCh=='0') { tkStr += currCh; getNextCh(); }
@@ -2178,7 +2180,15 @@ LEX_TYPES CTinyJS::block(bool &execute) {
 
 LEX_TYPES  CTinyJS::statement(bool &execute) {
 	LEX_TYPES ret;
-	if (l->tk==LEX_ID    ||
+	if (l->tk==LEX_R_INCLUDE) {
+		l->chkread(LEX_R_INCLUDE);
+
+		run(l->tkStr);
+
+		l->chkread(LEX_STR);
+		l->chkread(';');
+	}
+	else if (l->tk==LEX_ID    ||
 			l->tk==LEX_INT   ||
 			l->tk==LEX_FLOAT ||
 			l->tk==LEX_STR   ||
