@@ -58,7 +58,7 @@ int main(int argc, char** argv) {
 
 		tinyJS.loadModule(moduleLoader);
 
-		tinyJS.execute("var a = new MyNativeClass(); a.test(); var b = new MyClass(); b.test();");
+		tinyJS.exec("var a = new MyNativeClass(); a.test(); var b = new MyClass(); b.test();");
 	}
 
 	return 0;
