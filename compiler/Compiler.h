@@ -121,7 +121,7 @@ class Compiler {
 		}
 
 	private:
-		//added by Misa.Z for running file
+		int cindex;
 		std::string cwd;
 		std::string cname;
 
@@ -130,6 +130,14 @@ class Compiler {
 		LEX_TYPES statement();
 
 		LEX_TYPES block();
+
+		LEX_TYPES base();
+
+		LEX_TYPES defFunc();
+
+		LEX_TYPES callFunc();
+
+		LEX_TYPES factor();
 };
 
 #endif
