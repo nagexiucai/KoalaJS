@@ -4,25 +4,25 @@
 #include <sstream>
 #include <stdlib.h>
 
-	static unsigned char cmap[256]={
-		//+0 +1 +2 +3 +4 +5 +6 +7 +8 +9 +A +B +C +D +E +F
-		0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 1, 0, 0,//00
-		0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,//10
-		1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,//20
-		2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 0, 0, 0, 0, 0, 0,//30
-		0, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4,//40
-		4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 0, 0, 0, 0, 4,//50
-		0, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4,//60
-		4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 0, 0, 0, 0, 0,//70
-		0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,//80
-		0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,//90
-		0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,//A0
-		0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,//B0
-		0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,//C0
-		0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,//D0
-		0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,//E0
-		0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,//F0
-	}; 
+static unsigned char cmap[256]={
+	//+0 +1 +2 +3 +4 +5 +6 +7 +8 +9 +A +B +C +D +E +F
+	0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 1, 0, 0,//00
+	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,//10
+	1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,//20
+	2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 0, 0, 0, 0, 0, 0,//30
+	0, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4,//40
+	4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 0, 0, 0, 0, 4,//50
+	0, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4,//60
+	4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 0, 0, 0, 0, 0,//70
+	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,//80
+	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,//90
+	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,//A0
+	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,//B0
+	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,//C0
+	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,//D0
+	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,//E0
+	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,//F0
+}; 
 using namespace std;
 
 #ifdef __GNUC__
@@ -540,19 +540,19 @@ Compiler::~Compiler() {
 //added by Misa.Z for running file
 void Compiler::run(const std::string &fname) {
 	std::string oldCwd = cwd;
-	
+
 	cname = File::getFullname(cwd, fname);
 	cwd = File::getPath(cname);
 
-//	TRACE("Runing file \"%s\n", cname.c_str());
+	//	TRACE("Runing file \"%s\n", cname.c_str());
 	std::string input = File::read(cname);
 	if(input.length() > 0) {
 		exec(input);
 	}
 	else {
-//		TRACE("Can not run file \"%s\" at \"%s\" %s.\n", fname.c_str(), cname.c_str(), l->getPosition().c_str());
+		//		TRACE("Can not run file \"%s\" at \"%s\" %s.\n", fname.c_str(), cname.c_str(), l->getPosition().c_str());
 	}
-	
+
 	if(oldCwd.length() > 0)
 		cwd = oldCwd;
 }
@@ -585,75 +585,75 @@ LEX_TYPES Compiler::statement() {
 	LEX_TYPES ret = LEX_EOF;
 
 	if (l->tk==LEX_R_INCLUDE) {
-    l->chkread(LEX_R_INCLUDE);
+		l->chkread(LEX_R_INCLUDE);
 
 		run(l->tkStr);
 
-    l->chkread(LEX_STR);
-    l->chkread(';');
+		l->chkread(LEX_STR);
+		l->chkread(';');
 	}
 	else if (l->tk==LEX_ID    ||
-      l->tk==LEX_INT   ||
-      l->tk==LEX_FLOAT ||
-      l->tk==LEX_STR   ||
-      l->tk=='-'    ) {
-    /* Execute a simple statement that only contains basic arithmetic... */
-    base();
-    l->chkread(';');
+			l->tk==LEX_INT   ||
+			l->tk==LEX_FLOAT ||
+			l->tk==LEX_STR   ||
+			l->tk=='-'    ) {
+		/* Execute a simple statement that only contains basic arithmetic... */
+		base();
+		l->chkread(';');
 	}
 	else if (l->tk=='{') {
 		/* A block of code */
 		block();
 	}
 	else if (l->tk==';') {
-    /* Empty statement - to allow things like ;;; */
-    l->chkread(';');
+		/* Empty statement - to allow things like ;;; */
+		l->chkread(';');
 	}
 	else if (l->tk==LEX_R_BREAK){
-    l->chkread(LEX_R_BREAK);
-    l->chkread(';');
+		l->chkread(LEX_R_BREAK);
+		l->chkread(';');
 		OUT("%d BREAK\n", cindex++);
-    return LEX_R_BREAK;
-  } 
+		return LEX_R_BREAK;
+	} 
 	else if (l->tk==LEX_R_CONTINUE){
-    l->chkread(LEX_R_CONTINUE);
-    l->chkread(';');
+		l->chkread(LEX_R_CONTINUE);
+		l->chkread(';');
 		OUT("%d CONTINUE\n", cindex++);
-    return LEX_R_CONTINUE;
-  }
+		return LEX_R_CONTINUE;
+	}
 	else if (l->tk==LEX_R_VAR || l->tk == LEX_R_CONST) {
-    bool beConst;
-    if(l->tk == LEX_R_VAR) {
-      l->chkread(LEX_R_VAR);
-      beConst = false;
-    }
-    else {
-      l->chkread(LEX_R_CONST);
-      beConst = true;
-    }
+		bool beConst;
+		if(l->tk == LEX_R_VAR) {
+			l->chkread(LEX_R_VAR);
+			beConst = false;
+		}
+		else {
+			l->chkread(LEX_R_CONST);
+			beConst = true;
+		}
 
-    while (l->tk != ';') {
+		while (l->tk != ';') {
 			string vname = l->tkStr;
-      l->chkread(LEX_ID);
-      // now do stuff defined with dots
-      while (l->tk == '.') {
-        l->chkread('.');
+			l->chkread(LEX_ID);
+			// now do stuff defined with dots
+			while (l->tk == '.') {
+				l->chkread('.');
 				vname = vname + "." + l->tkStr;
-        l->chkread(LEX_ID);
-      }
+				l->chkread(LEX_ID);
+			}
 			OUT("%d %s %s\n", cindex++, beConst?"CONST":"VAR", vname.c_str());
-      // sort out initialiser
-      if (l->tk == '=') {
+			// sort out initialiser
+			if (l->tk == '=') {
 				OUT("%d LOAD %s\n", cindex++, vname.c_str());
-        l->chkread('=');
-        base();
+				l->chkread('=');
+				base();
 				OUT("%d ASIGN\n", cindex++);
-      }
+			}
 
-      if (l->tk != ';')
-        l->chkread(',');
-    }      
-    l->chkread(';');
+			if (l->tk != ';')
+				l->chkread(',');
+		}      
+		l->chkread(';');
 	}
 	else if(l->tk==LEX_R_FUNCTION) {
 		defFunc();
@@ -735,7 +735,7 @@ LEX_TYPES Compiler::term() {
 		int op = l->tk;
 		l->chkread(l->tk);
 		unary();
-	
+
 		if(l->tk == '*')
 			OUT("%d MULTI\n", cindex++);
 		else if(l->tk == '/')
@@ -865,16 +865,16 @@ LEX_TYPES Compiler::ternary() {
 	ret = logic();
 
 	/*
-	if (l->tk=='?') {
-		l->chkread('?');
-		base();
-		l->chkread(':');
-		base();
-	} 
-	base(); //first choice
-	l->chkread(':');
-	base(); //second choice
-	*/
+		 if (l->tk=='?') {
+		 l->chkread('?');
+		 base();
+		 l->chkread(':');
+		 base();
+		 } 
+		 base(); //first choice
+		 l->chkread(':');
+		 base(); //second choice
+	 */
 	return ret;	
 }
 
@@ -896,26 +896,26 @@ LEX_TYPES Compiler::callFunc() {
 LEX_TYPES Compiler::defFunc() {
 	LEX_TYPES ret = LEX_EOF;
 	// actually parse a function...
-  l->chkread(LEX_R_FUNCTION);
-  std::string funcName = "";
-  /* we can have functions without names */
-  if (l->tk==LEX_ID) {
-    funcName = l->tkStr;
-    l->chkread(LEX_ID);
-  }
+	l->chkread(LEX_R_FUNCTION);
+	std::string funcName = "";
+	/* we can have functions without names */
+	if (l->tk==LEX_ID) {
+		funcName = l->tkStr;
+		l->chkread(LEX_ID);
+	}
 
 	OUT("\n%d FUNC %s\n", cindex++, funcName.c_str());
 	//do arguments
-  l->chkread('(');
-  while (l->tk!=')') {
+	l->chkread('(');
+	while (l->tk!=')') {
 		OUT("%d ARG %s\n", cindex++, l->tkStr.c_str());
-    l->chkread(LEX_ID);
-    if (l->tk!=')') l->chkread(',');
-  }
-  l->chkread(')');
+		l->chkread(LEX_ID);
+		if (l->tk!=')') l->chkread(',');
+	}
+	l->chkread(')');
 
-  int funcBegin = l->tokenStart;
-  block();
+	int funcBegin = l->tokenStart;
+	block();
 	OUT("%d FUNC_END\n\n", cindex++);
 	return ret;
 }
@@ -924,33 +924,33 @@ LEX_TYPES Compiler::factor() {
 	LEX_TYPES ret = LEX_EOF;
 
 	if (l->tk==LEX_R_TRUE) {
-    l->chkread(LEX_R_TRUE);
+		l->chkread(LEX_R_TRUE);
 		OUT("%d TRUE\n", cindex++);
-  }
-  else if (l->tk==LEX_R_FALSE) {
-    l->chkread(LEX_R_FALSE);
+	}
+	else if (l->tk==LEX_R_FALSE) {
+		l->chkread(LEX_R_FALSE);
 		OUT("%d FALSE\n", cindex++);
-  }
-  else if (l->tk==LEX_R_NULL) {
-    l->chkread(LEX_R_NULL);
+	}
+	else if (l->tk==LEX_R_NULL) {
+		l->chkread(LEX_R_NULL);
 		OUT("%d NULL\n", cindex++);
-  }
-  else if (l->tk==LEX_R_UNDEFINED) {
-    l->chkread(LEX_R_UNDEFINED);
+	}
+	else if (l->tk==LEX_R_UNDEFINED) {
+		l->chkread(LEX_R_UNDEFINED);
 		OUT("%d UNDEF\n", cindex++);
-  }
+	}
 	else if (l->tk==LEX_INT) {
 		OUT("%d INT %s\n", cindex++, l->tkStr.c_str());
-    l->chkread(LEX_INT);
-  }
+		l->chkread(LEX_INT);
+	}
 	else if (l->tk==LEX_FLOAT) {
 		OUT("%d FLOAT %s\n", cindex++, l->tkStr.c_str());
-    l->chkread(LEX_FLOAT);
-  }
+		l->chkread(LEX_FLOAT);
+	}
 	else if (l->tk==LEX_STR) {
 		OUT("%d STR \"%s\"\n", cindex++, l->tkStr.c_str());
-    l->chkread(LEX_STR);
-  }
+		l->chkread(LEX_STR);
+	}
 	else if(l->tk==LEX_R_FUNCTION) {
 		defFunc();
 	}
@@ -960,21 +960,27 @@ LEX_TYPES Compiler::factor() {
 		const std::string className = l->tkStr;
 		l->chkread(LEX_ID);
 		if (l->tk == '(') {
-				l->chkread('(');
-				l->chkread(')');
+			l->chkread('(');
+			l->chkread(')');
 			OUT("%d NEW %s\n", cindex++, className.c_str());
 		}
 	}
 	else if(l->tk==LEX_ID) {
 		string name = l->tkStr;
-		OUT("%d LOAD %s\n", cindex++, name.c_str());
-    l->chkread(LEX_ID);
+		l->chkread(LEX_ID);
 
-    while (l->tk=='(' || l->tk=='.' || l->tk=='[') {
-      if (l->tk=='(') { // ------------------------------------- Function Call
+		bool load  = true;
+		while (l->tk=='(' || l->tk=='.' || l->tk=='[') {
+			if (l->tk=='(') { // ------------------------------------- Function Call
 				callFunc();
 				OUT("%d CALL %s\n", cindex++, name.c_str());
-      } else if (l->tk == '.') { // ------------------------------------- Record Access
+				load = false;
+			} else if (l->tk == '.') { // ------------------------------------- Record Access
+				if(load)	{
+					OUT("%d LOAD %s\n", cindex++, name.c_str());
+					load = false;
+				}
+
 				l->chkread('.');
 				name = l->tkStr;
 				l->chkread(LEX_ID);
@@ -982,15 +988,19 @@ LEX_TYPES Compiler::factor() {
 				if(l->tk != '(')
 					OUT("%d GET %s\n", cindex++, name.c_str());
 			} else if (l->tk == '[') { // ------------------------------------- Array Access
-        /*l->chkread('[');
-        base();
-        l->chkread(']');
-				*/
-      } 
+				/*l->chkread('[');
+					base();
+					l->chkread(']');
+				 */
+			} 
 			else {
 				//throw new CScriptException("Seriously issue");
 			}
 		}
+		if(load)	{
+			OUT("%d LOAD %s\n", cindex++, name.c_str());
+		}
+
 		// sort out initialiser
 		if (l->tk == '=') {
 			l->chkread('=');

@@ -1,4 +1,5 @@
 #include "Compiler.h"
+#include "BCVar.h"
 #include "libs/File/File.h"
 
 int main(int argc, char** argv) {
