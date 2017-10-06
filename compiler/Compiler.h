@@ -5,9 +5,9 @@
 #ifndef TRACE
 //#define TRACE printf
 #define TRACE(...) fprintf (stderr, __VA_ARGS__)
-#define OUT(...) fprintf (stdout, __VA_ARGS__)
 #endif // TRACE
 
+#include "Out.h"
 
 typedef enum {
 	LEX_EOF = 0,
@@ -122,6 +122,8 @@ class Compiler {
 		}
 
 	private:
+		BCOut out;
+
 		int cindex;
 		std::string cwd;
 		std::string cname;

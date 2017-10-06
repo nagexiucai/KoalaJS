@@ -1,4 +1,5 @@
 #include "Compiler.h"
+#include "Out.h"
 #include "../libs/File/File.h"
 #include <assert.h>
 #include <sstream>
@@ -612,13 +613,13 @@ LEX_TYPES Compiler::statement() {
 	else if (l->tk==LEX_R_BREAK){
 		l->chkread(LEX_R_BREAK);
 		l->chkread(';');
-		OUT("%d BREAK\n", cindex++);
+		out.out(INSTR_BREAK);
 		return LEX_R_BREAK;
 	} 
 	else if (l->tk==LEX_R_CONTINUE){
 		l->chkread(LEX_R_CONTINUE);
 		l->chkread(';');
-		OUT("%d CONTINUE\n", cindex++);
+		out.out(INSTR_CONTINUE);
 		return LEX_R_CONTINUE;
 	}
 	else if (l->tk==LEX_R_VAR || l->tk == LEX_R_CONST) {
@@ -641,13 +642,13 @@ LEX_TYPES Compiler::statement() {
 				vname = vname + "." + l->tkStr;
 				l->chkread(LEX_ID);
 			}
-			OUT("%d %s %s\n", cindex++, beConst?"CONST":"VAR", vname.c_str());
+			out.out(beConst ? INSTR_CONST : INSTR_VAR, vname.c_str());
 			// sort out initialiser
 			if (l->tk == '=') {
-				OUT("%d LOAD %s\n", cindex++, vname.c_str());
+				out.out(INSTR_LOAD, vname.c_str());
 				l->chkread('=');
 				base();
-				OUT("%d ASIGN\n", cindex++);
+				out.out(INSTR_ASIGN);
 			}
 
 			if (l->tk != ';')
@@ -663,47 +664,47 @@ LEX_TYPES Compiler::statement() {
 		if (l->tk != ';')
 			base();
 
-		OUT("%d RETURN\n", cindex++);
+		out.out(INSTR_RETURN);
 		l->chkread(';');
 	} 
 	else if (l->tk==LEX_R_WHILE) {
 		l->chkread(LEX_R_WHILE);
-		OUT("%d WHILE\n", cindex++);
+		out.out(INSTR_WHILE);
 
 		l->chkread('(');
-		OUT("%d CONDI\n", cindex++);
+		out.out(INSTR_CONDI);
 		base(); //condition
 		l->chkread(')');
-		OUT("%d CONDI_END\n", cindex++);
+		out.out(INSTR_CONDI_END);
 
-		OUT("%d BLOCK\n", cindex++);
+		out.out(INSTR_BLOCK);
 		statement();
-		OUT("%d BLOCK_END\n", cindex++);
-		OUT("%d WHILE_END\n", cindex++);
+		out.out(INSTR_BLOCK_END);
+		out.out(INSTR_WHILE_END);
 	}
 	else if (l->tk==LEX_R_IF) {
 		l->chkread(LEX_R_IF);
-		OUT("%d IF\n", cindex++);
+		out.out(INSTR_IF);
 		l->chkread('(');
-		OUT("%d CONDI\n", cindex++);
+		out.out(INSTR_CONDI);
 		base(); //condition
 		l->chkread(')');
-		OUT("%d CONDI_END\n", cindex++);
+		out.out(INSTR_CONDI_END);
 
-		OUT("%d BLOCK\n", cindex++);
+		out.out(INSTR_BLOCK);
 		statement();
-		OUT("%d BLOCK_END\n", cindex++);
+		out.out(INSTR_BLOCK_END);
 
 		if (l->tk==LEX_R_ELSE) {
 			l->chkread(LEX_R_ELSE);
-			OUT("%d ELSE\n", cindex++);
-			OUT("%d BLOCK\n", cindex++);
+			out.out(INSTR_ELSE);
+			out.out(INSTR_BLOCK);
 			statement();
-			OUT("%d BLOCK_END\n", cindex++);
-			OUT("%d ELSE_END\n", cindex++);
+			out.out(INSTR_BLOCK_END);
+			out.out(INSTR_ELSE_END);
 			return ret;
 		}
-		OUT("%d IF_END\n", cindex++);
+		out.out(INSTR_IF_END);
 	}
 	else {
 		l->chkread(LEX_EOF);
@@ -722,7 +723,7 @@ LEX_TYPES Compiler::unary() {
 	LEX_TYPES ret = LEX_EOF;
 	ret = factor();
 	if (l->tk == '!') {
-		OUT("%d NOT\n", cindex++);
+		out.out(INSTR_NOT);
 	}
 	return ret;	
 }
@@ -737,11 +738,11 @@ LEX_TYPES Compiler::term() {
 		unary();
 
 		if(l->tk == '*')
-			OUT("%d MULTI\n", cindex++);
+			out.out(INSTR_MULTI);
 		else if(l->tk == '/')
-			OUT("%d DIV\n", cindex++);
+			out.out(INSTR_DIV);
 		else
-			OUT("%d MOD\n", cindex++);
+			out.out(INSTR_MOD);
 	}
 
 
@@ -758,7 +759,7 @@ LEX_TYPES Compiler::expr() {
 
 	ret = term();
 	if (negate) {
-		OUT("%d NEG\n", cindex++);
+		out.out(INSTR_NEG);
 	}
 
 	while (l->tk=='+' || l->tk=='-' ||
@@ -766,18 +767,18 @@ LEX_TYPES Compiler::expr() {
 		int op = l->tk;
 		l->chkread(l->tk);
 		if (op==LEX_PLUSPLUS) {
-			OUT("%d PPLUS\n", cindex++);
+			out.out(INSTR_PPLUS);
 		}
 		else if(op==LEX_MINUSMINUS) {
-			OUT("%d MMINUS\n", cindex++);
+			out.out(INSTR_MMINUS);
 		}
 		else {
 			ret = term();
 			if(op== '+') {
-				OUT("%d PLUS\n", cindex++);
+				out.out(INSTR_PLUS);
 			}
 			else if(op=='-') {
-				OUT("%d MINUS\n", cindex++);
+				out.out(INSTR_MINUS);
 			}
 		}
 	}
@@ -795,11 +796,11 @@ LEX_TYPES Compiler::shift() {
 		ret = base();
 
 		if (op==LEX_LSHIFT) 
-			OUT("%d LSHIFT\n", cindex++);
+			out.out(INSTR_LSHIFT);
 		else if (op==LEX_RSHIFT)
-			OUT("%d RSHIFT\n", cindex++);
+			out.out(INSTR_RSHIFT);
 		else
-			OUT("%d URSHIFT\n", cindex++);
+			out.out(INSTR_URSHIFT);
 	}
 	return ret;	
 }
@@ -816,17 +817,17 @@ LEX_TYPES Compiler::condition() {
 		ret = shift();
 
 		if(op == LEX_EQUAL)
-			OUT("%d EQ\n", cindex++);
+			out.out(INSTR_EQ);
 		else if(op == LEX_NEQUAL)
-			OUT("%d NEQ\n", cindex++);
+			out.out(INSTR_NEQ);
 		else if(op == LEX_LEQUAL)
-			OUT("%d LEQ\n", cindex++);
+			out.out(INSTR_LEQ);
 		else if(op == LEX_GEQUAL)
-			OUT("%d GEQ\n", cindex++);
+			out.out(INSTR_GEQ);
 		else if(op == '>')
-			OUT("%d GRT\n", cindex++);
+			out.out(INSTR_GRT);
 		else if(op == '<')
-			OUT("%d LES\n", cindex++);
+			out.out(INSTR_LES);
 	}
 
 	return ret;	
@@ -842,19 +843,19 @@ LEX_TYPES Compiler::logic() {
 		int op = l->tk;
 		l->chkread(l->tk);
 		if (op==LEX_ANDAND) {
-			OUT("%d AAND\n", cindex++);
+			out.out(INSTR_AAND);
 		} 
 		else if (op==LEX_OROR) {
-			OUT("%d OOR\n", cindex++);
+			out.out(INSTR_OOR);
 		}
 		else if (op=='|') {
-			OUT("%d OR\n", cindex++);
+			out.out(INSTR_OR);
 		}
 		else if (op=='&') {
-			OUT("%d AND\n", cindex++);
+			out.out(INSTR_AND);
 		}
 		else if (op=='^') {
-			OUT("%d XOR\n", cindex++);
+			out.out(INSTR_XOR);
 		}
 	}
 	return ret;	
@@ -904,11 +905,11 @@ LEX_TYPES Compiler::defFunc() {
 		l->chkread(LEX_ID);
 	}
 
-	OUT("\n%d FUNC %s\n", cindex++, funcName.c_str());
+	out.out(INSTR_FUNC, funcName.c_str());
 	//do arguments
 	l->chkread('(');
 	while (l->tk!=')') {
-		OUT("%d ARG %s\n", cindex++, l->tkStr.c_str());
+		out.out(INSTR_ARG, l->tkStr.c_str());
 		l->chkread(LEX_ID);
 		if (l->tk!=')') l->chkread(',');
 	}
@@ -916,7 +917,7 @@ LEX_TYPES Compiler::defFunc() {
 
 	int funcBegin = l->tokenStart;
 	block();
-	OUT("%d FUNC_END\n\n", cindex++);
+	out.out(INSTR_FUNC_END);
 	return ret;
 }
 
@@ -925,30 +926,30 @@ LEX_TYPES Compiler::factor() {
 
 	if (l->tk==LEX_R_TRUE) {
 		l->chkread(LEX_R_TRUE);
-		OUT("%d TRUE\n", cindex++);
+		out.out(INSTR_TRUE);
 	}
 	else if (l->tk==LEX_R_FALSE) {
 		l->chkread(LEX_R_FALSE);
-		OUT("%d FALSE\n", cindex++);
+		out.out(INSTR_FALSE);
 	}
 	else if (l->tk==LEX_R_NULL) {
 		l->chkread(LEX_R_NULL);
-		OUT("%d NULL\n", cindex++);
+		out.out(INSTR_NULL);
 	}
 	else if (l->tk==LEX_R_UNDEFINED) {
 		l->chkread(LEX_R_UNDEFINED);
-		OUT("%d UNDEF\n", cindex++);
+		out.out(INSTR_UNDEF);
 	}
 	else if (l->tk==LEX_INT) {
-		OUT("%d INT %s\n", cindex++, l->tkStr.c_str());
+		out.out(INSTR_INT, l->tkStr.c_str());
 		l->chkread(LEX_INT);
 	}
 	else if (l->tk==LEX_FLOAT) {
-		OUT("%d FLOAT %s\n", cindex++, l->tkStr.c_str());
+		out.out(INSTR_FLOAT, l->tkStr.c_str());
 		l->chkread(LEX_FLOAT);
 	}
 	else if (l->tk==LEX_STR) {
-		OUT("%d STR \"%s\"\n", cindex++, l->tkStr.c_str());
+		out.out(INSTR_STR, l->tkStr.c_str());
 		l->chkread(LEX_STR);
 	}
 	else if(l->tk==LEX_R_FUNCTION) {
@@ -962,7 +963,7 @@ LEX_TYPES Compiler::factor() {
 		if (l->tk == '(') {
 			l->chkread('(');
 			l->chkread(')');
-			OUT("%d NEW %s\n", cindex++, className.c_str());
+			out.out(INSTR_NEW, className.c_str());
 		}
 	}
 	else if(l->tk==LEX_ID) {
@@ -973,11 +974,11 @@ LEX_TYPES Compiler::factor() {
 		while (l->tk=='(' || l->tk=='.' || l->tk=='[') {
 			if (l->tk=='(') { // ------------------------------------- Function Call
 				callFunc();
-				OUT("%d CALL %s\n", cindex++, name.c_str());
+				out.out(INSTR_CALL, name.c_str());
 				load = false;
 			} else if (l->tk == '.') { // ------------------------------------- Record Access
 				if(load)	{
-					OUT("%d LOAD %s\n", cindex++, name.c_str());
+					out.out(INSTR_LOAD, name.c_str());
 					load = false;
 				}
 
@@ -986,7 +987,7 @@ LEX_TYPES Compiler::factor() {
 				l->chkread(LEX_ID);
 
 				if(l->tk != '(')
-					OUT("%d GET %s\n", cindex++, name.c_str());
+					out.out(INSTR_GET, name.c_str());
 			} else if (l->tk == '[') { // ------------------------------------- Array Access
 				/*l->chkread('[');
 					base();
@@ -998,14 +999,14 @@ LEX_TYPES Compiler::factor() {
 			}
 		}
 		if(load)	{
-			OUT("%d LOAD %s\n", cindex++, name.c_str());
+			out.out(INSTR_LOAD, name.c_str());
 		}
 
 		// sort out initialiser
 		if (l->tk == '=') {
 			l->chkread('=');
 			base();
-			OUT("%d ASIGN\n", cindex++);
+			out.out(INSTR_ASIGN);
 		}
 	}
 

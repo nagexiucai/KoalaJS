@@ -1,5 +1,5 @@
 CFLAG = -g -I../
-SRCS = Compiler.cpp bc.cpp \
+SRCS = Compiler.cpp bc.cpp Out.cpp \
 		../libs/File/File.cpp 
 
 LDFLAG = -lpthread
