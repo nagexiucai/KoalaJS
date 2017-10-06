@@ -1,5 +1,5 @@
 #include "Compiler.h"
-#include "BCVar.h"
+#include "Var.h"
 #include "libs/File/File.h"
 
 int main(int argc, char** argv) {
@@ -20,6 +20,7 @@ int main(int argc, char** argv) {
 			else if(strncmp(buffer, ":go", 2) == 0) {
 				try {
 					tinyJS.exec(input);
+					tinyJS.out.strs();		
 				} catch (CScriptException *e) {
 					TRACE("ERROR: %s\n", e->text.c_str());
 				}
@@ -34,6 +35,8 @@ int main(int argc, char** argv) {
 	else {
 		try {
 			tinyJS.run(argv[1]);
+			tinyJS.out.strs();		
+
 		} catch (CScriptException *e) {
 			TRACE("ERROR: %s\n", e->text.c_str());
 		}

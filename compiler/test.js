@@ -1,4 +1,4 @@
-var a.b=1, s="fff";
+var a=1, s="fff";
 const c=1.232;
 
 if(b == 0) {

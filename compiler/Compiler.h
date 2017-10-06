@@ -121,9 +121,8 @@ class Compiler {
 			this->cwd = cwd;
 		}
 
-	private:
 		BCOut out;
-
+	private:
 		int cindex;
 		std::string cwd;
 		std::string cname;
