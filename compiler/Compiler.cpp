@@ -1,5 +1,4 @@
 #include "Compiler.h"
-#include "Out.h"
 #include "../libs/File/File.h"
 #include <assert.h>
 #include <sstream>
@@ -613,13 +612,13 @@ LEX_TYPES Compiler::statement() {
 	else if (l->tk==LEX_R_BREAK){
 		l->chkread(LEX_R_BREAK);
 		l->chkread(';');
-		out.out(INSTR_BREAK);
+		bytecode.gen(INSTR_BREAK);
 		return LEX_R_BREAK;
 	} 
 	else if (l->tk==LEX_R_CONTINUE){
 		l->chkread(LEX_R_CONTINUE);
 		l->chkread(';');
-		out.out(INSTR_CONTINUE);
+		bytecode.gen(INSTR_CONTINUE);
 		return LEX_R_CONTINUE;
 	}
 	else if (l->tk==LEX_R_VAR || l->tk == LEX_R_CONST) {
@@ -642,13 +641,13 @@ LEX_TYPES Compiler::statement() {
 				vname = vname + "." + l->tkStr;
 				l->chkread(LEX_ID);
 			}
-			out.out(beConst ? INSTR_CONST : INSTR_VAR, vname.c_str());
+			bytecode.gen(beConst ? INSTR_CONST : INSTR_VAR, vname.c_str());
 			// sort out initialiser
 			if (l->tk == '=') {
-				out.out(INSTR_LOAD, vname.c_str());
+				bytecode.gen(INSTR_LOAD, vname.c_str());
 				l->chkread('=');
 				base();
-				out.out(INSTR_ASIGN);
+				bytecode.gen(INSTR_ASIGN);
 			}
 
 			if (l->tk != ';')
@@ -664,47 +663,47 @@ LEX_TYPES Compiler::statement() {
 		if (l->tk != ';')
 			base();
 
-		out.out(INSTR_RETURN);
+		bytecode.gen(INSTR_RETURN);
 		l->chkread(';');
 	} 
 	else if (l->tk==LEX_R_WHILE) {
 		l->chkread(LEX_R_WHILE);
-		out.out(INSTR_WHILE);
+		bytecode.gen(INSTR_WHILE);
 
 		l->chkread('(');
-		out.out(INSTR_CONDI);
+		bytecode.gen(INSTR_CONDI);
 		base(); //condition
 		l->chkread(')');
-		out.out(INSTR_CONDI_END);
+		bytecode.gen(INSTR_CONDI_END);
 
-		out.out(INSTR_BLOCK);
+		bytecode.gen(INSTR_BLOCK);
 		statement();
-		out.out(INSTR_BLOCK_END);
-		out.out(INSTR_WHILE_END);
+		bytecode.gen(INSTR_BLOCK_END);
+		bytecode.gen(INSTR_WHILE_END);
 	}
 	else if (l->tk==LEX_R_IF) {
 		l->chkread(LEX_R_IF);
-		out.out(INSTR_IF);
+		bytecode.gen(INSTR_IF);
 		l->chkread('(');
-		out.out(INSTR_CONDI);
+		bytecode.gen(INSTR_CONDI);
 		base(); //condition
 		l->chkread(')');
-		out.out(INSTR_CONDI_END);
+		bytecode.gen(INSTR_CONDI_END);
 
-		out.out(INSTR_BLOCK);
+		bytecode.gen(INSTR_BLOCK);
 		statement();
-		out.out(INSTR_BLOCK_END);
+		bytecode.gen(INSTR_BLOCK_END);
 
 		if (l->tk==LEX_R_ELSE) {
 			l->chkread(LEX_R_ELSE);
-			out.out(INSTR_ELSE);
-			out.out(INSTR_BLOCK);
+			bytecode.gen(INSTR_ELSE);
+			bytecode.gen(INSTR_BLOCK);
 			statement();
-			out.out(INSTR_BLOCK_END);
-			out.out(INSTR_ELSE_END);
+			bytecode.gen(INSTR_BLOCK_END);
+			bytecode.gen(INSTR_ELSE_END);
 			return ret;
 		}
-		out.out(INSTR_IF_END);
+		bytecode.gen(INSTR_IF_END);
 	}
 	else {
 		l->chkread(LEX_EOF);
@@ -723,7 +722,7 @@ LEX_TYPES Compiler::unary() {
 	LEX_TYPES ret = LEX_EOF;
 	ret = factor();
 	if (l->tk == '!') {
-		out.out(INSTR_NOT);
+		bytecode.gen(INSTR_NOT);
 	}
 	return ret;	
 }
@@ -738,11 +737,11 @@ LEX_TYPES Compiler::term() {
 		unary();
 
 		if(l->tk == '*')
-			out.out(INSTR_MULTI);
+			bytecode.gen(INSTR_MULTI);
 		else if(l->tk == '/')
-			out.out(INSTR_DIV);
+			bytecode.gen(INSTR_DIV);
 		else
-			out.out(INSTR_MOD);
+			bytecode.gen(INSTR_MOD);
 	}
 
 
@@ -759,7 +758,7 @@ LEX_TYPES Compiler::expr() {
 
 	ret = term();
 	if (negate) {
-		out.out(INSTR_NEG);
+		bytecode.gen(INSTR_NEG);
 	}
 
 	while (l->tk=='+' || l->tk=='-' ||
@@ -767,18 +766,18 @@ LEX_TYPES Compiler::expr() {
 		int op = l->tk;
 		l->chkread(l->tk);
 		if (op==LEX_PLUSPLUS) {
-			out.out(INSTR_PPLUS);
+			bytecode.gen(INSTR_PPLUS);
 		}
 		else if(op==LEX_MINUSMINUS) {
-			out.out(INSTR_MMINUS);
+			bytecode.gen(INSTR_MMINUS);
 		}
 		else {
 			ret = term();
 			if(op== '+') {
-				out.out(INSTR_PLUS);
+				bytecode.gen(INSTR_PLUS);
 			}
 			else if(op=='-') {
-				out.out(INSTR_MINUS);
+				bytecode.gen(INSTR_MINUS);
 			}
 		}
 	}
@@ -796,11 +795,11 @@ LEX_TYPES Compiler::shift() {
 		ret = base();
 
 		if (op==LEX_LSHIFT) 
-			out.out(INSTR_LSHIFT);
+			bytecode.gen(INSTR_LSHIFT);
 		else if (op==LEX_RSHIFT)
-			out.out(INSTR_RSHIFT);
+			bytecode.gen(INSTR_RSHIFT);
 		else
-			out.out(INSTR_URSHIFT);
+			bytecode.gen(INSTR_URSHIFT);
 	}
 	return ret;	
 }
@@ -817,17 +816,17 @@ LEX_TYPES Compiler::condition() {
 		ret = shift();
 
 		if(op == LEX_EQUAL)
-			out.out(INSTR_EQ);
+			bytecode.gen(INSTR_EQ);
 		else if(op == LEX_NEQUAL)
-			out.out(INSTR_NEQ);
+			bytecode.gen(INSTR_NEQ);
 		else if(op == LEX_LEQUAL)
-			out.out(INSTR_LEQ);
+			bytecode.gen(INSTR_LEQ);
 		else if(op == LEX_GEQUAL)
-			out.out(INSTR_GEQ);
+			bytecode.gen(INSTR_GEQ);
 		else if(op == '>')
-			out.out(INSTR_GRT);
+			bytecode.gen(INSTR_GRT);
 		else if(op == '<')
-			out.out(INSTR_LES);
+			bytecode.gen(INSTR_LES);
 	}
 
 	return ret;	
@@ -843,19 +842,19 @@ LEX_TYPES Compiler::logic() {
 		int op = l->tk;
 		l->chkread(l->tk);
 		if (op==LEX_ANDAND) {
-			out.out(INSTR_AAND);
+			bytecode.gen(INSTR_AAND);
 		} 
 		else if (op==LEX_OROR) {
-			out.out(INSTR_OOR);
+			bytecode.gen(INSTR_OOR);
 		}
 		else if (op=='|') {
-			out.out(INSTR_OR);
+			bytecode.gen(INSTR_OR);
 		}
 		else if (op=='&') {
-			out.out(INSTR_AND);
+			bytecode.gen(INSTR_AND);
 		}
 		else if (op=='^') {
-			out.out(INSTR_XOR);
+			bytecode.gen(INSTR_XOR);
 		}
 	}
 	return ret;	
@@ -905,11 +904,11 @@ LEX_TYPES Compiler::defFunc() {
 		l->chkread(LEX_ID);
 	}
 
-	out.out(INSTR_FUNC, funcName.c_str());
+	bytecode.gen(INSTR_FUNC, funcName.c_str());
 	//do arguments
 	l->chkread('(');
 	while (l->tk!=')') {
-		out.out(INSTR_ARG, l->tkStr.c_str());
+		bytecode.gen(INSTR_ARG, l->tkStr.c_str());
 		l->chkread(LEX_ID);
 		if (l->tk!=')') l->chkread(',');
 	}
@@ -917,7 +916,7 @@ LEX_TYPES Compiler::defFunc() {
 
 	int funcBegin = l->tokenStart;
 	block();
-	out.out(INSTR_FUNC_END);
+	bytecode.gen(INSTR_FUNC_END);
 	return ret;
 }
 
@@ -926,30 +925,30 @@ LEX_TYPES Compiler::factor() {
 
 	if (l->tk==LEX_R_TRUE) {
 		l->chkread(LEX_R_TRUE);
-		out.out(INSTR_TRUE);
+		bytecode.gen(INSTR_TRUE);
 	}
 	else if (l->tk==LEX_R_FALSE) {
 		l->chkread(LEX_R_FALSE);
-		out.out(INSTR_FALSE);
+		bytecode.gen(INSTR_FALSE);
 	}
 	else if (l->tk==LEX_R_NULL) {
 		l->chkread(LEX_R_NULL);
-		out.out(INSTR_NULL);
+		bytecode.gen(INSTR_NULL);
 	}
 	else if (l->tk==LEX_R_UNDEFINED) {
 		l->chkread(LEX_R_UNDEFINED);
-		out.out(INSTR_UNDEF);
+		bytecode.gen(INSTR_UNDEF);
 	}
 	else if (l->tk==LEX_INT) {
-		out.out(INSTR_INT, l->tkStr.c_str());
+		bytecode.gen(INSTR_INT, l->tkStr.c_str());
 		l->chkread(LEX_INT);
 	}
 	else if (l->tk==LEX_FLOAT) {
-		out.out(INSTR_FLOAT, l->tkStr.c_str());
+		bytecode.gen(INSTR_FLOAT, l->tkStr.c_str());
 		l->chkread(LEX_FLOAT);
 	}
 	else if (l->tk==LEX_STR) {
-		out.out(INSTR_STR, l->tkStr.c_str());
+		bytecode.gen(INSTR_STR, l->tkStr.c_str());
 		l->chkread(LEX_STR);
 	}
 	else if(l->tk==LEX_R_FUNCTION) {
@@ -963,7 +962,7 @@ LEX_TYPES Compiler::factor() {
 		if (l->tk == '(') {
 			l->chkread('(');
 			l->chkread(')');
-			out.out(INSTR_NEW, className.c_str());
+			bytecode.gen(INSTR_NEW, className.c_str());
 		}
 	}
 	else if(l->tk==LEX_ID) {
@@ -974,11 +973,11 @@ LEX_TYPES Compiler::factor() {
 		while (l->tk=='(' || l->tk=='.' || l->tk=='[') {
 			if (l->tk=='(') { // ------------------------------------- Function Call
 				callFunc();
-				out.out(INSTR_CALL, name.c_str());
+				bytecode.gen(INSTR_CALL, name.c_str());
 				load = false;
 			} else if (l->tk == '.') { // ------------------------------------- Record Access
 				if(load)	{
-					out.out(INSTR_LOAD, name.c_str());
+					bytecode.gen(INSTR_LOAD, name.c_str());
 					load = false;
 				}
 
@@ -987,7 +986,7 @@ LEX_TYPES Compiler::factor() {
 				l->chkread(LEX_ID);
 
 				if(l->tk != '(')
-					out.out(INSTR_GET, name.c_str());
+					bytecode.gen(INSTR_GET, name.c_str());
 			} else if (l->tk == '[') { // ------------------------------------- Array Access
 				/*l->chkread('[');
 					base();
@@ -999,14 +998,14 @@ LEX_TYPES Compiler::factor() {
 			}
 		}
 		if(load)	{
-			out.out(INSTR_LOAD, name.c_str());
+			bytecode.gen(INSTR_LOAD, name.c_str());
 		}
 
 		// sort out initialiser
 		if (l->tk == '=') {
 			l->chkread('=');
 			base();
-			out.out(INSTR_ASIGN);
+			bytecode.gen(INSTR_ASIGN);
 		}
 	}
 

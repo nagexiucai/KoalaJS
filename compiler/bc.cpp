@@ -20,7 +20,7 @@ int main(int argc, char** argv) {
 			else if(strncmp(buffer, ":go", 2) == 0) {
 				try {
 					tinyJS.exec(input);
-					tinyJS.out.strs();		
+					tinyJS.bytecode.dump();
 				} catch (CScriptException *e) {
 					TRACE("ERROR: %s\n", e->text.c_str());
 				}
@@ -35,8 +35,7 @@ int main(int argc, char** argv) {
 	else {
 		try {
 			tinyJS.run(argv[1]);
-			tinyJS.out.strs();		
-
+			tinyJS.bytecode.dump();
 		} catch (CScriptException *e) {
 			TRACE("ERROR: %s\n", e->text.c_str());
 		}

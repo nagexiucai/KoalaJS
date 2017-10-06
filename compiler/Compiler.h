@@ -7,7 +7,7 @@
 #define TRACE(...) fprintf (stderr, __VA_ARGS__)
 #endif // TRACE
 
-#include "Out.h"
+#include "Bytecode.h"
 
 typedef enum {
 	LEX_EOF = 0,
@@ -121,7 +121,7 @@ class Compiler {
 			this->cwd = cwd;
 		}
 
-		BCOut out;
+		Bytecode bytecode;
 	private:
 		int cindex;
 		std::string cwd;
