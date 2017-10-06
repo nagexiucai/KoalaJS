@@ -53,20 +53,20 @@ void Bytecode::gen(Instr instr, const string& str) {
 	add(ins);
 
 	if(s.length() == 0) {
-		//P("%d\t0x%08X\t%s\n", cindex-1, ins, BCInstr::instr(instr).c_str());	
+		P("%d\t0x%08X\t%s\n", cindex-1, ins, BCInstr::instr(instr).c_str());	
 	}
 	else {
-		//P("%d\t0x%08X\t%s %s\n", cindex-1, ins, BCInstr::instr(instr).c_str(), str.c_str());	
+		P("%d\t0x%08X\t%s %s\n", cindex-1, ins, BCInstr::instr(instr).c_str(), str.c_str());	
 	}
 
 	if(instr == INSTR_INT) {
 		add(i);
-		//P("%d\t0x%08X\t(%d)\n", cindex-1, i, i);	
+		P("%d\t0x%08X\t(%d)\n", cindex-1, i, i);	
 	}
 	else if(instr == INSTR_FLOAT) {
 		memcpy(&i, &f, sizeof(unsigned int));
 		add(i);
-		//P("%d\t0x%08X\t(%f)\n", cindex-1, i, f);	
+		P("%d\t0x%08X\t(%f)\n", cindex-1, i, f);	
 	}
 }
 

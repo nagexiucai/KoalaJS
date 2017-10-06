@@ -701,9 +701,9 @@ LEX_TYPES Compiler::statement() {
 			statement();
 			bytecode.gen(INSTR_BLOCK_END);
 			bytecode.gen(INSTR_ELSE_END);
-			return ret;
 		}
 		bytecode.gen(INSTR_IF_END);
+		return ret;
 	}
 	else {
 		l->chkread(LEX_EOF);
