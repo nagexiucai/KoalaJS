@@ -1,6 +1,7 @@
 #include "Compiler.h"
 #include "Var.h"
 #include "libs/File/File.h"
+#include <string.h>
 
 int main(int argc, char** argv) {
 	Compiler tinyJS;

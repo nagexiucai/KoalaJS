@@ -5,6 +5,8 @@
 #include <sys/stat.h>
 #include <unistd.h>
 #include <fcntl.h>
+#include <string.h>
+#include <stdio.h>
 
 #define INT_SIZE sizeof(uint32_t)
 #define INS_SIZE sizeof(uint16_t)
