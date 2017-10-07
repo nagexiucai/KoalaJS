@@ -1,6 +1,9 @@
 .Author
 	Misa.Z misa@rokid.com
 
+.License
+	under GPL.
+
 .About
 	This TinyJS engine core was forked from https://github.com/gfwilliams/tiny-js.git, by Gordon Williams <gw@pur3.co.uk>.
 	fixed some bugs and done lots of jobs on native interface framework design.
