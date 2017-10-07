@@ -23,11 +23,7 @@ const static Instr INSTR_ASIGN			= 0x0006; // ASIGN								: =
 const static Instr INSTR_INT				= 0x0007; // INT int 							: push int
 const static Instr INSTR_FLOAT			= 0x0008; // FLOAT float					: push float 
 const static Instr INSTR_STR				= 0x0009; // STR "str"						: push str
-
-const static Instr INSTR_JMP				= 0x000A; // JMP x								: JMP offset x  
-const static Instr INSTR_NJMP				= 0x000B; // NJMP x								: Condition not JMP offset x 
-const static Instr INSTR_JMPB				= 0x000C; // JMP back x						: JMP back offset x  
-const static Instr INSTR_NJMPB			= 0x000D; // NJMP back x					: Condition not JMP back offset x 
+const static Instr INSTR_ARRAY_AT		= 0x000A; // ARRAT 								: get array element at
 
 const static Instr INSTR_FUNC				= 0x0010; // FUNC x								: function definetion x
 const static Instr INSTR_FUNC_END		= 0x0011; // FUNC_END							: function define end
@@ -65,6 +61,11 @@ const static Instr INSTR_BREAK			= 0x0050; // : break
 const static Instr INSTR_CONTINUE		= 0x0051; // : continue
 const static Instr INSTR_RETURN			= 0x0052; // : return
 
+const static Instr INSTR_JMP				= 0x0053; // JMP x								: JMP offset x  
+const static Instr INSTR_NJMP				= 0x0054; // NJMP x								: Condition not JMP offset x 
+const static Instr INSTR_JMPB				= 0x0055; // JMP back x						: JMP back offset x  
+const static Instr INSTR_NJMPB			= 0x0056; // NJMP back x					: Condition not JMP back offset x 
+
 const static Instr INSTR_TRUE				= 0x0060; // : true
 const static Instr INSTR_FALSE			= 0x0061; // : false
 const static Instr INSTR_NULL				= 0x0062; // : null
@@ -82,6 +83,7 @@ class BCInstr {
 			case  INSTR_INT					: return "int";
 			case  INSTR_FLOAT				: return "float";
 			case  INSTR_STR					: return "str";
+			case  INSTR_ARRAY_AT		: return "arrat";
 			case  INSTR_LOAD				: return "load";
 			case  INSTR_STORE				: return "store";
 			case  INSTR_JMP					: return "jmp";

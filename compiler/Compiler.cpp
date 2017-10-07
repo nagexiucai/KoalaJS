@@ -999,10 +999,15 @@ LEX_TYPES Compiler::factor() {
 				if(l->tk != '(')
 					bytecode.gen(INSTR_GET, name.c_str());
 			} else if (l->tk == '[') { // ------------------------------------- Array Access
-				/*l->chkread('[');
-					base();
-					l->chkread(']');
-				 */
+				if(load)	{
+					bytecode.gen(INSTR_LOAD, name.c_str());
+					load = false;
+				}
+
+				l->chkread('[');
+				base();
+				l->chkread(']');
+				bytecode.gen(INSTR_ARRAY_AT);
 			} 
 			else {
 				//throw new CScriptException("Seriously issue");
