@@ -17,9 +17,24 @@ typedef struct BCValue {
 	VarDestroy destroyFunc;
 } BCValueT;
 
+class BCVar;
+
+class BCNode {
+public:
+	BCVar *var;
+	bool beConst;
+	string name;
+
+	BCNode(const string& n, BCVar* v);
+	
+	~BCNode();
+	
+	void replace(BCVar* v);
+};
+
 class BCVar {
 	int refs;
-	vector<BCVar*> children;	
+	vector<BCNode*> children;	
 
 public:
 	const static uint8_t INT = 0;
@@ -27,27 +42,18 @@ public:
 	const static uint8_t STRING = 2;
 	const static uint8_t POINT = 3;
 	const static uint8_t FUNC = 4;
+	const static uint8_t UNDEF = 5;
 
-	string name;
 	uint8_t type;
 	BCValueT value;
-	bool beConst;
 
-	inline BCVar() {
-		refs = 0;
-		value.pointV = NULL;
-		value.destroyFunc = NULL;
-		clean();
-	}
-
-	inline BCVar(const string& name, uint8_t type = INT) {
+	inline BCVar(uint8_t type = UNDEF) {
 		refs = 0;
 		value.pointV = NULL;
 		value.destroyFunc = NULL;
 		clean();
 
 		this->type = type;
-		this->name = name;
 	}
 
 	inline ~BCVar() {
@@ -55,8 +61,6 @@ public:
 	}
 	
 	inline void clean() {
-		name = "";
-		beConst = false;
 		type = INT;
 
 		value.intV = 0;
@@ -73,7 +77,7 @@ public:
 		}	
 
 		for(int i=0; i<children.size(); ++i) {
-			children[i]->unref();
+			delete children[i];
 		}
 	}
 
@@ -92,35 +96,34 @@ public:
 	}
 
 	//get child var by index
-	inline BCVar* getChild(int index) {
+	inline BCNode* getChild(int index) {
 		if(index < 0 || index >= children.size())
 			return NULL;
 		return children[index];
 	}
 
 	//get child var by name , if not found, create one
-	inline BCVar* getChild(const string& name, bool create = false) {
+	inline BCNode* getChild(const string& name, bool create = false) {
 		for(int i=0; i<children.size(); ++i) {
 			if(children[i] != NULL && children[i]->name == name)
 				return children[i];
 		}
 
 		if(create) {
-			BCVar* ret = new BCVar(name);
-			children.push_back(ret->ref());
+			BCVar* v = new BCVar();
+			BCNode* ret = new BCNode(name, v);
+			children.push_back(ret);
 			return ret;
 		}
 		return NULL;
 	}
 
 	//add child, this function doesn't check existed or not!!
-	inline BCVar* addChild(const string& name) {
-		BCVar* ret = new BCVar(name);
-		children.push_back(ret->ref());
+	inline BCNode* addChild(const string& name) {
+		BCVar* v = new BCVar();
+		BCNode* ret = new BCNode(name, v);
+		children.push_back(ret);
 		return ret;
-	}
-
-	inline void copyValue(BCVar* src) {
 	}
 };
 
