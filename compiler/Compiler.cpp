@@ -727,6 +727,8 @@ LEX_TYPES Compiler::statement() {
 LEX_TYPES Compiler::base() {
 	LEX_TYPES ret = LEX_EOF;
 	ret = ternary();
+	if (l->tk=='=' || l->tk==LEX_PLUSEQUAL || l->tk==LEX_MINUSEQUAL) {
+	}
 	return ret;
 }
 
