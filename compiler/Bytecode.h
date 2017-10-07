@@ -10,21 +10,28 @@ using namespace std;
 class Bytecode {
 	PC cindex;
 	vector<string> strTable;
-	unsigned int *codeBuf;
-	unsigned int bufSize;
+	PC *codeBuf;
+	uint32_t bufSize;
 
 public:
-	const static unsigned int BUF_SIZE = 1024;
+	const static uint32_t BUF_SIZE = 1024;
 	Bytecode() {
 		cindex = 0;
 		codeBuf = NULL;
 		bufSize = 0;
 	}
 
-	~Bytecode() {
+	inline void reset() {
+		strTable.clear();
 		if(codeBuf != NULL) {
 			delete []codeBuf;
 		}
+		bufSize = 0;
+		cindex = 0;
+	}
+
+	~Bytecode() {
+		reset();
 	}
 	void add(PC ins);
 
@@ -36,7 +43,7 @@ public:
 	
 	string getStr(int i);
 
-	unsigned short getStrIndex(const string& n);
+	uint16_t getStrIndex(const string& n);
 
 	inline PC  getPC() {
 		return cindex;
@@ -62,6 +69,10 @@ public:
 	}
 	
 	void dump();
+	
+	bool toFile(const std::string& fname);
+
+	bool fromFile(const std::string& fname);
 };
 
 #endif

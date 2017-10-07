@@ -4,8 +4,8 @@
 #include <string>
 using namespace std;
 
-typedef unsigned short Instr;
-typedef unsigned int PC;
+typedef uint16_t Instr;
+typedef uint32_t PC;
 
 #define INS(ins, off) (((ins) << 16) & 0xFFFF0000 | ((off) & 0x0000FFFF))
 

@@ -1,4 +1,13 @@
 #include "Bytecode.h"
+#include <unistd.h>  
+#include <vector>  
+#include <cstdlib>
+#include <sys/stat.h>
+#include <unistd.h>
+#include <fcntl.h>
+
+#define INT_SIZE sizeof(uint32_t)
+#define INS_SIZE sizeof(uint16_t)
 
 #define P(...) fprintf (stdout, __VA_ARGS__)
 
@@ -24,9 +33,12 @@ string Bytecode::getStr(int i) {
 	return strTable[i];
 }	
 
-unsigned short Bytecode::getStrIndex(const string& n) {
-	unsigned short sz = strTable.size();
-	for(unsigned short i=0; i<sz; ++i) {
+uint16_t Bytecode::getStrIndex(const string& n) {
+	if(n.length() == 0)
+		return 0xFFFF;
+
+	uint16_t sz = strTable.size();
+	for(uint16_t i=0; i<sz; ++i) {
 		if(strTable[i] == n)
 			return i;
 	}
@@ -35,8 +47,8 @@ unsigned short Bytecode::getStrIndex(const string& n) {
 }	
 
 PC Bytecode::bytecode(Instr instr, const string& str) {
-	unsigned r = instr;
-	unsigned short i = 0xFFFF;
+	Instr r = instr;
+	Instr i = 0xFFFF;
 
 	if(str.length() > 0)
 		i = this->getStrIndex(str);
@@ -45,8 +57,8 @@ PC Bytecode::bytecode(Instr instr, const string& str) {
 }
 
 void Bytecode::strs() {
-	unsigned short sz = strTable.size();
-	for(unsigned short i=0; i<sz; ++i) {
+	uint16_t sz = strTable.size();
+	for(uint16_t i=0; i<sz; ++i) {
 		P("%04X: %s\n", i, strTable[i].c_str()); 
 	}
 }
@@ -114,8 +126,8 @@ void Bytecode::dump() {
 
 	while(i < cindex) {
 		ins = codeBuf[i];
-		unsigned short instr = (ins >> 16) & 0xFFFF;
-		unsigned short strIndex = ins & 0xFFFF;
+		Instr instr = (ins >> 16) & 0xFFFF;
+		Instr strIndex = ins & 0xFFFF;
 
 		if(strIndex == 0xFFFF)
 			P("%d\t0x%08X\t%s\n", i, ins, BCInstr::instr(instr).c_str());	
@@ -142,3 +154,66 @@ void Bytecode::dump() {
 		}
 	}
 }
+
+bool Bytecode::toFile(const std::string& fname) {
+	int fd = open(fname.c_str(), O_WRONLY | O_CREAT | O_TRUNC, S_IRUSR | S_IWUSR | S_IRGRP);
+	if(fd < 0)
+		return false;
+
+	// write string talble 
+	uint32_t sz = strTable.size();
+	for(uint16_t i=0; i<sz; ++i) {
+		string s = strTable[i];
+		uint32_t len = s.length();
+		write(fd, (char*)(&len), INT_SIZE);
+		write(fd, s.c_str(), len);
+	}	
+	sz = 0;	
+	write(fd, (char*)(&sz), INT_SIZE);
+
+	// write instruction
+	write(fd, (char*)(&cindex), INS_SIZE);
+	write(fd, (char*)codeBuf, sizeof(PC) * cindex);
+
+	close(fd);
+	return true;
+}
+
+bool Bytecode::fromFile(const std::string& fname) {
+	reset();
+
+	int fd = open(fname.c_str(), O_RDONLY);
+	if(fd < 0)
+		return false;
+	//read string table
+
+	uint32_t sz;
+	char* buf = NULL;
+
+	while(true) {
+		read(fd, &sz, INT_SIZE);
+		if(sz == 0)
+			break;
+
+		buf = new char[sz+1];
+		if(buf == NULL)
+			return false;
+		read(fd, buf, sz);
+		buf[sz] = 0;
+		
+		strTable.push_back(buf);
+		delete []buf;
+	}	
+
+	read(fd, &cindex, INS_SIZE);
+	if(cindex == 0)
+		return false;
+
+	sz = cindex * sizeof(PC);
+	codeBuf = new PC[sz];
+	read(fd, codeBuf, sz);
+	
+	close(fd);
+	return true;
+}
+
