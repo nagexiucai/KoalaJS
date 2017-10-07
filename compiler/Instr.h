@@ -62,8 +62,6 @@ const static Instr INSTR_AND				= 0x0044; // AND									: &
 const static Instr INSTR_BREAK			= 0x0050; // : break
 const static Instr INSTR_CONTINUE		= 0x0051; // : continue
 const static Instr INSTR_RETURN			= 0x0052; // : return
-const static Instr INSTR_BLOCK			= 0x0055; // : block
-const static Instr INSTR_BLOCK_END	= 0x0056; // : block end
 
 const static Instr INSTR_TRUE				= 0x0060; // : true
 const static Instr INSTR_FALSE			= 0x0061; // : false
@@ -118,8 +116,6 @@ class BCInstr {
 			case  INSTR_BREAK				: return "break";
 			case  INSTR_CONTINUE		: return "continue";
 			case  INSTR_RETURN			: return "return";
-			case  INSTR_BLOCK				: return "block";
-			case  INSTR_BLOCK_END		: return "block.end";
 			case  INSTR_TRUE				: return "true";
 			case  INSTR_FALSE				: return "false";
 			case  INSTR_NULL				: return "null";
