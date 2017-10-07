@@ -2,6 +2,8 @@
 #define BC_INSTR
 
 #include <string>
+#include <stdint.h>
+
 using namespace std;
 
 typedef uint16_t Instr;
