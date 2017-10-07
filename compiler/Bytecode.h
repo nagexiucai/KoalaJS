@@ -7,6 +7,12 @@
 
 using namespace std;
 
+class CScriptException {
+	public:
+		std::string text;
+		CScriptException(const std::string &exceptionText);
+};
+
 class Bytecode {
 	PC cindex;
 	vector<string> strTable;
@@ -23,11 +29,18 @@ public:
 
 	inline void reset() {
 		strTable.clear();
+
 		if(codeBuf != NULL) {
 			delete []codeBuf;
+			codeBuf = NULL;
 		}
 		bufSize = 0;
 		cindex = 0;
+	}
+
+	inline PC* getCode(uint32_t &sz) {
+		sz = cindex;
+		return codeBuf;
 	}
 
 	~Bytecode() {
@@ -40,7 +53,7 @@ public:
 	PC gen(Instr instr, const string& str = "");
 
 	PC bytecode(Instr instr, const string& str = "");
-	
+
 	string getStr(int i);
 
 	uint16_t getStrIndex(const string& n);

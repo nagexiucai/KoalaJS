@@ -59,12 +59,6 @@ typedef enum {
 	LEX_R_LIST_END /* always the last entry */
 } LEX_TYPES;
 
-class CScriptException {
-	public:
-		std::string text;
-		CScriptException(const std::string &exceptionText);
-};
-
 class CScriptLex
 {
 	public:

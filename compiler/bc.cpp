@@ -1,5 +1,6 @@
 #include "Compiler.h"
 #include "Var.h"
+#include "VM.h"
 #include "libs/File/File.h"
 #include <string.h>
 
@@ -42,11 +43,15 @@ int main(int argc, char** argv) {
 	else {
 		try {
 			string s = argv[1];
-			if(s.rfind(".bcode") != string::npos) {
+			
+			if(s.rfind(".bcode") != string::npos) { //run bytecode
 				TRACE("Loading : %s\n", s.c_str());
-				tinyJS.bytecode.fromFile(s);
+				while(true) {
+				BCVM vm;
+				vm.run(s);
+				}	
 			}
-			else {
+			else { //compile js to bytecode.
 				TRACE("Compiling : %s\n", s.c_str());
 				tinyJS.run(argv[1]);
 				s += ".bcode";
@@ -56,9 +61,8 @@ int main(int argc, char** argv) {
 					s = s.substr(i+1);
 
 				tinyJS.bytecode.toFile(s);
+				tinyJS.bytecode.dump();
 			}
-
-			tinyJS.bytecode.dump();
 		} catch (CScriptException *e) {
 			TRACE("ERROR: %s\n", e->text.c_str());
 		}

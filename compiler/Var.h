@@ -3,6 +3,7 @@
 
 #include <string>
 #include <vector>
+#include <stdint.h>
 
 using namespace std;
 
@@ -21,9 +22,16 @@ class BCVar {
 	vector<BCVar*> children;	
 
 public:
+	const static uint8_t INT = 0;
+	const static uint8_t FLOAT = 1;
+	const static uint8_t STRING = 2;
+	const static uint8_t POINT = 3;
+	const static uint8_t FUNC = 4;
+
 	string name;
+	uint8_t type;
 	BCValueT value;
-	
+	bool beConst;
 
 	inline BCVar() {
 		refs = 0;
@@ -32,12 +40,13 @@ public:
 		clean();
 	}
 
-	inline BCVar(const string& name) {
+	inline BCVar(const string& name, uint8_t type = INT) {
 		refs = 0;
 		value.pointV = NULL;
 		value.destroyFunc = NULL;
 		clean();
 
+		this->type = type;
 		this->name = name;
 	}
 
@@ -47,6 +56,8 @@ public:
 	
 	inline void clean() {
 		name = "";
+		beConst = false;
+		type = INT;
 
 		value.intV = 0;
 		value.floatV = 0.0;
@@ -71,38 +82,45 @@ public:
 		return this;
 	}
 	
-	inline void unref() {
+	inline BCVar* unref() {
 		refs--;
 		if(refs == 0) {
 			delete this;
+			return NULL;
 		}
+		return this;
 	}
 
-	inline BCVar* get(int index) {
+	//get child var by index
+	inline BCVar* getChild(int index) {
 		if(index < 0 || index >= children.size())
 			return NULL;
 		return children[index];
 	}
 
-	inline BCVar* get(const string& name) {
+	//get child var by name , if not found, create one
+	inline BCVar* getChild(const string& name, bool create = false) {
 		for(int i=0; i<children.size(); ++i) {
 			if(children[i] != NULL && children[i]->name == name)
 				return children[i];
 		}
+
+		if(create) {
+			BCVar* ret = new BCVar(name);
+			children.push_back(ret->ref());
+			return ret;
+		}
 		return NULL;
 	}
-	
-	inline BCVar* add(const string& name) {
-		BCVar* ret = get(name);
-		if(ret != NULL)
-			return ret;
 
-		ret = new BCVar(name);
-		if(ret == NULL)
-			return ret;
-
+	//add child, this function doesn't check existed or not!!
+	inline BCVar* addChild(const string& name) {
+		BCVar* ret = new BCVar(name);
 		children.push_back(ret->ref());
 		return ret;
+	}
+
+	inline void copyValue(BCVar* src) {
 	}
 };
 
