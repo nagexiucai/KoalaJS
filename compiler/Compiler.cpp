@@ -668,41 +668,51 @@ LEX_TYPES Compiler::statement() {
 	} 
 	else if (l->tk==LEX_R_WHILE) {
 		l->chkread(LEX_R_WHILE);
-		bytecode.gen(INSTR_WHILE);
-
 		l->chkread('(');
-		bytecode.gen(INSTR_CONDI);
+		PC cpc = bytecode.getPC();
 		base(); //condition
 		l->chkread(')');
-		bytecode.gen(INSTR_CONDI_END);
-
-		bytecode.gen(INSTR_BLOCK);
+		PC pc = bytecode.reserve();
 		statement();
-		bytecode.gen(INSTR_BLOCK_END);
-		bytecode.gen(INSTR_WHILE_END);
+		bytecode.jump(cpc, true, true);
+		bytecode.jump(pc, false);
 	}
 	else if (l->tk==LEX_R_IF) {
 		l->chkread(LEX_R_IF);
-		bytecode.gen(INSTR_IF);
 		l->chkread('(');
-		bytecode.gen(INSTR_CONDI);
 		base(); //condition
 		l->chkread(')');
-		bytecode.gen(INSTR_CONDI_END);
-
-		bytecode.gen(INSTR_BLOCK);
+		PC pc = bytecode.reserve();
 		statement();
-		bytecode.gen(INSTR_BLOCK_END);
+		bytecode.jump(pc, false);
 
 		if (l->tk==LEX_R_ELSE) {
+			pc = bytecode.reserve();
 			l->chkread(LEX_R_ELSE);
-			bytecode.gen(INSTR_ELSE);
-			bytecode.gen(INSTR_BLOCK);
 			statement();
-			bytecode.gen(INSTR_BLOCK_END);
-			bytecode.gen(INSTR_ELSE_END);
+			bytecode.jump(pc, true);
 		}
-		bytecode.gen(INSTR_IF_END);
+		return ret;
+	}
+	else if (l->tk==LEX_R_FOR) {
+		l->chkread(LEX_R_FOR);
+		l->chkread('(');
+		statement(); //init
+		//l->chkread(';');
+		PC cpc = bytecode.getPC();
+		base(); //continue
+		PC breakPC = bytecode.reserve();
+		PC loopPC = bytecode.reserve();
+		l->chkread(';');
+		PC ipc = bytecode.getPC();
+		base(); //interator
+		l->chkread(')');
+		bytecode.jump(cpc, true, true);
+		bytecode.jump(loopPC);
+		statement();
+		bytecode.jump(ipc, true, true);
+		bytecode.jump(breakPC, false);
+
 		return ret;
 	}
 	else {
@@ -863,18 +873,17 @@ LEX_TYPES Compiler::logic() {
 LEX_TYPES Compiler::ternary() {
 	LEX_TYPES ret = LEX_EOF;
 	ret = logic();
-
-	/*
-		 if (l->tk=='?') {
-		 l->chkread('?');
-		 base();
-		 l->chkread(':');
-		 base();
-		 } 
-		 base(); //first choice
-		 l->chkread(':');
-		 base(); //second choice
-	 */
+	
+	if (l->tk=='?') {
+		PC pc1 = bytecode.reserve(); //keep for jump
+		l->chkread('?');
+		base(); //first choice
+		PC pc2 = bytecode.reserve(); //keep for jump
+		l->chkread(':');
+		bytecode.jump(pc1, false);
+		base(); //second choice
+		bytecode.jump(pc2, true);
+	} 
 	return ret;	
 }
 

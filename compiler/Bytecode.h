@@ -8,7 +8,7 @@
 using namespace std;
 
 class Bytecode {
-	unsigned int cindex;
+	PC cindex;
 	vector<string> strTable;
 	unsigned int *codeBuf;
 	unsigned int bufSize;
@@ -26,29 +26,40 @@ public:
 			delete []codeBuf;
 		}
 	}
-	void add(unsigned int ins);
+	void add(PC ins);
 
 	void strs();
 
-	void gen(Instr instr, const string& str = "");
+	PC gen(Instr instr, const string& str = "");
 
-	unsigned int bytecode(Instr instr, const string& str = "");
+	PC bytecode(Instr instr, const string& str = "");
 	
-	inline string getStr(int i) {
-		if(i<0 || i>=strTable.size())
-			return "";
-		return strTable[i];
-	}	
+	string getStr(int i);
 
-	inline unsigned short getStrIndex(const string& n) {
-		unsigned short sz = strTable.size();
-		for(unsigned short i=0; i<sz; ++i) {
-			if(strTable[i] == n)
-				return i;
-		}
-		strTable.push_back(n);
-		return sz;
-	}	
+	unsigned short getStrIndex(const string& n);
+
+	inline PC  getPC() {
+		return cindex;
+	}
+
+	inline PC  getInstr(PC index) {
+		if(index >= cindex)
+			return 0;
+
+		return codeBuf[index];
+	}
+	
+	/** set jump instructioin , jump to current pc
+	 @param index, index of instruction.
+	 @param jmp, jump if true, or njump if false.
+	 @param back, offset back if true, or forward if false.
+	*/
+	void jump(PC anchor, bool jmp = true, bool back = false);
+
+	inline PC reserve() {
+		add(INS(INSTR_NIL, 0));
+		return cindex-1;
+	}
 	
 	void dump();
 };

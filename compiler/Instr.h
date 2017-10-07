@@ -5,6 +5,11 @@
 using namespace std;
 
 typedef unsigned short Instr;
+typedef unsigned int PC;
+
+#define INS(ins, off) (((ins) << 16) & 0xFFFF0000 | ((off) & 0x0000FFFF))
+
+const static Instr INSTR_NIL				= 0x0000; // NIL									: Do nothing.
 
 const static Instr INSTR_VAR				= 0x0001; // VAR x								: declare var x
 const static Instr INSTR_CONST			= 0x0002; // CONST x							: declare const x
@@ -16,6 +21,11 @@ const static Instr INSTR_ASIGN			= 0x0006; // ASIGN								: =
 const static Instr INSTR_INT				= 0x0007; // INT int 							: push int
 const static Instr INSTR_FLOAT			= 0x0008; // FLOAT float					: push float 
 const static Instr INSTR_STR				= 0x0009; // STR "str"						: push str
+
+const static Instr INSTR_JMP				= 0x000A; // JMP x								: JMP offset x  
+const static Instr INSTR_NJMP				= 0x000B; // NJMP x								: Condition not JMP offset x 
+const static Instr INSTR_JMPB				= 0x000C; // JMP back x						: JMP back offset x  
+const static Instr INSTR_NJMPB			= 0x000D; // NJMP back x					: Condition not JMP back offset x 
 
 const static Instr INSTR_FUNC				= 0x0010; // FUNC x								: function definetion x
 const static Instr INSTR_FUNC_END		= 0x0011; // FUNC_END							: function define end
@@ -52,16 +62,8 @@ const static Instr INSTR_AND				= 0x0044; // AND									: &
 const static Instr INSTR_BREAK			= 0x0050; // : break
 const static Instr INSTR_CONTINUE		= 0x0051; // : continue
 const static Instr INSTR_RETURN			= 0x0052; // : return
-const static Instr INSTR_WHILE			= 0x0053; // : while
-const static Instr INSTR_WHILE_END	= 0x0054; // : while end
 const static Instr INSTR_BLOCK			= 0x0055; // : block
 const static Instr INSTR_BLOCK_END	= 0x0056; // : block end
-const static Instr INSTR_IF					= 0x0057; // : if
-const static Instr INSTR_IF_END			= 0x0058; // : if end
-const static Instr INSTR_ELSE				= 0x0059; // : else
-const static Instr INSTR_ELSE_END		= 0x005A; // : else end
-const static Instr INSTR_CONDI			= 0x005B; // : condition
-const static Instr INSTR_CONDI_END	= 0x005C; // : condition end
 
 const static Instr INSTR_TRUE				= 0x0060; // : true
 const static Instr INSTR_FALSE			= 0x0061; // : false
@@ -74,6 +76,7 @@ class BCInstr {
 	public:
 	inline static string instr(Instr ins) {
 		switch(ins) {
+			case  INSTR_NIL					: return "nil";
 			case  INSTR_VAR					: return "var";
 			case  INSTR_CONST				: return "const";
 			case  INSTR_INT					: return "int";
@@ -81,6 +84,10 @@ class BCInstr {
 			case  INSTR_STR					: return "str";
 			case  INSTR_LOAD				: return "load";
 			case  INSTR_STORE				: return "store";
+			case  INSTR_JMP					: return "jmp";
+			case  INSTR_NJMP				: return "njmp";
+			case  INSTR_JMPB				: return "jmpb";
+			case  INSTR_NJMPB				: return "njmpb";
 			case  INSTR_FUNC				: return "func";
 			case  INSTR_FUNC_END		: return "func.end";
 			case  INSTR_CALL				: return "call";
@@ -111,16 +118,8 @@ class BCInstr {
 			case  INSTR_BREAK				: return "break";
 			case  INSTR_CONTINUE		: return "continue";
 			case  INSTR_RETURN			: return "return";
-			case  INSTR_WHILE				: return "while";
-			case  INSTR_WHILE_END		: return "while.end";
 			case  INSTR_BLOCK				: return "block";
 			case  INSTR_BLOCK_END		: return "block.end";
-			case  INSTR_IF					: return "if";
-			case  INSTR_IF_END			: return "if.end";
-			case  INSTR_ELSE				: return "else";
-			case  INSTR_ELSE_END		: return "else.end";
-			case  INSTR_CONDI				: return "condi";
-			case  INSTR_CONDI_END		: return "condi.end";
 			case  INSTR_TRUE				: return "true";
 			case  INSTR_FALSE				: return "false";
 			case  INSTR_NULL				: return "null";
