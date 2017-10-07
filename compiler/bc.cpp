@@ -50,6 +50,11 @@ int main(int argc, char** argv) {
 				TRACE("Compiling : %s\n", s.c_str());
 				tinyJS.run(argv[1]);
 				s += ".bcode";
+
+				int i = s.rfind("/");
+				if(i != string::npos)
+					s = s.substr(i+1);
+
 				tinyJS.bytecode.toFile(s);
 			}
 
