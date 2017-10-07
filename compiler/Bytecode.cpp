@@ -19,7 +19,7 @@ void Bytecode::add(PC ins) {
 }
 	
 string Bytecode::getStr(int i) {
-	if(i<0 || i>=strTable.size())
+	if(i<0 || i == 0xFFFF ||  i>=strTable.size())
 		return "";
 	return strTable[i];
 }	
@@ -39,7 +39,7 @@ PC Bytecode::bytecode(Instr instr, const string& str) {
 	unsigned short i = 0xFFFF;
 
 	if(str.length() > 0)
-	 	i = this->getStrIndex(str);
+		i = this->getStrIndex(str);
 
 	return INS(r, i);
 }
@@ -68,12 +68,7 @@ PC Bytecode::gen(Instr instr, const string& str) {
 	PC ins = bytecode(instr, s);
 	add(ins);
 
-	if(s.length() == 0) {
-//		P("%d\t0x%08X\t%s\n", cindex-1, ins, BCInstr::instr(instr).c_str());	
-	}
-	else {
-//		P("%d\t0x%08X\t%s %s\n", cindex-1, ins, BCInstr::instr(instr).c_str(), str.c_str());	
-	}
+//	P("%d\t0x%08X\t%s %s\n", cindex-1, ins, BCInstr::instr(instr).c_str(), str.c_str());	
 
 	if(instr == INSTR_INT) {
 		add(i);
