@@ -40,14 +40,18 @@ int main(int argc, char** argv) {
 	}
 	else {
 		try {
-			tinyJS.run(argv[1]);
-			tinyJS.bytecode.dump();
-			
 			string s = argv[1];
-			s += ".bcode";
+			if(s.rfind(".bcode") != string::npos) {
+				TRACE("Loading : %s\n", s.c_str());
+				tinyJS.bytecode.fromFile(s);
+			}
+			else {
+				TRACE("Compiling : %s\n", s.c_str());
+				tinyJS.run(argv[1]);
+				s += ".bcode";
+				tinyJS.bytecode.toFile(s);
+			}
 
-			tinyJS.bytecode.toFile(s);
-			tinyJS.bytecode.fromFile(s);
 			tinyJS.bytecode.dump();
 		} catch (CScriptException *e) {
 			TRACE("ERROR: %s\n", e->text.c_str());
