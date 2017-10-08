@@ -48,9 +48,9 @@ uint16_t Bytecode::getStrIndex(const string& n) {
 	return sz;
 }	
 
-PC Bytecode::bytecode(Instr instr, const string& str) {
-	Instr r = instr;
-	Instr i = 0xFFFF;
+PC Bytecode::bytecode(OpCode instr, const string& str) {
+	OpCode r = instr;
+	OpCode i = 0xFFFF;
 
 	if(str.length() > 0)
 		i = this->getStrIndex(str);
@@ -65,7 +65,7 @@ void Bytecode::strs() {
 	}
 }
 	
-PC Bytecode::gen(Instr instr, const string& str) {
+PC Bytecode::gen(OpCode instr, const string& str) {
 	int i = 0;
 	float f = 0.0;
 	string s = str;
@@ -82,7 +82,7 @@ PC Bytecode::gen(Instr instr, const string& str) {
 	PC ins = bytecode(instr, s);
 	add(ins);
 
-//	P("%d\t0x%08X\t%s %s\n", cindex-1, ins, BCInstr::instr(instr).c_str(), str.c_str());	
+//	P("%d\t0x%08X\t%s %s\n", cindex-1, ins, BCOpCode::instr(instr).c_str(), str.c_str());	
 
 	if(instr == INSTR_INT) {
 		add(i);
@@ -97,20 +97,11 @@ PC Bytecode::gen(Instr instr, const string& str) {
 	return cindex;
 }
 
-/** set jump instructioin , jump to current pc
-	@param index, index of instruction.
-	@param jmp, jump if true, or njump if false.
-	@param back, offset back if true, or forward if false.
- */
-void Bytecode::jump(PC anchor, bool jmp, bool back) {
+void Bytecode::set(PC anchor, OpCode op, bool back) {
 	if(anchor >= cindex) 
 		return;
+	PC ins = INS(op, cindex - anchor);
 
-	PC ins = 0;
-	if(jmp)
-		ins = INS(back? INSTR_JMPB:INSTR_JMP, cindex - anchor);
-	else
-		ins = INS(back? INSTR_NJMPB:INSTR_NJMP, cindex - anchor);
 	if(back)
 		add(ins);
 	else
@@ -128,16 +119,20 @@ void Bytecode::dump() {
 
 	while(i < cindex) {
 		ins = codeBuf[i];
-		Instr instr = (ins >> 16) & 0xFFFF;
-		Instr strIndex = ins & 0xFFFF;
+		OpCode instr = (ins >> 16) & 0xFFFF;
+		OpCode strIndex = ins & 0xFFFF;
 
 		if(strIndex == 0xFFFF)
-			P("%d\t0x%08X\t%s\n", i, ins, BCInstr::instr(instr).c_str());	
+			P("%d\t0x%08X\t%s\n", i, ins, BCOpCode::instr(instr).c_str());	
 		else {
-			if(instr == INSTR_JMP || instr == INSTR_NJMP || instr == INSTR_NJMPB || instr == INSTR_JMPB)
-				P("%d\t0x%08X\t%s %d\n", i, ins, BCInstr::instr(instr).c_str(), strIndex);	
+			if(instr == INSTR_JMP || 
+					instr == INSTR_NJMP || 
+					instr == INSTR_NJMPB ||
+					instr == INSTR_JMPB || 
+					instr == INSTR_FUNC_END)
+				P("%d\t0x%08X\t%s %d\n", i, ins, BCOpCode::instr(instr).c_str(), strIndex);	
 			else
-				P("%d\t0x%08X\t%s %s\n", i, ins, BCInstr::instr(instr).c_str(), getStr(strIndex).c_str());	
+				P("%d\t0x%08X\t%s %s\n", i, ins, BCOpCode::instr(instr).c_str(), getStr(strIndex).c_str());	
 		}
 		
 		i++;

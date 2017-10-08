@@ -565,8 +565,10 @@ void Compiler::exec(const std::string &code) {
 	l = new CScriptLex(code);
 
 	try {
-		while (l->tk) 
+		while (l->tk) {
 			statement();
+		}
+		bytecode.reserve(); //add a nil instruction at the end of bytecode.
 	} catch (CScriptException *e) {
 		std::string msg;
 		std::stringstream ss;
@@ -648,7 +650,7 @@ LEX_TYPES Compiler::statement() {
 			if (l->tk == '=') {
 				l->chkread('=');
 				base();
-				bytecode.gen(INSTR_ASIGN, vname.c_str());
+				bytecode.gen(INSTR_STORE, vname.c_str());
 			}
 
 			if (l->tk != ';')
@@ -661,10 +663,13 @@ LEX_TYPES Compiler::statement() {
 	}
 	else if (l->tk==LEX_R_RETURN) {
 		l->chkread(LEX_R_RETURN);
-		if (l->tk != ';')
+		if (l->tk != ';') {
 			base();
-
-		bytecode.gen(INSTR_RETURN);
+			bytecode.gen(INSTR_RETURNV);
+		}
+		else {
+			bytecode.gen(INSTR_RETURN);
+		}
 		l->chkread(';');
 	} 
 	else if (l->tk==LEX_R_WHILE) {
@@ -675,8 +680,8 @@ LEX_TYPES Compiler::statement() {
 		l->chkread(')');
 		PC pc = bytecode.reserve();
 		statement();
-		bytecode.jump(cpc, true, true);
-		bytecode.jump(pc, false);
+		bytecode.set(cpc, INSTR_JMP, true);
+		bytecode.set(pc, INSTR_NJMP);
 	}
 	else if (l->tk==LEX_R_IF) {
 		l->chkread(LEX_R_IF);
@@ -685,13 +690,16 @@ LEX_TYPES Compiler::statement() {
 		l->chkread(')');
 		PC pc = bytecode.reserve();
 		statement();
-		bytecode.jump(pc, false);
 
 		if (l->tk==LEX_R_ELSE) {
-			pc = bytecode.reserve();
 			l->chkread(LEX_R_ELSE);
+			PC pc2 = bytecode.reserve();
+			bytecode.set(pc, INSTR_NJMP);
 			statement();
-			bytecode.jump(pc, true);
+			bytecode.set(pc2, INSTR_JMP);
+		}
+		else {
+			bytecode.set(pc, INSTR_NJMP);
 		}
 		return ret;
 	}
@@ -708,11 +716,11 @@ LEX_TYPES Compiler::statement() {
 		PC ipc = bytecode.getPC();
 		base(); //interator
 		l->chkread(')');
-		bytecode.jump(cpc, true, true);
-		bytecode.jump(loopPC);
+		bytecode.set(cpc, INSTR_JMP, true);
+		bytecode.set(loopPC, INSTR_JMP);
 		statement();
-		bytecode.jump(ipc, true, true);
-		bytecode.jump(breakPC, false);
+		bytecode.set(ipc, INSTR_JMP, true);
+		bytecode.set(breakPC, INSTR_NJMP);
 
 		return ret;
 	}
@@ -727,6 +735,12 @@ LEX_TYPES Compiler::base() {
 	LEX_TYPES ret = LEX_EOF;
 	ret = ternary();
 	if (l->tk=='=' || l->tk==LEX_PLUSEQUAL || l->tk==LEX_MINUSEQUAL) {
+		// sort out initialiser
+		if (l->tk == '=') {
+			l->chkread('=');
+			base();
+			bytecode.gen(INSTR_ASIGN);
+		}
 	}
 	return ret;
 }
@@ -883,9 +897,9 @@ LEX_TYPES Compiler::ternary() {
 		base(); //first choice
 		PC pc2 = bytecode.reserve(); //keep for jump
 		l->chkread(':');
-		bytecode.jump(pc1, false);
+		bytecode.set(pc1, INSTR_NJMP);
 		base(); //second choice
-		bytecode.jump(pc2, true);
+		bytecode.set(pc2, INSTR_JMP);
 	} 
 	return ret;	
 }
@@ -925,10 +939,13 @@ LEX_TYPES Compiler::defFunc() {
 		if (l->tk!=')') l->chkread(',');
 	}
 	l->chkread(')');
+	PC pc = bytecode.reserve();
 
 	int funcBegin = l->tokenStart;
 	block();
-	bytecode.gen(INSTR_FUNC_END);
+
+	bytecode.gen(INSTR_RETURN);
+	bytecode.set(pc, INSTR_FUNC_END);
 	return ret;
 }
 
@@ -1016,13 +1033,6 @@ LEX_TYPES Compiler::factor() {
 		}
 		if(load)	{
 			bytecode.gen(INSTR_LOAD, name.c_str());
-		}
-
-		// sort out initialiser
-		if (l->tk == '=') {
-			l->chkread('=');
-			base();
-			bytecode.gen(INSTR_ASIGN);
 		}
 	}
 

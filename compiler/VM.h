@@ -5,19 +5,18 @@
 #include "Var.h"
 
 #define VAR(i) (i->isNode ? ((BCNode*)i)->var : (BCVar*)i)
-class BCVM {
+#define ERR(e) throw new CScriptException(e)
+class VM {
 public:
-	inline BCVM() {
+	inline VM() {
 		pc = 0;
 		codeSize = 0;
 		code = NULL;
 		stackTop = STACK_DEEP;
 		root = NULL;
-		current = NULL;
-		opVar = NULL;
 	}
 
-	inline ~BCVM() {
+	inline ~VM() {
 		reset();
 	}
 
@@ -26,10 +25,9 @@ public:
 		pc = 0;
 		codeSize = 0;
 		code = NULL;
-		current = NULL;
 
 		while(true) {
-			StackItem* i = pop();
+			StackItem* i = pop2();
 			if(i == NULL) 
 				break;
 			BCVar* v = VAR(i);
@@ -38,20 +36,10 @@ public:
 		if(root != NULL)
 			root->unref();
 		
-		if(opVar != NULL)
-			opVar->unref();
-
 		root = NULL;
 	}
 
 	void run(const string& fname);
-
-	inline void opv(BCVar* v) {
-		if(opVar != NULL) {
-			opVar->unref();
-		}
-		opVar = v->ref();
-	}
 
 private:
 	PC pc;
@@ -60,8 +48,7 @@ private:
 	Bytecode bcode;
 
 	BCVar* root;
-	BCVar* current;
-	BCVar* opVar;
+	vector<BCVar*> scopes;
 
 	void run();
 
@@ -71,7 +58,29 @@ private:
 
 	void push(StackItem* v);
 
-	StackItem* pop();
+	StackItem* pop2();
+
+	/**find node by name just in current scope
+	@param name, name of variable;
+	*/
+	BCNode* find(const string& name);
+
+	/**find node by name in all scopes
+	@param name, name of variable;
+	*/
+	BCNode* findInScopes(const string& name);
+
+	inline BCVar* scope() { 
+		int i = scopes.size() - 1;
+		return (i < 0 ? NULL : scopes[i]);
+	}
+
+	//pop stack and release it.
+	void pop();
+
+	BCVar* funcDef(const string& funcName);
+
+	BCVar* funcCall(const string& funcName);
 };
 
 #endif

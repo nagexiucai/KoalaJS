@@ -47,7 +47,7 @@ int main(int argc, char** argv) {
 			if(s.rfind(".bcode") != string::npos) { //run bytecode
 				TRACE("Loading : %s\n", s.c_str());
 				while(true) {
-				BCVM vm;
+				VM vm;
 				vm.run(s);
 				}	
 			}

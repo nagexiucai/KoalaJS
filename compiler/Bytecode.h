@@ -50,9 +50,9 @@ public:
 
 	void strs();
 
-	PC gen(Instr instr, const string& str = "");
+	PC gen(OpCode instr, const string& str = "");
 
-	PC bytecode(Instr instr, const string& str = "");
+	PC bytecode(OpCode instr, const string& str = "");
 
 	string getStr(int i);
 
@@ -62,22 +62,23 @@ public:
 		return cindex;
 	}
 
-	inline PC  getInstr(PC index) {
+	inline PC  getOpCode(PC index) {
 		if(index >= cindex)
 			return 0;
 
 		return codeBuf[index];
 	}
 	
-	/** set jump instructioin , jump to current pc
-	 @param index, index of instruction.
-	 @param jmp, jump if true, or njump if false.
+	/** set reserved instructioin , offset to current pc
+	 @param anchar, anchor of reserved instruction.
+	 @param opCode, opCode.
 	 @param back, offset back if true, or forward if false.
 	*/
-	void jump(PC anchor, bool jmp = true, bool back = false);
+	void set(PC anchor, OpCode op, bool back = false);
 
+	/** reserved current instruction for unknow offset*/
 	inline PC reserve() {
-		add(INS(INSTR_NIL, 0));
+		add(INS(INSTR_NIL, 0xFFFF));
 		return cindex-1;
 	}
 	

@@ -4,11 +4,14 @@
 #include <string>
 #include <vector>
 #include <stdint.h>
+#include "Instr.h"
 
 using namespace std;
 
-typedef void (*VarDestroy)(void *p);
+class BCVar;
 
+typedef void (*VarDestroy)(void *p);
+typedef void (*JSCallback)(BCVar *var, void *userdata);
 
 class StackItem {
 public:
@@ -19,7 +22,6 @@ public:
 	}
 };
 
-class BCVar;
 
 class BCNode : public StackItem {
 public:
@@ -34,6 +36,16 @@ public:
 	void replace(BCVar* v);
 };
 
+/** struct for function type
+argNum : arguments number
+pc : function start PC
+ */
+typedef struct {
+	int argNum;
+	JSCallback native;
+	PC pc;
+} FuncT;
+
 class BCVar : public StackItem {
 	int refs;
 	vector<BCNode*> children;	
@@ -44,13 +56,16 @@ class BCVar : public StackItem {
 	void* pointV;
 	VarDestroy destroyFunc;
 
+	FuncT func;
+
 public:
 	const static uint8_t INT = 0;
 	const static uint8_t FLOAT = 1;
 	const static uint8_t STRING = 2;
 	const static uint8_t POINT = 3;
 	const static uint8_t FUNC = 4;
-	const static uint8_t UNDEF = 5;
+	const static uint8_t NFUNC = 5;
+	const static uint8_t UNDEF = 6;
 
 	uint8_t type;
 
@@ -104,6 +119,20 @@ public:
 		type = STRING;
 	}
 
+	inline void setFunction(int argNum, PC pc, JSCallback native = NULL) {
+		clean();
+		func.argNum = argNum;
+
+		if(native != NULL) {
+			func.native = native;
+			type = BCVar::NFUNC;
+		}
+		else {
+			func.pc = pc;
+			type = BCVar::FUNC;
+		}
+	}
+	inline FuncT* getFunc() { return &func; }
 	inline int getInt()  { return intV; }
 	inline float getFloat()  { return floatV; }
 	inline string getString()  { return stringV; }
@@ -157,25 +186,37 @@ public:
 		return children[index];
 	}
 
-	//get child var by name , if not found, create one
-	inline BCNode* getChild(const string& name, bool create = false) {
+	/*get child var by name 
+	@name , child name;
+	*/
+	inline BCNode* getChild(const string& name) {
+		for(int i=0; i<children.size(); ++i) {
+			if(children[i] != NULL && children[i]->name == name)
+				return children[i];
+		}
+		return NULL;
+	}
+
+	/*get child var by name , if not found, create one
+	@name , child name;
+	*/
+	inline BCNode* getChildOrCreate(const string& name) {
 		for(int i=0; i<children.size(); ++i) {
 			if(children[i] != NULL && children[i]->name == name)
 				return children[i];
 		}
 
-		if(create) {
-			BCVar* v = new BCVar();
-			BCNode* ret = new BCNode(name, v);
-			children.push_back(ret);
-			return ret;
-		}
-		return NULL;
+		BCVar* v = new BCVar();
+		BCNode* ret = new BCNode(name, v);
+		children.push_back(ret);
+		return ret;
 	}
 
 	//add child, this function doesn't check existed or not!!
-	inline BCNode* addChild(const string& name) {
-		BCVar* v = new BCVar();
+	inline BCNode* addChild(const string& name, BCVar* v = NULL) {
+		if(v == NULL)
+			v = new BCVar();
+
 		BCNode* ret = new BCNode(name, v);
 		children.push_back(ret);
 		return ret;
