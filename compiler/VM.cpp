@@ -12,14 +12,14 @@ void BCVM::run(const string& fname) {
 	run();
 }
 
-BCVar* BCVM::pop() {
+StackItem* BCVM::pop() {
 	if(stackTop == STACK_DEEP) // touch the bottom of stack
 		return NULL;
 
 	return stack[stackTop++];
 }
 
-void BCVM::push(BCVar* v) {
+void BCVM::push(StackItem* v) {
 	if(stackTop == 0) { //stack overflow
 		throw new CScriptException("stack overflow");
 		return;
@@ -55,35 +55,41 @@ void BCVM::run() {
 				BCNode* node = current->getChild(bcode.getStr(offset), true);
 				if(node == NULL) 
 					throw new CScriptException((str + " not found").c_str());
-				else
-					push(node->var->ref());
+				else {
+					node->var->ref();
+					push(node);
+				}
 				break;
 			}
 			case INSTR_INT: {
 				BCVar* v = new BCVar(BCVar::INT);
-				v->value.intV = (int)code[pc++];
+				v->setInt((int)code[pc++]);
 				push(v->ref());
 				break;
 			}
 			case INSTR_FLOAT: {
 				BCVar* v = new BCVar(BCVar::FLOAT);
-				v->value.floatV = *(float*)(&code[pc++]);
+				v->setFloat(*(float*)(&code[pc++]));
 				push(v->ref());
 				break;
 			}
 			case INSTR_STR: {
 				BCVar* v = new BCVar(BCVar::STRING);
-				v->value.stringV = bcode.getStr(offset);
+				v->setString(bcode.getStr(offset));
 				push(v->ref());
 				break;
 			}
 			case INSTR_ASIGN: {
-				BCVar* v1 = pop();
-				BCVar* v2 = pop();
-				if(v1 != NULL && v2 != NULL) {
-					//v1->copyValue(v2);
-					v1->unref();
-					v2->unref();
+				StackItem* i1 = pop();
+				StackItem* i2 = pop();
+				if(i2 != NULL && i2->isNode && i1 != NULL) {
+					BCNode* node = (BCNode*)i2;
+					BCVar* v = VAR(i1);
+
+					node->var->unref();
+					node->replace(v);
+					v->unref();
+					opv(node->var);
 				}
 				break;
 			}

@@ -4,6 +4,7 @@ BCNode::BCNode(const string& n, BCVar* v) {
 	var = v->ref();
 	name = n;
 	beConst = false;
+	isNode = true;
 }
 
 BCNode::~BCNode() {

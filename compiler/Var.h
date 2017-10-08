@@ -9,17 +9,19 @@ using namespace std;
 
 typedef void (*VarDestroy)(void *p);
 
-typedef struct BCValue {
-	int intV;
-	double floatV;
-	string stringV;
-	void* pointV;
-	VarDestroy destroyFunc;
-} BCValueT;
+
+class StackItem {
+public:
+	bool isNode;
+
+	inline StackItem() {
+		isNode = false;
+	}
+};
 
 class BCVar;
 
-class BCNode {
+class BCNode : public StackItem {
 public:
 	BCVar *var;
 	bool beConst;
@@ -32,9 +34,15 @@ public:
 	void replace(BCVar* v);
 };
 
-class BCVar {
+class BCVar : public StackItem {
 	int refs;
 	vector<BCNode*> children;	
+
+	int intV;
+	double floatV;
+	string stringV;
+	void* pointV;
+	VarDestroy destroyFunc;
 
 public:
 	const static uint8_t INT = 0;
@@ -45,16 +53,61 @@ public:
 	const static uint8_t UNDEF = 5;
 
 	uint8_t type;
-	BCValueT value;
 
-	inline BCVar(uint8_t type = UNDEF) {
+	inline BCVar() {
 		refs = 0;
-		value.pointV = NULL;
-		value.destroyFunc = NULL;
+		pointV = NULL;
+		destroyFunc = NULL;
+		type =UNDEF;
 		clean();
-
-		this->type = type;
 	}
+
+	inline BCVar(int v) {
+		refs = 0;
+		pointV = NULL;
+		destroyFunc = NULL;
+		type =UNDEF;
+		setInt(v);
+	}
+
+	inline BCVar(float v) {
+		refs = 0;
+		pointV = NULL;
+		destroyFunc = NULL;
+		type =UNDEF;
+		setFloat(v);
+	}
+
+	inline BCVar(const string& v) {
+		refs = 0;
+		pointV = NULL;
+		destroyFunc = NULL;
+		type =UNDEF;
+		setString(v);
+	}
+
+	inline void setInt(int v) {
+		clean();
+		intV = v;
+		type = INT;
+	}
+
+	inline void setFloat(float v) {
+		clean();
+		floatV = v;
+		type = FLOAT;
+	}
+
+	inline void setString(const string& v) {
+		clean();
+		stringV = v;
+		type = STRING;
+	}
+
+	inline int getInt()  { return intV; }
+	inline float getFloat()  { return floatV; }
+	inline string getString()  { return stringV; }
+
 
 	inline ~BCVar() {
 		clean();
@@ -63,23 +116,25 @@ public:
 	inline void clean() {
 		type = INT;
 
-		value.intV = 0;
-		value.floatV = 0.0;
-		value.stringV = "";
+		intV = 0;
+		floatV = 0.0;
+		stringV = "";
 
-		if(value.pointV != NULL) {
-			if(value.destroyFunc != NULL)
-				value.destroyFunc(value.pointV);
+		if(pointV != NULL) {
+			if(destroyFunc != NULL)
+				destroyFunc(pointV);
 			else
-				delete (unsigned char*)value.pointV;
-			value.pointV = NULL;
-			value.destroyFunc = NULL;
+				delete (unsigned char*)pointV;
+			pointV = NULL;
+			destroyFunc = NULL;
 		}	
 
 		for(int i=0; i<children.size(); ++i) {
 			delete children[i];
 		}
 	}
+
+	inline int getRefs() { return refs; }
 
 	inline BCVar* ref() {
 		refs++;
