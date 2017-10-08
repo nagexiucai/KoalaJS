@@ -646,10 +646,9 @@ LEX_TYPES Compiler::statement() {
 			bytecode.gen(beConst ? INSTR_CONST : INSTR_VAR, vname.c_str());
 			// sort out initialiser
 			if (l->tk == '=') {
-				bytecode.gen(INSTR_LOAD, vname.c_str());
 				l->chkread('=');
 				base();
-				bytecode.gen(INSTR_ASIGN);
+				bytecode.gen(INSTR_ASIGN, vname.c_str());
 			}
 
 			if (l->tk != ';')
