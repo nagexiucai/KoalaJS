@@ -5,7 +5,7 @@
 #include <string.h>
 
 int main(int argc, char** argv) {
-	Compiler tinyJS;
+	Compiler compiler;
 	std::string input;
 
 	if(argc <= 1) {
@@ -20,15 +20,15 @@ int main(int argc, char** argv) {
 				break;
 			}
 			else if(strncmp(buffer, ":c", 2) == 0) {
-				tinyJS.exec(input);
-				tinyJS.bytecode.dump();
-				tinyJS.bytecode.toFile("out.bcode");
+				compiler.exec(input);
+				compiler.bytecode.dump();
+				compiler.bytecode.toFile("out.bcode");
 				break;
 			}
 			else if(strncmp(buffer, ":go", 2) == 0) {
 				try {
-					tinyJS.exec(input);
-					tinyJS.bytecode.dump();
+					compiler.exec(input);
+					compiler.bytecode.dump();
 				} catch (CScriptException *e) {
 					TRACE("ERROR: %s\n", e->text.c_str());
 				}
@@ -53,15 +53,15 @@ int main(int argc, char** argv) {
 			}
 			else { //compile js to bytecode.
 				TRACE("Compiling : %s\n", s.c_str());
-				tinyJS.run(argv[1]);
+				compiler.bytecode.reset();
+				compiler.run(argv[1]);
 				s += ".bcode";
 
 				int i = s.rfind("/");
 				if(i != string::npos)
 					s = s.substr(i+1);
-
-				tinyJS.bytecode.toFile(s);
-				tinyJS.bytecode.dump();
+				compiler.bytecode.toFile(s);
+				compiler.bytecode.dump();
 			}
 		} catch (CScriptException *e) {
 			TRACE("ERROR: %s\n", e->text.c_str());
