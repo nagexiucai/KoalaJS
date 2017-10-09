@@ -1,5 +1,6 @@
 #include "Compiler.h"
 #include "../libs/File/File.h"
+#include "../libs/String/StringUtil.h"
 #include <assert.h>
 #include <sstream>
 #include <stdlib.h>
@@ -994,30 +995,41 @@ LEX_TYPES Compiler::factor() {
 		string name = l->tkStr;
 		l->chkread(LEX_ID);
 
-		bool load  = true;
+		bool load = true;
+		vector<string> names;
 		while (l->tk=='(' || l->tk=='.' || l->tk=='[') {
 			if (l->tk=='(') { // ------------------------------------- Function Call
-				if(load)
-					bytecode.gen(INSTR_LOAD, "this");
-
 				callFunc();
-				bytecode.gen(INSTR_CALL, name.c_str());
-				load = false;
-			} else if (l->tk == '.') { // ------------------------------------- Record Access
-				if(load)	{
-					bytecode.gen(INSTR_LOAD, name.c_str());
-					load = false;
+				StringUtil::split(name, '.', names);
+				name = "";
+				int sz = names.size()-1;
+					
+				if(sz == 0) {
+					bytecode.gen(INSTR_LOAD, "this");	
 				}
-
+				else {
+					for(int i=0; i<sz; i++) {
+						bytecode.gen(load ? INSTR_LOAD:INSTR_GET, names[i]);	
+						load = false;
+					}
+				}
+				bytecode.gen(INSTR_CALL, names[sz]);	
+				load = false;
+			} 
+			else if (l->tk == '.') { // ------------------------------------- Record Access
 				l->chkread('.');
-				name = l->tkStr;
+				if(name.length() == 0)
+					name = l->tkStr;
+				else 
+					name = name + "." + l->tkStr;
 				l->chkread(LEX_ID);
-
-				if(l->tk != '(')
-					bytecode.gen(INSTR_GET, name.c_str());
-			} else if (l->tk == '[') { // ------------------------------------- Array Access
-				if(load)	{
-					bytecode.gen(INSTR_LOAD, name.c_str());
+			} 
+			else { // ------------------------------------- Array Access
+				StringUtil::split(name, '.', names);
+				name = "";
+				int sz = names.size();
+				for(int i=0; i<sz; i++) {
+					bytecode.gen(load ? INSTR_LOAD:INSTR_GET, names[i]);	
 					load = false;
 				}
 
@@ -1026,12 +1038,15 @@ LEX_TYPES Compiler::factor() {
 				l->chkread(']');
 				bytecode.gen(INSTR_ARRAY_AT);
 			} 
-			else {
-				//throw new CScriptException("Seriously issue");
-			}
 		}
-		if(load)	{
-			bytecode.gen(INSTR_LOAD, name.c_str());
+		if(name.length() > 0) {
+			StringUtil::split(name, '.', names);
+			name = "";
+			int sz = names.size();
+			for(int i=0; i<sz; i++) {
+				bytecode.gen(load ? INSTR_LOAD:INSTR_GET, names[i]);	
+				load = false;
+			}
 		}
 	}
 

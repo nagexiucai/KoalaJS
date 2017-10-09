@@ -145,7 +145,7 @@ public:
 	}
 	
 	inline void clean() {
-		type = INT;
+		type = UNDEF;
 
 		intV = 0;
 		floatV = 0.0;

@@ -113,29 +113,30 @@ void VM::funcCall(const string& funcName) {
 		return;
 	}
 
-	BCNode* arg = n->var->getChildOrCreate(THIS);
+	BCNode* arg = NULL;
+	arg = n->var->getChildOrCreate(THIS);
 	arg->replace(object);
 	object->unref(); //unref after pop
-	
+
 	FuncT* func = n->var->getFunc();
 	//read arguments
 	for(int i=func->argNum-1; i>=0; --i) {
-			arg = n->var->getChild(i);
-			if(arg == NULL) {
-				ERR(funcName + " argment not match");
-				return;
-			}
+		arg = n->var->getChild(i);
+		if(arg == NULL) {
+			ERR(funcName + " argment not match");
+			return;
+		}
 
-			si = pop2();
-			if(si == NULL) {
-				ERR(funcName + " argment(s) missed");
-				return;
-			}
-			BCVar* v = VAR(si);
-			arg->replace(v);
-			v->unref(); //unref after pop
+		si = pop2();
+		if(si == NULL) {
+			ERR(funcName + " argment(s) missed");
+			return;
+		}
+		BCVar* v = VAR(si);
+		arg->replace(v);
+		v->unref(); //unref after pop
 	}
-	
+
 	if(n->var->type == BCVar::NFUNC) { //native function
 		if(func->native != NULL) {
 			func->native(n->var, this);
