@@ -6,6 +6,16 @@
 
 #define VAR(i) (i->isNode ? ((BCNode*)i)->var : (BCVar*)i)
 #define ERR(e) throw new CScriptException(e)
+
+#define THIS "this"
+#define PROTOTYPE "prototype"
+#define RETURN "return"
+
+typedef struct {
+	BCVar* var;
+	PC pc; //stack pc
+}VMScope;
+
 class VM {
 public:
 	inline VM() {
@@ -14,6 +24,7 @@ public:
 		code = NULL;
 		stackTop = STACK_DEEP;
 		root = NULL;
+		init();
 	}
 
 	inline ~VM() {
@@ -31,15 +42,20 @@ public:
 			if(i == NULL) 
 				break;
 			BCVar* v = VAR(i);
+			v->unref();
 		}
 
-		if(root != NULL)
-			root->unref();
+		if(root != NULL) {
+			delete root;
+			root = NULL;
+		}
 		
 		root = NULL;
 	}
 
 	void run(const string& fname);
+	
+	void registerNative(const string& clsName, const string& funcDecl, JSCallback native);
 
 private:
 	PC pc;
@@ -48,9 +64,11 @@ private:
 	Bytecode bcode;
 
 	BCVar* root;
-	vector<BCVar*> scopes;
+	vector<VMScope> scopes;
 
 	void run();
+
+	void init();
 
 	const static uint16_t STACK_DEEP = 128;
 	StackItem* stack[STACK_DEEP];
@@ -70,9 +88,15 @@ private:
 	*/
 	BCNode* findInScopes(const string& name);
 
-	inline BCVar* scope() { 
+	/**find node by name in class and superlcasses
+	@param name, name of variable;
+	*/
+	BCNode* findInClass(BCVar* obj, const string& name);
+
+
+	inline VMScope* scope() { 
 		int i = scopes.size() - 1;
-		return (i < 0 ? NULL : scopes[i]);
+		return (i < 0 ? NULL : &scopes[i]);
 	}
 
 	//pop stack and release it.
@@ -80,7 +104,18 @@ private:
 
 	BCVar* funcDef(const string& funcName);
 
-	BCVar* funcCall(const string& funcName);
+	void funcCall(const string& funcName);
+
+	BCVar* getCurrentObj();
+
+	inline static BCVar* newObject(const string& clsName) {
+		BCVar* ret = new BCVar();
+		ret->type = BCVar::OBJECT;
+		
+		//TODO create by clsName
+		return ret;
+	}
+
 };
 
 #endif

@@ -74,11 +74,14 @@ const static OpCode INSTR_UNDEF				= 0x0063; // : undefined
 
 const static OpCode INSTR_NEW					= 0x0070; // : new
 
+const static OpCode INSTR_POP					= 0x0080; // : pop and release
+
 class BCOpCode {
 	public:
 	inline static string instr(OpCode ins) {
 		switch(ins) {
 			case  INSTR_NIL					: return "nil";
+			case  INSTR_POP					: return "pop";
 			case  INSTR_VAR					: return "var";
 			case  INSTR_CONST				: return "const";
 			case  INSTR_INT					: return "int";

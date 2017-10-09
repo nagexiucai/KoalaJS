@@ -1,8 +1,6 @@
 #include "VM.h"
 
 void VM::run(const string& fname) {
-	reset();
-
 	if(!bcode.fromFile(fname))
 		return;
 
@@ -16,14 +14,19 @@ StackItem* VM::pop2() {
 	if(stackTop == STACK_DEEP) // touch the bottom of stack
 		return NULL;
 
-	return stack[stackTop++];
+	StackItem* ret =  stack[stackTop];
+	stack[stackTop] = NULL;
+	stackTop++;
+	return ret;
 }
 
 void VM::pop() {
 	if(stackTop == STACK_DEEP)
 		return;
-	
-	StackItem* i = stack[stackTop++];
+
+	StackItem* i =  stack[stackTop];
+	stack[stackTop] = NULL;
+	stackTop++;
 	VAR(i)->unref();
 }
 
@@ -36,63 +39,124 @@ void VM::push(StackItem* v) {
 }
 
 BCNode* VM::find(const string& name) {
-	BCVar* sc = scope();
+	VMScope* sc = scope();
 	if(sc == NULL)
 		return NULL;
 		
-	return sc->getChild(name);
+	return sc->var->getChild(name);
 }
 
 BCNode* VM::findInScopes(const string& name) {
 	for(int i=scopes.size() - 1; i >= 0; --i) {
-		BCVar* scope = scopes[i];
-		BCNode* r = scope->getChild(name);
+		BCNode* r = scopes[i].var->getChild(name);
 		if(r != NULL)
 			return r;
 	}
 	return NULL;
 }
 
-BCVar* VM::funcCall(const string& funcName) {
+BCNode* VM::findInClass(BCVar* obj, const string& name) {
+	while(obj != NULL) {
+		BCNode* n;
+		n = obj->getChild(PROTOTYPE);
+		if(n != NULL) {
+			obj = n->var;
+			n = obj->getChild(name);
+			if(n != NULL)
+				return n;
+		}		
+		else {
+			break;
+		}
+	}
+	return NULL;
+}
+
+BCVar* VM::getCurrentObj() {
+	return root;
+}
+
+void VM::funcCall(const string& funcName) {
 	BCVar* ret = NULL;
 
 	if(funcName.length() == 0)
-		return NULL;
-		
+		return;
+	
+	//read object
+	StackItem* si = pop2();
+	BCVar* object = NULL;
+	if(si == NULL)  {
+		ERR(funcName + " function owner(object) not found");			
+		return;
+	}
+
+	object = VAR(si);	
+	//find function in scopes;
 	BCNode* n = findInScopes(funcName);
 	if(n == NULL) {
-			ERR(funcName + " function not defined");			
-			return NULL;
+			//find function in object;
+			n = object->getChild(funcName);
+			if(n == NULL)
+				n = findInClass(object, funcName);
+	}
+
+	if(n == NULL) {
+		ERR(funcName + " function not defined");			
+		object->unref(); //unref after pop
+		return;
 	}
 
 	if(n->var->type != BCVar::FUNC &&
 			n->var->type != BCVar::NFUNC) {
 		ERR(funcName + " is not a function");			
-		return NULL;
+		object->unref(); //unref after pop
+		return;
 	}
 
+	BCNode* arg = n->var->getChildOrCreate(THIS);
+	arg->replace(object);
+	object->unref(); //unref after pop
+	
 	FuncT* func = n->var->getFunc();
 	//read arguments
 	for(int i=func->argNum-1; i>=0; --i) {
-			BCNode* arg = n->var->getChild(i);
+			arg = n->var->getChild(i);
 			if(arg == NULL) {
 				ERR(funcName + " argment not match");
-				return NULL;
+				return;
 			}
 
-			StackItem* si = pop2();
+			si = pop2();
 			if(si == NULL) {
 				ERR(funcName + " argment(s) missed");
-				return NULL;
+				return;
 			}
 			BCVar* v = VAR(si);
 			arg->replace(v);
 			v->unref(); //unref after pop
 	}
+	
+	if(n->var->type == BCVar::NFUNC) { //native function
+		if(func->native != NULL) {
+			func->native(n->var, this);
+			//read return.
+			BCNode* rn = n->var->getChild(RETURN);
+			BCVar* ret;
+			if(rn== NULL)
+				ret = new BCVar();
+			else
+				ret = rn->var;
+			push(ret->ref());
+		}
+		return;
+	}
 
-	scopes.push_back(n->var);
+	//js function
+	VMScope sc;
+	sc.pc = pc;
+	sc.var = n->var;
+	scopes.push_back(sc);
 	pc = func->pc;
-	return ret;
 }
 
 BCVar* VM::funcDef(const string& funcName) {
@@ -108,12 +172,14 @@ BCVar* VM::funcDef(const string& funcName) {
 		}
 	}
 	//read arguments
+	PC funcPC = 0;
 	while(true) {
 		PC ins = code[pc++];
 		OpCode instr = ins >> 16;
 		OpCode offset = ins & 0x0000FFFF;
 
 		if(instr == INSTR_FUNC_END) {
+			funcPC = pc;
 			pc = pc + offset - 1;
 			break;
 		}
@@ -122,22 +188,90 @@ BCVar* VM::funcDef(const string& funcName) {
 	//create function variable
 	ret = new BCVar();
 	int argNum = args.size();
-	ret->setFunction(argNum, pc);
+	ret->setFunction(argNum, funcPC);
 	//set args as top children 
 	for(int i=0; i<argNum; ++i) {
 		ret->addChild(args[i]);
 	}
 	//add function to current scope 
 	if(funcName.length() > 0) {
-		scope()->addChild(funcName, ret);
+		scope()->var->addChild(funcName, ret);
 	}
 	return ret;
 }
 
+void VM::registerNative(const string& clsName, const string& funcDecl, JSCallback native) {
+	BCVar* clsVar = NULL;
+	if(clsName.length() == 0) {
+		clsVar = root;
+	}
+	else {
+		BCNode* cls = root->getChildOrCreate(clsName);
+		if(cls == NULL || native == NULL)
+			return;
+
+		cls->var->type = BCVar::CLASS;
+		clsVar = cls->var;
+	}
+
+	int i = funcDecl.find('(');
+	if(i == string::npos) {
+		ERR("Register native function '(' missed");	
+		return;
+	}
+	//read func name	
+	string funcName = funcDecl.substr(0, i);
+	if(funcName.length() == 0) {	
+		ERR("Register native function name missed");	
+		return;
+	}
+
+	//read func args
+	string s = funcDecl.substr(i+1);
+	i = s.rfind(')');
+	if(i == string::npos) {
+		ERR("Register native function ')' missed");	
+		return;
+	}
+	s = s.substr(0, i);
+
+	vector<string> args;
+	while(true) {
+		string arg;
+		i = s.find(',');
+		if(i != string::npos) {
+			arg = s.substr(0, i);
+			s = s.substr(i+1);
+		}
+		else {
+			arg = s;
+			s = "";
+		}
+
+		if(arg.length() == 0) 
+			break;
+		args.push_back(arg);
+	}
+
+	BCVar* funcVar = new BCVar();
+	int argNum = args.size();
+	funcVar->setFunction(argNum, 0, native);
+	for(i=0; i<argNum; ++i) {
+		funcVar->addChild(args[i]);	
+	}
+	
+	clsVar->addChild(funcName, funcVar);
+}
+
+void VM::init() {
+	root = VM::newObject("")->ref();
+}
+
 void VM::run() {
-	root = new BCVar();
-	root->ref();
-	scopes.push_back(root);
+	VMScope sc;
+	sc.var = root;
+	sc.pc = 0;
+	scopes.push_back(sc);
 
 	while(pc < codeSize) {
 		PC ins = code[pc++];
@@ -147,33 +281,58 @@ void VM::run() {
 
 		switch(instr) {
 			case INSTR_NIL: {
+				break;
+			}
+			case INSTR_POP: {
 				pop();
+				break;
+			}
+			case INSTR_RETURN: {
+				BCVar* v = new BCVar();
+				push(v->ref());
+			}
+			case INSTR_RETURNV: {
+				VMScope* sc = scope();
+				if(sc != NULL) {
+					pc = sc->pc;
+					scopes.pop_back();
+				}
 				break;
 			}
 			case INSTR_VAR:
 			case INSTR_CONST: {
-				pop();
 				str = bcode.getStr(offset);
 				if(find(str)) { //find just in current scope
 					ERR((str + " has already existed").c_str());
 				}
 				else {
-					BCVar* current = scope();
-					BCNode* node = current->addChild(str);
-					if(node != NULL && instr == INSTR_CONST)
-						node->beConst = true;
+					VMScope* current = scope();
+					if(current != NULL) {
+						BCNode* node = current->var->addChild(str);
+						if(node != NULL && instr == INSTR_CONST)
+							node->beConst = true;
+					}
 				}
 				break;
 			}
 			case INSTR_LOAD: {
 				str = bcode.getStr(offset);
-				BCNode* node = findInScopes(str);
-				if(node == NULL) {
-					BCVar* current = scope();
-					node = current->addChild(str);
+				if(str == THIS) {
+					BCVar* v = getCurrentObj();
+					if(v != NULL)
+						push(v->ref());
 				}
-				node->var->ref();
-				push(node);
+				else {
+					BCNode* node = findInScopes(str);
+					if(node == NULL) {
+						VMScope* current = scope();
+						if(current != NULL) {
+							node = current->var->addChild(str);
+						}
+					}
+					node->var->ref();
+					push(node);
+				}
 				break;
 			}
 			case INSTR_INT: {
@@ -209,23 +368,17 @@ void VM::run() {
 				break;
 			}
 			case INSTR_FUNC: {
-				if(offset == 0xFFFF)
-					pop();
-
 				BCVar* v = funcDef(bcode.getStr(offset));
 				if(v != NULL)
 					push(v->ref());
 				break;
 			}
 			case INSTR_CALL: {
-				BCVar* v = funcCall(bcode.getStr(offset));
-				if(v != NULL)
-					push(v->ref());
+				funcCall(bcode.getStr(offset));
 				break;
 			}
 		}
 	}
-	pop();
 	scopes.pop_back();
 }
 

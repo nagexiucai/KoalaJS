@@ -617,13 +617,11 @@ LEX_TYPES Compiler::statement() {
 		l->chkread(LEX_R_BREAK);
 		l->chkread(';');
 		bytecode.gen(INSTR_BREAK);
-		return LEX_R_BREAK;
 	} 
 	else if (l->tk==LEX_R_CONTINUE){
 		l->chkread(LEX_R_CONTINUE);
 		l->chkread(';');
 		bytecode.gen(INSTR_CONTINUE);
-		return LEX_R_CONTINUE;
 	}
 	else if (l->tk==LEX_R_VAR || l->tk == LEX_R_CONST) {
 		bool beConst;
@@ -701,7 +699,6 @@ LEX_TYPES Compiler::statement() {
 		else {
 			bytecode.set(pc, INSTR_NJMP);
 		}
-		return ret;
 	}
 	else if (l->tk==LEX_R_FOR) {
 		l->chkread(LEX_R_FOR);
@@ -721,13 +718,12 @@ LEX_TYPES Compiler::statement() {
 		statement();
 		bytecode.set(ipc, INSTR_JMP, true);
 		bytecode.set(breakPC, INSTR_NJMP);
-
-		return ret;
 	}
 	else {
 		l->chkread(LEX_EOF);
 	}
 
+	bytecode.gen(INSTR_POP);
 	return ret;
 }
 
@@ -1001,6 +997,9 @@ LEX_TYPES Compiler::factor() {
 		bool load  = true;
 		while (l->tk=='(' || l->tk=='.' || l->tk=='[') {
 			if (l->tk=='(') { // ------------------------------------- Function Call
+				if(load)
+					bytecode.gen(INSTR_LOAD, "this");
+
 				callFunc();
 				bytecode.gen(INSTR_CALL, name.c_str());
 				load = false;

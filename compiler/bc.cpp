@@ -4,6 +4,12 @@
 #include "libs/File/File.h"
 #include <string.h>
 
+void print(BCVar* v, void* data) {
+	BCNode* n = v->getChild("txt");
+	if(n != NULL)
+		printf("%s", n->var->getString().c_str());
+}
+
 int main(int argc, char** argv) {
 	Compiler compiler;
 	std::string input;
@@ -48,6 +54,7 @@ int main(int argc, char** argv) {
 				TRACE("Loading : %s\n", s.c_str());
 				while(true) {
 				VM vm;
+				vm.registerNative("Debug", "print(txt)", print);
 				vm.run(s);
 				}	
 			}

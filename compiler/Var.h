@@ -59,13 +59,15 @@ class BCVar : public StackItem {
 	FuncT func;
 
 public:
-	const static uint8_t INT = 0;
-	const static uint8_t FLOAT = 1;
-	const static uint8_t STRING = 2;
-	const static uint8_t POINT = 3;
-	const static uint8_t FUNC = 4;
-	const static uint8_t NFUNC = 5;
-	const static uint8_t UNDEF = 6;
+	const static uint8_t UNDEF = 0;
+	const static uint8_t INT = 1;
+	const static uint8_t FLOAT = 2;
+	const static uint8_t STRING = 3;
+	const static uint8_t POINT = 4;
+	const static uint8_t FUNC = 5;
+	const static uint8_t NFUNC = 6;
+	const static uint8_t OBJECT = 7;
+	const static uint8_t CLASS = 8;
 
 	uint8_t type;
 
@@ -161,6 +163,7 @@ public:
 		for(int i=0; i<children.size(); ++i) {
 			delete children[i];
 		}
+		children.clear();
 	}
 
 	inline int getRefs() { return refs; }
@@ -190,7 +193,8 @@ public:
 	@name , child name;
 	*/
 	inline BCNode* getChild(const string& name) {
-		for(int i=0; i<children.size(); ++i) {
+		int sz = children.size();
+		for(int i=0; i<sz; ++i) {
 			if(children[i] != NULL && children[i]->name == name)
 				return children[i];
 		}
