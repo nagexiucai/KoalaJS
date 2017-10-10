@@ -4,8 +4,6 @@ void VM::run(const string& fname) {
 	if(!bcode.fromFile(fname))
 		return;
 
-	bcode.dump();
-	
 	code = bcode.getCode(codeSize);
 	run();
 }
@@ -113,15 +111,15 @@ void VM::funcCall(const string& funcName) {
 		return;
 	}
 
+	FuncT* func = n->var->getFunc();
 	BCNode* arg = NULL;
-	arg = n->var->getChildOrCreate(THIS);
+	arg = func->args->getChildOrCreate(THIS);
 	arg->replace(object);
 	object->unref(); //unref after pop
 
-	FuncT* func = n->var->getFunc();
 	//read arguments
 	for(int i=func->argNum-1; i>=0; --i) {
-		arg = n->var->getChild(i);
+		arg = func->args->getChild(i);
 		if(arg == NULL) {
 			ERR(funcName + " argment not match");
 			return;
@@ -148,6 +146,8 @@ void VM::funcCall(const string& funcName) {
 			else
 				ret = rn->var;
 			push(ret->ref());
+
+			func->resetArgs();
 		}
 		return;
 	}
@@ -192,7 +192,7 @@ BCVar* VM::funcDef(const string& funcName) {
 	ret->setFunction(argNum, funcPC);
 	//set args as top children 
 	for(int i=0; i<argNum; ++i) {
-		ret->addChild(args[i]);
+		ret->getFunc()->args->addChild(args[i]);
 	}
 	//add function to current scope 
 	if(funcName.length() > 0) {
@@ -258,7 +258,7 @@ void VM::registerNative(const string& clsName, const string& funcDecl, JSCallbac
 	int argNum = args.size();
 	funcVar->setFunction(argNum, 0, native);
 	for(i=0; i<argNum; ++i) {
-		funcVar->addChild(args[i]);	
+		funcVar->getFunc()->args->addChild(args[i]);	
 	}
 	
 	clsVar->addChild(funcName, funcVar);
@@ -295,6 +295,10 @@ void VM::run() {
 			case INSTR_RETURNV: {
 				VMScope* sc = scope();
 				if(sc != NULL) {
+					FuncT* func = sc->var->getFunc();
+					if(func != NULL)
+						func->resetArgs();
+
 					pc = sc->pc;
 					scopes.pop_back();
 				}

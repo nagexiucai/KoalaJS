@@ -7,10 +7,6 @@
 #define VAR(i) (i->isNode ? ((BCNode*)i)->var : (BCVar*)i)
 #define ERR(e) throw new CScriptException(e)
 
-#define THIS "this"
-#define PROTOTYPE "prototype"
-#define RETURN "return"
-
 typedef struct {
 	BCVar* var;
 	PC pc; //stack pc

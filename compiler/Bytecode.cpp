@@ -131,7 +131,9 @@ void Bytecode::dump() {
 					instr == INSTR_JMPB || 
 					instr == INSTR_FUNC_END)
 				P("%d\t0x%08X\t%s %d\n", i, ins, BCOpCode::instr(instr).c_str(), strIndex);	
-			else
+			else if(instr == INSTR_STR) 
+				P("%d\t0x%08X\t%s \"%s\"\n", i, ins, BCOpCode::instr(instr).c_str(), getStr(strIndex).c_str());	
+			else 
 				P("%d\t0x%08X\t%s %s\n", i, ins, BCOpCode::instr(instr).c_str(), getStr(strIndex).c_str());	
 		}
 		

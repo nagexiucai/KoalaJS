@@ -6,6 +6,10 @@
 #include <stdint.h>
 #include "Instr.h"
 
+#define THIS "this"
+#define PROTOTYPE "prototype"
+#define RETURN "return"
+
 using namespace std;
 
 class BCVar;
@@ -40,10 +44,15 @@ public:
 argNum : arguments number
 pc : function start PC
  */
-typedef struct {
+typedef struct STFunc {
 	int argNum;
 	JSCallback native;
 	PC pc;
+	BCVar* args;
+
+	STFunc();
+	~STFunc();
+	void resetArgs();
 } FuncT;
 
 class BCVar : public StackItem {
@@ -56,7 +65,15 @@ class BCVar : public StackItem {
 	void* pointV;
 	VarDestroy destroyFunc;
 
-	FuncT func;
+	FuncT *func;
+
+	inline void init() {
+		refs = 0;
+		pointV = NULL;
+		destroyFunc = NULL;
+		type =UNDEF;
+		func = NULL;
+	}
 
 public:
 	const static uint8_t UNDEF = 0;
@@ -72,34 +89,22 @@ public:
 	uint8_t type;
 
 	inline BCVar() {
-		refs = 0;
-		pointV = NULL;
-		destroyFunc = NULL;
-		type =UNDEF;
+		init();
 		clean();
 	}
 
 	inline BCVar(int v) {
-		refs = 0;
-		pointV = NULL;
-		destroyFunc = NULL;
-		type =UNDEF;
+		init();
 		setInt(v);
 	}
 
 	inline BCVar(float v) {
-		refs = 0;
-		pointV = NULL;
-		destroyFunc = NULL;
-		type =UNDEF;
+		init();
 		setFloat(v);
 	}
 
 	inline BCVar(const string& v) {
-		refs = 0;
-		pointV = NULL;
-		destroyFunc = NULL;
-		type =UNDEF;
+		init();
 		setString(v);
 	}
 
@@ -123,18 +128,19 @@ public:
 
 	inline void setFunction(int argNum, PC pc, JSCallback native = NULL) {
 		clean();
-		func.argNum = argNum;
+		func = new FuncT();
+		func->argNum = argNum;
 
 		if(native != NULL) {
-			func.native = native;
+			func->native = native;
 			type = BCVar::NFUNC;
 		}
 		else {
-			func.pc = pc;
+			func->pc = pc;
 			type = BCVar::FUNC;
 		}
 	}
-	inline FuncT* getFunc() { return &func; }
+	inline FuncT* getFunc() { return func; }
 	inline int getInt()  { return intV; }
 	inline float getFloat()  { return floatV; }
 	inline string getString()  { return stringV; }
@@ -145,12 +151,6 @@ public:
 	}
 	
 	inline void clean() {
-		type = UNDEF;
-
-		intV = 0;
-		floatV = 0.0;
-		stringV = "";
-
 		if(pointV != NULL) {
 			if(destroyFunc != NULL)
 				destroyFunc(pointV);
@@ -164,6 +164,11 @@ public:
 			delete children[i];
 		}
 		children.clear();
+
+		if(func)
+			delete func;
+
+		init();
 	}
 
 	inline int getRefs() { return refs; }
@@ -193,6 +198,12 @@ public:
 	@name , child name;
 	*/
 	inline BCNode* getChild(const string& name) {
+		if(func != NULL) {
+			BCNode* r = func->args->getChild(name);
+			if(r != NULL)
+				return r;
+		}
+
 		int sz = children.size();
 		for(int i=0; i<sz; ++i) {
 			if(children[i] != NULL && children[i]->name == name)
@@ -205,6 +216,12 @@ public:
 	@name , child name;
 	*/
 	inline BCNode* getChildOrCreate(const string& name) {
+		if(func != NULL) {
+			BCNode* r = func->args->getChild(name);
+			if(r != NULL)
+				return r;
+		}
+
 		for(int i=0; i<children.size(); ++i) {
 			if(children[i] != NULL && children[i]->name == name)
 				return children[i];
