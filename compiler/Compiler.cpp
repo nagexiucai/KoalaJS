@@ -586,7 +586,7 @@ void Compiler::exec(const std::string &code) {
 	l = old;
 }
 
-LEX_TYPES Compiler::statement() {
+LEX_TYPES Compiler::statement(bool pop) {
 	LEX_TYPES ret = LEX_EOF;
 
 	if (l->tk==LEX_R_INCLUDE) {
@@ -678,8 +678,8 @@ LEX_TYPES Compiler::statement() {
 		base(); //condition
 		l->chkread(')');
 		PC pc = bytecode.reserve();
-		statement();
-		bytecode.set(cpc, INSTR_JMP, true);
+		statement(false);
+		bytecode.set(cpc, INSTR_JMPB);
 		bytecode.set(pc, INSTR_NJMP);
 	}
 	else if (l->tk==LEX_R_IF) {
@@ -688,13 +688,13 @@ LEX_TYPES Compiler::statement() {
 		base(); //condition
 		l->chkread(')');
 		PC pc = bytecode.reserve();
-		statement();
+		statement(false);
 
 		if (l->tk==LEX_R_ELSE) {
 			l->chkread(LEX_R_ELSE);
 			PC pc2 = bytecode.reserve();
 			bytecode.set(pc, INSTR_NJMP);
-			statement();
+			statement(false);
 			bytecode.set(pc2, INSTR_JMP);
 		}
 		else {
@@ -713,18 +713,20 @@ LEX_TYPES Compiler::statement() {
 		l->chkread(';');
 		PC ipc = bytecode.getPC();
 		base(); //interator
+		bytecode.gen(INSTR_POP);
 		l->chkread(')');
-		bytecode.set(cpc, INSTR_JMP, true);
+		bytecode.set(cpc, INSTR_JMPB);
 		bytecode.set(loopPC, INSTR_JMP);
-		statement();
-		bytecode.set(ipc, INSTR_JMP, true);
+		statement(false);
+		bytecode.set(ipc, INSTR_JMPB);
 		bytecode.set(breakPC, INSTR_NJMP);
 	}
 	else {
 		l->chkread(LEX_EOF);
 	}
 
-	bytecode.gen(INSTR_POP);
+	if(pop)
+		bytecode.gen(INSTR_POP);
 	return ret;
 }
 

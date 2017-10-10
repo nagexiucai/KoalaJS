@@ -97,12 +97,12 @@ PC Bytecode::gen(OpCode instr, const string& str) {
 	return cindex;
 }
 
-void Bytecode::set(PC anchor, OpCode op, bool back) {
+void Bytecode::set(PC anchor, OpCode op) {
 	if(anchor >= cindex) 
 		return;
 	PC ins = INS(op, cindex - anchor);
 
-	if(back)
+	if(op == INSTR_JMPB || op == INSTR_NJMPB)
 		add(ins);
 	else
 		codeBuf[anchor] = ins;

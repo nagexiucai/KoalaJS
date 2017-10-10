@@ -123,7 +123,7 @@ class Compiler {
 
 		CScriptLex *l;             /// current lexer
 	
-		LEX_TYPES statement();
+		LEX_TYPES statement(bool pop = true);
 
 		LEX_TYPES block();
 

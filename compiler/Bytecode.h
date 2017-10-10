@@ -72,9 +72,8 @@ public:
 	/** set reserved instructioin , offset to current pc
 	 @param anchar, anchor of reserved instruction.
 	 @param opCode, opCode.
-	 @param back, offset back if true, or forward if false.
 	*/
-	void set(PC anchor, OpCode op, bool back = false);
+	void set(PC anchor, OpCode op);
 
 	/** reserved current instruction for unknow offset*/
 	inline PC reserve() {

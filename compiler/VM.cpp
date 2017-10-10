@@ -1,11 +1,32 @@
 #include "VM.h"
 
+BCVar* VM::newObject(const string& clsName) {
+	if(clsName.length() == 0)
+		return NULL;
+
+	BCNode* cls = findInScopes(clsName);
+	if(cls == NULL) {
+		ERR(clsName + " class not found");
+		return NULL;
+	}
+
+	if(cls->var->type != BCVar::CLASS) {
+		ERR(clsName + " is not class");
+		return NULL;
+	}
+
+	BCVar* ret = new BCVar();
+	ret->type = BCVar::OBJECT;
+	ret->addChild(PROTOTYPE, cls->var);
+	return ret;
+}
+
 void VM::run(const string& fname) {
 	if(!bcode.fromFile(fname))
 		return;
 
 	code = bcode.getCode(codeSize);
-	run();
+	exec();
 }
 
 StackItem* VM::pop2() {
@@ -74,6 +95,12 @@ BCVar* VM::getCurrentObj() {
 	return root;
 }
 
+void VM::doNew(const string& clsName) {
+	BCVar* ret = newObject(clsName);
+	if(ret != NULL)
+		push(ret->ref());
+}
+	
 void VM::funcCall(const string& funcName) {
 	BCVar* ret = NULL;
 
@@ -265,10 +292,43 @@ void VM::registerNative(const string& clsName, const string& funcDecl, JSCallbac
 }
 
 void VM::init() {
-	root = VM::newObject("")->ref();
+	root = new BCVar();
+	root->ref();
 }
 
-void VM::run() {
+void VM::compare(OpCode op, BCVar* v1, BCVar* v2) {
+	float f1, f2;
+	f1 = v1->getFloat();
+	f2 = v2->getFloat();
+	
+	bool i = false;
+
+	switch(op) {
+		case INSTR_EQ: 
+			i = (f1 == f2);
+			break; 
+		case INSTR_NEQ: 
+			i = (f1 != f2);
+			break; 
+		case INSTR_LES: 
+			i = (f1 < f2);
+			break; 
+		case INSTR_GRT: 
+			i = (f1 > f2);
+			break; 
+		case INSTR_LEQ: 
+			i = (f1 <= f2);
+			break; 
+		case INSTR_GEQ: 
+			i = (f1 >= f2);
+			break; 
+	}
+	
+	BCVar* v = new BCVar(i ? 1 : 0);
+	push(v->ref());
+}
+
+void VM::exec() {
 	VMScope sc;
 	sc.var = root;
 	sc.pc = 0;
@@ -284,8 +344,64 @@ void VM::run() {
 			case INSTR_NIL: {
 				break;
 			}
+			case INSTR_TRUE: {
+				BCVar* v = new BCVar(1);	
+				push(v->ref());
+				break;
+			}
+			case INSTR_FALSE: {
+				BCVar* v = new BCVar(0);	
+				push(v->ref());
+				break;
+			}
 			case INSTR_POP: {
 				pop();
+				break;
+			}
+			case INSTR_JMP: {
+				pc = pc + offset - 1;
+				break;
+			}
+			case INSTR_JMPB: {
+				pc = pc - offset - 1;
+				break;
+			}
+			case INSTR_NJMP: {
+				StackItem* i = pop2();
+				if(i != NULL) {
+					BCVar* v = VAR(i);
+					if(v->type == BCVar::UNDEF || v->getInt() == 0)
+						pc = pc + offset - 1;
+					v->unref();
+				}
+				break;
+			}
+			case INSTR_EQ: 
+			case INSTR_NEQ: 
+			case INSTR_LES: 
+			case INSTR_GRT: 
+			case INSTR_LEQ: 
+			case INSTR_GEQ: {
+				StackItem* i2 = pop2();
+				StackItem* i1 = pop2();
+				if(i1 != NULL && i2 != NULL) {
+					BCVar* v1 = VAR(i1);
+					BCVar* v2 = VAR(i2);
+					compare(instr, v1, v2);
+					
+					v1->unref();
+					v2->unref();
+				}
+				break;
+			}
+			case INSTR_PPLUS: {
+				StackItem* it = pop2();
+				if(it != NULL) {
+					BCVar* v = VAR(it);
+					int i = v->getInt() + 1;
+					v->setInt(i);
+					push(v);
+				}
 				break;
 			}
 			case INSTR_RETURN: {
@@ -380,6 +496,10 @@ void VM::run() {
 			}
 			case INSTR_CALL: {
 				funcCall(bcode.getStr(offset));
+				break;
+			}
+			case INSTR_NEW: {
+				doNew(bcode.getStr(offset));
 				break;
 			}
 		}

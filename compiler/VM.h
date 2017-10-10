@@ -62,7 +62,7 @@ private:
 	BCVar* root;
 	vector<VMScope> scopes;
 
-	void run();
+	void exec();
 
 	void init();
 
@@ -102,16 +102,13 @@ private:
 
 	void funcCall(const string& funcName);
 
+	void doNew(const string& clsName);
+
 	BCVar* getCurrentObj();
 
-	inline static BCVar* newObject(const string& clsName) {
-		BCVar* ret = new BCVar();
-		ret->type = BCVar::OBJECT;
-		
-		//TODO create by clsName
-		return ret;
-	}
-
+	BCVar* newObject(const string& clsName);
+	
+	void compare(OpCode op, BCVar* v1, BCVar* v2);
 };
 
 #endif

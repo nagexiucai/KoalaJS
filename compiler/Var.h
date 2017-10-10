@@ -109,21 +109,36 @@ public:
 	}
 
 	inline void setInt(int v) {
-		clean();
-		intV = v;
-		type = INT;
+		if(type == INT) {
+			intV = v;
+		}
+		else {
+			clean();
+			intV = v;
+			type = INT;
+		}
 	}
 
 	inline void setFloat(float v) {
-		clean();
-		floatV = v;
-		type = FLOAT;
+		if(type == FLOAT) {
+			floatV = v;
+		}
+		else {
+			clean();
+			floatV = v;
+			type = FLOAT;
+		}
 	}
 
 	inline void setString(const string& v) {
-		clean();
-		stringV = v;
-		type = STRING;
+		if(type == STRING) {
+			stringV = v;
+		}
+		else {
+			clean();
+			stringV = v;
+			type = STRING;
+		}
 	}
 
 	inline void setFunction(int argNum, PC pc, JSCallback native = NULL) {
@@ -141,8 +156,8 @@ public:
 		}
 	}
 	inline FuncT* getFunc() { return func; }
-	inline int getInt()  { return intV; }
-	inline float getFloat()  { return floatV; }
+	inline int getInt()  { return type == INT ? intV : (int)floatV; }
+	inline float getFloat()  { return type == INT ? (float)intV : floatV; }
 	inline string getString()  { return stringV; }
 
 
