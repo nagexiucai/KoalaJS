@@ -746,10 +746,16 @@ LEX_TYPES Compiler::base() {
 
 LEX_TYPES Compiler::unary() {
 	LEX_TYPES ret = LEX_EOF;
-	ret = factor();
+	bool no = false;
 	if (l->tk == '!') {
-		bytecode.gen(INSTR_NOT);
+		l->chkread('!');
+		no = true;
 	}
+
+	ret = factor();
+
+	if(no)
+		bytecode.gen(INSTR_NOT);
 	return ret;	
 }
 

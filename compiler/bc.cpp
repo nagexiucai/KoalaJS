@@ -52,11 +52,11 @@ int main(int argc, char** argv) {
 			
 			if(s.rfind(".bcode") != string::npos) { //run bytecode
 				while(true) {
-				TRACE("Loading : %s\n", s.c_str());
+				TRACE("----Loading %s----\n", s.c_str());
 				VM vm;
 				vm.registerNative("Debug", "print(txt)", print);
 				vm.run(s);
-				TRACE("end\n");
+				TRACE("----end----\n");
 				}	
 			}
 			else { //compile js to bytecode.

@@ -5,7 +5,8 @@
 #include "Var.h"
 
 #define VAR(i) (i->isNode ? ((BCNode*)i)->var : (BCVar*)i)
-#define ERR(e) throw new CScriptException(e)
+
+#define ERR(...) fprintf (stderr, __VA_ARGS__)
 
 typedef struct {
 	BCVar* var;

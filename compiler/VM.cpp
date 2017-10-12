@@ -6,12 +6,12 @@ BCVar* VM::newObject(const string& clsName) {
 
 	BCNode* cls = findInScopes(clsName);
 	if(cls == NULL) {
-		ERR(clsName + " class not found");
+		ERR("Class %s not found\n", clsName.c_str());
 		return NULL;
 	}
 
 	if(cls->var->type != BCVar::CLASS) {
-		ERR(clsName + " is not class");
+		ERR("%s is not a class\n", clsName.c_str());
 		return NULL;
 	}
 
@@ -51,7 +51,7 @@ void VM::pop() {
 
 void VM::push(StackItem* v) {
 	if(stackTop == 0) { //stack overflow
-		ERR("stack overflow");
+		ERR("stack overflow\n");
 		return;
 	}
 	stack[--stackTop] = v;
@@ -111,7 +111,7 @@ void VM::funcCall(const string& funcName) {
 	StackItem* si = pop2();
 	BCVar* object = NULL;
 	if(si == NULL)  {
-		ERR(funcName + " function owner(object) not found");			
+		ERR("Function '%s' not found\n", funcName.c_str());
 		return;
 	}
 
@@ -126,14 +126,14 @@ void VM::funcCall(const string& funcName) {
 	}
 
 	if(n == NULL) {
-		ERR(funcName + " function not defined");			
+		ERR("Function '%s' not found\n", funcName.c_str());
 		object->unref(); //unref after pop
 		return;
 	}
 
 	if(n->var->type != BCVar::FUNC &&
 			n->var->type != BCVar::NFUNC) {
-		ERR(funcName + " is not a function");			
+		ERR("%s is not a function\n", funcName.c_str());
 		object->unref(); //unref after pop
 		return;
 	}
@@ -148,13 +148,13 @@ void VM::funcCall(const string& funcName) {
 	for(int i=func->argNum-1; i>=0; --i) {
 		arg = func->args->getChild(i);
 		if(arg == NULL) {
-			ERR(funcName + " argment not match");
+			ERR("%s argument not match\n", funcName.c_str());
 			return;
 		}
 
 		si = pop2();
 		if(si == NULL) {
-			ERR(funcName + " argment(s) missed");
+			ERR("%s argument not match\n", funcName.c_str());
 			return;
 		}
 		BCVar* v = VAR(si);
@@ -195,7 +195,7 @@ BCVar* VM::funcDef(const string& funcName) {
 	if(funcName.length() > 0) {
 		BCNode* n = findInScopes(funcName);
 		if(n != NULL) {
-			ERR(funcName + " function has already been defined");			
+			ERR("Function '%s' has already been defined\n", funcName.c_str());			
 			return NULL;
 		}
 	}
@@ -244,13 +244,13 @@ void VM::registerNative(const string& clsName, const string& funcDecl, JSCallbac
 
 	int i = funcDecl.find('(');
 	if(i == string::npos) {
-		ERR("Register native function '(' missed");	
+		ERR("Register native function '(' missed\n");	
 		return;
 	}
 	//read func name	
 	string funcName = funcDecl.substr(0, i);
 	if(funcName.length() == 0) {	
-		ERR("Register native function name missed");	
+		ERR("Register native function name missed\n");	
 		return;
 	}
 
@@ -258,7 +258,7 @@ void VM::registerNative(const string& clsName, const string& funcDecl, JSCallbac
 	string s = funcDecl.substr(i+1);
 	i = s.rfind(')');
 	if(i == string::npos) {
-		ERR("Register native function ')' missed");	
+		ERR("Register native function ')' missed\n");	
 		return;
 	}
 	s = s.substr(0, i);
@@ -376,6 +376,19 @@ void VM::exec() {
 				}
 				break;
 			}
+			case INSTR_NOT: {
+				StackItem* i = pop2();
+				if(i != NULL) {
+					BCVar* v = VAR(i);
+					int c = 0;
+					if(v->type == BCVar::UNDEF || v->getInt() == 0)
+						c = 1;
+					v->unref();
+					v = new BCVar(c);
+					push(v->ref());	
+				}
+				break;
+			}
 			case INSTR_EQ: 
 			case INSTR_NEQ: 
 			case INSTR_LES: 
@@ -424,7 +437,7 @@ void VM::exec() {
 			case INSTR_CONST: {
 				str = bcode.getStr(offset);
 				if(find(str)) { //find just in current scope
-					ERR((str + " has already existed").c_str());
+					ERR("%s has already existed", str.c_str());
 				}
 				else {
 					VMScope* current = scope();

@@ -2,7 +2,7 @@ CFLAG = -g -I../
 SRCS = Compiler.cpp bc.cpp Bytecode.cpp VM.cpp Var.cpp \
 		../libs/File/File.cpp 
 
-LDFLAG = -lpthread
+#LDFLAG = -lpthread
 
 TARGET = bc
 
