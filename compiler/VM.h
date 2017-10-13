@@ -110,6 +110,8 @@ private:
 	BCVar* newObject(const string& clsName);
 	
 	void compare(OpCode op, BCVar* v1, BCVar* v2);
+
+	void mathOp(OpCode op, BCVar* v1, BCVar* v2);
 };
 
 #endif

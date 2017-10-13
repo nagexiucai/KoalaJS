@@ -1,4 +1,6 @@
 #include "VM.h"
+#include <sstream>  
+#include <iostream>  
 
 BCVar* VM::newObject(const string& clsName) {
 	if(clsName.length() == 0)
@@ -328,6 +330,63 @@ void VM::compare(OpCode op, BCVar* v1, BCVar* v2) {
 	push(v->ref());
 }
 
+void VM::mathOp(OpCode op, BCVar* v1, BCVar* v2) {
+	//do string + 
+	if(v1->type == BCVar::STRING && op == INSTR_PLUS) {
+		string s = v1->getString();
+		ostringstream ostr;  
+		switch(v2->type) {
+			case BCVar::STRING: {
+				ostr << s << v2->getString();
+				break;
+			}
+			case BCVar::INT: {
+				ostr << s << v2->getInt();
+				break;
+			}
+			case BCVar::FLOAT: {
+				ostr << s << v2->getFloat();
+				break;
+			}
+		}
+		
+		s = ostr.str();
+		BCVar* v = new BCVar(s);
+		push(v->ref());
+		return;
+	}
+	//do number 
+	float f1, f2, ret = 0.0;
+	bool floatMode = false;
+	if(v1->type == BCVar::FLOAT || v2->type == BCVar::FLOAT)
+		floatMode = true;
+
+	f1 = v1->getFloat();
+	f2 = v2->getFloat();
+
+	
+	switch(op) {
+		case INSTR_PLUS: 
+			ret = (f1 + f2);
+			break; 
+		case INSTR_MINUS: 
+			ret = (f1 - f2);
+			break; 
+		case INSTR_DIV: 
+			ret = (f1 / f2);
+			break; 
+		case INSTR_MULTI: 
+			ret = (f1 * f2);
+			break; 
+		case INSTR_MOD: 
+			ret = (((int)f1) % (int)f2);
+			break; 
+	}
+	
+	BCVar* v = new BCVar(floatMode ? ret : (int)ret);
+	push(v->ref());
+}
+
 void VM::exec() {
 	VMScope sc;
 	sc.var = root;
@@ -401,6 +460,23 @@ void VM::exec() {
 					BCVar* v1 = VAR(i1);
 					BCVar* v2 = VAR(i2);
 					compare(instr, v1, v2);
+					
+					v1->unref();
+					v2->unref();
+				}
+				break;
+			}
+			case INSTR_PLUS: 
+			case INSTR_MINUS: 
+			case INSTR_DIV: 
+			case INSTR_MULTI: 
+			case INSTR_MOD: {
+				StackItem* i2 = pop2();
+				StackItem* i1 = pop2();
+				if(i1 != NULL && i2 != NULL) {
+					BCVar* v1 = VAR(i1);
+					BCVar* v2 = VAR(i2);
+					mathOp(instr, v1, v2);
 					
 					v1->unref();
 					v2->unref();

@@ -601,6 +601,8 @@ LEX_TYPES Compiler::statement(bool pop) {
 			l->tk==LEX_INT   ||
 			l->tk==LEX_FLOAT ||
 			l->tk==LEX_STR   ||
+			l->tk==LEX_PLUSPLUS   ||
+			l->tk==LEX_MINUSMINUS ||
 			l->tk=='-'    ) {
 		/* Execute a simple statement that only contains basic arithmetic... */
 		base();
@@ -782,15 +784,27 @@ LEX_TYPES Compiler::term() {
 
 LEX_TYPES Compiler::expr() {
 	LEX_TYPES ret = LEX_EOF;
-	bool negate = false;
+	LEX_TYPES pre = l->tk;
+
 	if (l->tk=='-') {
 		l->chkread('-');
-		negate = true;
+	}
+	else if(l->tk==LEX_PLUSPLUS) {
+		l->chkread(LEX_PLUSPLUS);
+	}
+	else if(l->tk==LEX_MINUSMINUS) {
+		l->chkread(LEX_MINUSMINUS);
 	}
 
 	ret = term();
-	if (negate) {
+	if (pre == '-') {
 		bytecode.gen(INSTR_NEG);
+	}
+	else if(pre==LEX_PLUSPLUS) {
+		bytecode.gen(INSTR_PPLUS);
+	}
+	else if(pre==LEX_MINUSMINUS) {
+		bytecode.gen(INSTR_MMINUS);
 	}
 
 	while (l->tk=='+' || l->tk=='-' ||
