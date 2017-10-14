@@ -1,4 +1,4 @@
-CFLAG = -g -I../
+CFLAG = -g -I../ -I../TinyJS
 SRCS = demoClass.cpp \
 		../libs/File/File.cpp \
 	  ../TinyJS/TinyJS.cpp 

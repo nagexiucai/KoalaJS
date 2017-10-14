@@ -32,8 +32,8 @@ static void moduleLoader(CTinyJS* tinyJS) {
 	JSM::JSBase64::instance().load(tinyJS, "RBase64");
 	JSM::JSMD5::instance().load(tinyJS, "RMD5");
 	JSM::JSThread::instance().load(tinyJS, "RThread");
-	JSM::JSFile<JSM::JSFileNative>::instance().load(tinyJS, "RFile", NULL);
-	JSM::JSTCP<JSM::JSTCPNative>::instance().load(tinyJS, "RTCP", NULL);
+	JSM::JSFile<JSM::JSFileNative>::instance().load(tinyJS, "RFile");
+	JSM::JSTCP<JSM::JSTCPNative>::instance().load(tinyJS, "RTCP");
 	JSM::JSDNS::instance().load(tinyJS, "RDNS");
 	JSM::System::instance().load(tinyJS, "RSystem");
 }

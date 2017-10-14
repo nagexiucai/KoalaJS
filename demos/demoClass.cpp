@@ -46,7 +46,7 @@ class MyClass : public JSClass {
 
 static void moduleLoader(CTinyJS* tinyJS) {
 	MyClass::instance().load(tinyJS, "MyClass");
-	MyNativeClassLoader<MyNativeClass>::instance().load(tinyJS, "MyNativeClass", NULL);
+	MyNativeClassLoader<MyNativeClass>::instance().load(tinyJS, "MyNativeClass");
 }
 
 

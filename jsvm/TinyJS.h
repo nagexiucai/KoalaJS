@@ -13,9 +13,14 @@ typedef struct {
 	PC pc; //stack pc
 } VMScope;
 
+
+class CTinyJS;
+typedef void (*JSModuleLoader)(CTinyJS *tinyJS);
+
 class CTinyJS {
 public:
 	inline CTinyJS() {
+		moduleLoader = NULL;
 		pc = 0;
 		codeSize = 0;
 		code = NULL;
@@ -52,9 +57,22 @@ public:
 
 	void run(const string& fname);
 	
-	void registerNative(const string& clsName, const string& funcDecl, JSCallback native);
+	void addNative(const string& clsName, const string& funcDecl, JSCallback native, void* data);
 
+	BCVar* addClass(const string& clsName);
+
+	inline void loadModule(JSModuleLoader loader) {
+		moduleLoader = loader;
+		if(moduleLoader != NULL) {
+			moduleLoader(this);
+		}
+	}
+
+	inline JSModuleLoader getModuleLoader() {
+		return moduleLoader;
+	}
 private:
+	JSModuleLoader moduleLoader;
 	PC pc;
 	PC* code;
 	PC codeSize;

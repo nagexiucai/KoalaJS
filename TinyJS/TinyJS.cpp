@@ -784,7 +784,6 @@ void CScriptVar::init() {
 
 	//added by Misa.Z for native constructor	
 	jsNativeConstructor = 0;
-	jsNativeConstructorUserData = 0;
 
 	//added by Misa.Z for point type data	
 	pData = 0;
@@ -1373,14 +1372,13 @@ void CScriptVar::setCallback(JSCallback callback, void *userdata) {
 //added by Misa.Z for native constructor
 void CScriptVar::nativeConstructor(CScriptVar* var) {
 	if(jsNativeConstructor != NULL) {
-		jsNativeConstructor(var, jsNativeConstructorUserData);
+		jsNativeConstructor(var, NULL);
 	}
 }
 
 //added by Misa.Z for set native constructor
-void CScriptVar::setNativeConstructor(JSCallback callback, void *userdata) {
+void CScriptVar::setNativeConstructor(JSCallback callback) {
 	jsNativeConstructor = callback;
-	jsNativeConstructorUserData = userdata;
 }
 
 static ThreadLock _refLocker;
@@ -1569,7 +1567,8 @@ void CTinyJS::parseFunctionArguments(CScriptVar *funcVar) {
 }
 
 //added by Misa.Z for classes addition
-void CTinyJS::addClass(const std::string& name, CScriptVar* cls) {
+void CTinyJS::addClass(const std::string& name) {
+	CScriptVar* cls = new CScriptVar(TINYJS_BLANK_DATA, SCRIPTVAR_OBJECT);
 	cls->ref();
 	root->addChild(name, cls);
 	classes.push_back(cls);
@@ -1605,9 +1604,15 @@ CScriptVar* CTinyJS::newObject(const std::string &className) {
 	return obj;
 }
 
-void CTinyJS::addNative(const std::string &funcDesc, JSCallback ptr, void *userdata) {
+void CTinyJS::addNative(const std::string& clsName, const std::string &funcDesc, JSCallback ptr, void *userdata) {
+	std::string desc = "function ";
+	if(clsName.length() > 0)
+		desc = desc + clsName + "." + funcDesc;
+	else
+		desc = desc + funcDesc;
+
 	CScriptLex *oldLex = l;
-	l = new CScriptLex(funcDesc);
+	l = new CScriptLex(desc + funcDesc);
 
 	CScriptVar *base = root;
 

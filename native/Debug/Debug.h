@@ -7,12 +7,12 @@ namespace JSM {
 
 	class Debug : public JSClass {
 		static void print(CScriptVar *v, void *userdata) {
-			printf("%s\n", v->getParameter("text")->getString().c_str());
+			printf("%s", v->getParameter("text")->getString().c_str());
 		}
 
 		static void dump(CScriptVar *v, void *userdata) {
 			CTinyJS *js = (CTinyJS*)userdata;
-			js->root->trace("> ");
+			//js->root->trace("> ");
 		}
 
 		protected:

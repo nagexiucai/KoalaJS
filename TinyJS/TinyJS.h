@@ -289,7 +289,7 @@ class CScriptVar
 		void getJSON(std::string &destination, const std::string linePrefix=""); ///< Write out all the JS code needed to recreate this script variable to the stream (as JSON)
 		void setCallback(JSCallback callback, void *userdata);           ///< Set the callback for native functions
 
-		void setNativeConstructor(JSCallback callback, void *userdata); ///< Set the callback for native constructor, added by Misa.Z
+		void setNativeConstructor(JSCallback callback); ///< Set the callback for native constructor, added by Misa.Z
 		void nativeConstructor(CScriptVar *var);
 
 		/// For memory management/garbage collection
@@ -311,9 +311,7 @@ class CScriptVar
 		int flags;                ///< the flags determine the type of the variable - int/double/string/etc
 		JSCallback jsCallback;    ///< Callback for native functions
 		void *jsCallbackUserData; ///< user data passed as second argument to native functions
-
 		JSCallback jsNativeConstructor; ///< Callback for native constructor, added by Misa.Z
-		void *jsNativeConstructorUserData; ///< user data passed as second argument to native constructor
 
 		void init();              ///< initialisation of data members
 
@@ -366,7 +364,7 @@ class CTinyJS {
 			tinyJS->addNative("function String.substring(lo, hi)", scSubstring, 0);
 			\endcode
 		 */
-		void addNative(const std::string &funcDesc, JSCallback ptr, void *userdata);
+		void addNative(const std::string& clsName, const std::string &funcDesc, JSCallback ptr, void *userdata);
 
 		/// Get the given variable specified by a path (var1.var2.etc), or return 0
 		CScriptVar *getScriptVariable(const std::string &path);
@@ -379,7 +377,7 @@ class CTinyJS {
 		void trace();
 
 		//added by Misa.Z for class addition
-		void addClass(const std::string& name, CScriptVar* cls);
+		void addClass(const std::string& name);
 		void removeClasses();
 	
 		//added by Misa.Z for new object

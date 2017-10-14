@@ -230,7 +230,16 @@ BCVar* CTinyJS::funcDef(const string& funcName) {
 	return ret;
 }
 
-void CTinyJS::registerNative(const string& clsName, const string& funcDecl, JSCallback native) {
+BCVar* CTinyJS::addClass(const string& clsName) {
+		BCNode* cls = root->getChildOrCreate(clsName);
+		if(cls == NULL)
+			return NULL;
+
+		cls->var->type = BCVar::CLASS;
+		return cls->var;
+}
+
+void CTinyJS::addNative(const string& clsName, const string& funcDecl, JSCallback native, void* data) {
 	BCVar* clsVar = NULL;
 	if(clsName.length() == 0) {
 		clsVar = root;

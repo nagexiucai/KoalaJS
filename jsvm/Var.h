@@ -4,6 +4,8 @@
 #include <string>
 #include <vector>
 #include <stdint.h>
+#include <sstream>  
+#include <iostream>  
 #include "Instr.h"
 
 #define THIS "this"
@@ -14,7 +16,7 @@ using namespace std;
 
 class BCVar;
 
-typedef void (*VarDestroy)(void *p);
+typedef void (*JSDestroy)(void *p);
 typedef void (*JSCallback)(BCVar *var, void *userdata);
 
 class StackItem {
@@ -55,6 +57,8 @@ typedef struct STFunc {
 	void resetArgs();
 } FuncT;
 
+const int NO_BYTES = -1;
+
 class BCVar : public StackItem {
 	int refs;
 	vector<BCNode*> children;	
@@ -63,7 +67,8 @@ class BCVar : public StackItem {
 	double floatV;
 	string stringV;
 	void* pointV;
-	VarDestroy destroyFunc;
+	JSDestroy destroyFunc;
+	bool needDestroy;
 
 	FuncT *func;
 
@@ -71,6 +76,7 @@ class BCVar : public StackItem {
 		refs = 0;
 		pointV = NULL;
 		destroyFunc = NULL;
+		needDestroy = false;
 		type =UNDEF;
 		func = NULL;
 	}
@@ -85,6 +91,7 @@ public:
 	const static uint8_t NFUNC = 6;
 	const static uint8_t OBJECT = 7;
 	const static uint8_t CLASS = 8;
+	const static uint8_t BYTES = 9;
 
 	uint8_t type;
 
@@ -119,6 +126,10 @@ public:
 		}
 	}
 
+	inline void setDouble(double v) {
+		setFloat(v);
+	}
+
 	inline void setFloat(float v) {
 		if(type == FLOAT) {
 			floatV = v;
@@ -141,6 +152,23 @@ public:
 		}
 	}
 
+	//if size >= 0, means val is a byte bytes, pData is a byte bytes point, and intData is the size of it.
+	inline void setPoint(void* p, int size, JSDestroy destroy, bool needDestroy) {
+		clean();
+
+		if(size == NO_BYTES)
+			intV = 0;
+		else {
+			type = BYTES;
+			intV = size;
+		}
+		
+		pointV = p;
+		this->destroyFunc = destroy;
+		this->needDestroy = needDestroy;
+	}
+
+
 	inline void setFunction(int argNum, PC pc, JSCallback native = NULL) {
 		clean();
 		func = new FuncT();
@@ -155,10 +183,30 @@ public:
 			type = BCVar::FUNC;
 		}
 	}
+
+	inline bool isInt() { return type == INT; }
+	inline bool isFloat() { return type == FLOAT; }
+	inline bool isDouble() { return type == FLOAT; }
+	inline bool isString() { return type == STRING; }
+	inline bool isBytes() { return type == BYTES; }
+
+	inline void* getPoint()  { return pointV; }
 	inline FuncT* getFunc() { return func; }
 	inline int getInt()  { return type == INT ? intV : (int)floatV; }
 	inline float getFloat()  { return type == INT ? (float)intV : floatV; }
-	inline string getString()  { return stringV; }
+	inline double getDouble()  { return type == INT ? (double)intV : (double)floatV; }
+
+	inline string getString()  {
+		std::stringstream ss;
+		if(type == INT) 
+			ss << intV;
+		else if(type == FLOAT) 
+			ss << floatV;
+		else if(type == STRING) 
+			ss << stringV;
+			
+		return ss.str(); 
+	}
 
 
 	inline ~BCVar() {
@@ -240,8 +288,9 @@ public:
 
 		int sz = children.size();
 		for(int i=0; i<sz; ++i) {
-			if(children[i] != NULL && children[i]->name == name)
-				return children[i];
+			BCNode* r = children[i];
+			if(r != NULL && r->name == name)
+				return r;
 		}
 		return NULL;
 	}
