@@ -5,6 +5,11 @@
 #include <vector>
 #include "Instr.h"
 
+#ifndef TRACE
+//#define TRACE printf
+#define TRACE(...) fprintf (stderr, __VA_ARGS__)
+#endif // TRACE
+
 using namespace std;
 
 class CScriptException {

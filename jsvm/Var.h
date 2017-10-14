@@ -202,6 +202,25 @@ public:
 		return this;
 	}
 
+	//get function parameter var 
+	inline BCVar* getParameter(const string& name) {
+		BCNode* n = getChild(name);
+		return (n == NULL ? NULL : n->var);
+	}
+
+	//get function return var 
+	inline BCVar* getReturnVar() {
+		BCNode* n = getChildOrCreate(RETURN);
+		return n->var;
+	}
+
+	//set function return var 
+	inline BCVar* setReturnVar(BCVar* v) {
+		BCNode* n = getChildOrCreate(RETURN);
+		n->replace(v);
+		return v;
+	}
+
 	//get child var by index
 	inline BCNode* getChild(int index) {
 		if(index < 0 || index >= children.size())
@@ -258,5 +277,8 @@ public:
 		return ret;
 	}
 };
+
+//define BCVar as CScriptVar for native functions compatible with Interpretor
+typedef BCVar CScriptVar;
 
 #endif

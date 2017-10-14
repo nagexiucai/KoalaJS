@@ -1,5 +1,5 @@
-#ifndef BC_VM_HH
-#define BC_VM_HH
+#ifndef BC_CTinyJS_HH
+#define BC_CTinyJS_HH
 
 #include "Bytecode.h"
 #include "Var.h"
@@ -11,11 +11,11 @@
 typedef struct {
 	BCVar* var;
 	PC pc; //stack pc
-}VMScope;
+} VMScope;
 
-class VM {
+class CTinyJS {
 public:
-	inline VM() {
+	inline CTinyJS() {
 		pc = 0;
 		codeSize = 0;
 		code = NULL;
@@ -24,7 +24,7 @@ public:
 		init();
 	}
 
-	inline ~VM() {
+	inline ~CTinyJS() {
 		reset();
 	}
 

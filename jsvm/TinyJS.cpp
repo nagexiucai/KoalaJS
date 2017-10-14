@@ -1,8 +1,8 @@
-#include "VM.h"
+#include "TinyJS.h"
 #include <sstream>  
 #include <iostream>  
 
-BCVar* VM::newObject(const string& clsName) {
+BCVar* CTinyJS::newObject(const string& clsName) {
 	if(clsName.length() == 0)
 		return NULL;
 
@@ -23,7 +23,7 @@ BCVar* VM::newObject(const string& clsName) {
 	return ret;
 }
 
-void VM::run(const string& fname) {
+void CTinyJS::run(const string& fname) {
 	if(!bcode.fromFile(fname))
 		return;
 
@@ -31,7 +31,7 @@ void VM::run(const string& fname) {
 	exec();
 }
 
-StackItem* VM::pop2() {
+StackItem* CTinyJS::pop2() {
 	if(stackTop == STACK_DEEP) // touch the bottom of stack
 		return NULL;
 
@@ -41,7 +41,7 @@ StackItem* VM::pop2() {
 	return ret;
 }
 
-void VM::pop() {
+void CTinyJS::pop() {
 	if(stackTop == STACK_DEEP)
 		return;
 
@@ -51,7 +51,7 @@ void VM::pop() {
 	VAR(i)->unref();
 }
 
-void VM::push(StackItem* v) {
+void CTinyJS::push(StackItem* v) {
 	if(stackTop == 0) { //stack overflow
 		ERR("stack overflow\n");
 		return;
@@ -59,7 +59,7 @@ void VM::push(StackItem* v) {
 	stack[--stackTop] = v;
 }
 
-BCNode* VM::find(const string& name) {
+BCNode* CTinyJS::find(const string& name) {
 	VMScope* sc = scope();
 	if(sc == NULL)
 		return NULL;
@@ -67,7 +67,7 @@ BCNode* VM::find(const string& name) {
 	return sc->var->getChild(name);
 }
 
-BCNode* VM::findInScopes(const string& name) {
+BCNode* CTinyJS::findInScopes(const string& name) {
 	for(int i=scopes.size() - 1; i >= 0; --i) {
 		BCNode* r = scopes[i].var->getChild(name);
 		if(r != NULL)
@@ -76,7 +76,7 @@ BCNode* VM::findInScopes(const string& name) {
 	return NULL;
 }
 
-BCNode* VM::findInClass(BCVar* obj, const string& name) {
+BCNode* CTinyJS::findInClass(BCVar* obj, const string& name) {
 	while(obj != NULL) {
 		BCNode* n;
 		n = obj->getChild(PROTOTYPE);
@@ -93,17 +93,17 @@ BCNode* VM::findInClass(BCVar* obj, const string& name) {
 	return NULL;
 }
 
-BCVar* VM::getCurrentObj() {
+BCVar* CTinyJS::getCurrentObj() {
 	return root;
 }
 
-void VM::doNew(const string& clsName) {
+void CTinyJS::doNew(const string& clsName) {
 	BCVar* ret = newObject(clsName);
 	if(ret != NULL)
 		push(ret->ref());
 }
 	
-void VM::funcCall(const string& funcName) {
+void CTinyJS::funcCall(const string& funcName) {
 	BCVar* ret = NULL;
 
 	if(funcName.length() == 0)
@@ -189,7 +189,7 @@ void VM::funcCall(const string& funcName) {
 	pc = func->pc;
 }
 
-BCVar* VM::funcDef(const string& funcName) {
+BCVar* CTinyJS::funcDef(const string& funcName) {
 	BCVar* ret = NULL;
 	vector<string> args;
 
@@ -230,7 +230,7 @@ BCVar* VM::funcDef(const string& funcName) {
 	return ret;
 }
 
-void VM::registerNative(const string& clsName, const string& funcDecl, JSCallback native) {
+void CTinyJS::registerNative(const string& clsName, const string& funcDecl, JSCallback native) {
 	BCVar* clsVar = NULL;
 	if(clsName.length() == 0) {
 		clsVar = root;
@@ -293,12 +293,12 @@ void VM::registerNative(const string& clsName, const string& funcDecl, JSCallbac
 	clsVar->addChild(funcName, funcVar);
 }
 
-void VM::init() {
+void CTinyJS::init() {
 	root = new BCVar();
 	root->ref();
 }
 
-void VM::compare(OpCode op, BCVar* v1, BCVar* v2) {
+void CTinyJS::compare(OpCode op, BCVar* v1, BCVar* v2) {
 	float f1, f2;
 	f1 = v1->getFloat();
 	f2 = v2->getFloat();
@@ -330,7 +330,7 @@ void VM::compare(OpCode op, BCVar* v1, BCVar* v2) {
 	push(v->ref());
 }
 
-void VM::mathOp(OpCode op, BCVar* v1, BCVar* v2) {
+void CTinyJS::mathOp(OpCode op, BCVar* v1, BCVar* v2) {
 	//do string + 
 	if(v1->type == BCVar::STRING && op == INSTR_PLUS) {
 		string s = v1->getString();
@@ -387,7 +387,7 @@ void VM::mathOp(OpCode op, BCVar* v1, BCVar* v2) {
 	push(v->ref());
 }
 
-void VM::exec() {
+void CTinyJS::exec() {
 	VMScope sc;
 	sc.var = root;
 	sc.pc = 0;

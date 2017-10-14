@@ -1,12 +1,6 @@
 #ifndef TINYJS_BC_H
 #define TINYJS_BC_H
 #include <string>
-
-#ifndef TRACE
-//#define TRACE printf
-#define TRACE(...) fprintf (stderr, __VA_ARGS__)
-#endif // TRACE
-
 #include "Bytecode.h"
 
 typedef enum {
