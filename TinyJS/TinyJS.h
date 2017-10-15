@@ -377,7 +377,7 @@ class CTinyJS {
 		void trace();
 
 		//added by Misa.Z for class addition
-		void addClass(const std::string& name);
+		void addClass(const std::string& name, JSCallback nc= NULL);
 		void removeClasses();
 	
 		//added by Misa.Z for new object

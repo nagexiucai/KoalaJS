@@ -1567,8 +1567,11 @@ void CTinyJS::parseFunctionArguments(CScriptVar *funcVar) {
 }
 
 //added by Misa.Z for classes addition
-void CTinyJS::addClass(const std::string& name) {
+void CTinyJS::addClass(const std::string& name, JSCallback nc) {
 	CScriptVar* cls = new CScriptVar(TINYJS_BLANK_DATA, SCRIPTVAR_OBJECT);
+	if(nc != NULL)
+		cls->setNativeConstructor(nc);
+
 	cls->ref();
 	root->addChild(name, cls);
 	classes.push_back(cls);

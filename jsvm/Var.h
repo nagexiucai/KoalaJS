@@ -68,6 +68,7 @@ class BCVar : public StackItem {
 	string stringV;
 	void* pointV;
 	JSDestroy destroyFunc;
+	JSCallback nativeConstructor;
 	bool needDestroy;
 
 	FuncT *func;
@@ -78,6 +79,7 @@ class BCVar : public StackItem {
 		needDestroy = false;
 		type =UNDEF;
 		func = NULL;
+		nativeConstructor = NULL;
 	}
 
 public:
@@ -335,6 +337,12 @@ public:
 		BCNode* ret = new BCNode(name, v);
 		children.push_back(ret);
 		return ret;
+	}
+	
+	inline JSCallback getNativeConstructor() { return nativeConstructor; }
+
+	inline void setNativeConstructor(JSCallback nc) {
+		nativeConstructor = nc;
 	}
 };
 

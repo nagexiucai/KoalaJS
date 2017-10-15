@@ -21,6 +21,41 @@ public:
 			str = str.substr(i+1);
 		}
 	}
+
+	inline static string trim(const string& s) {
+		string ret = StringUtil::trimLeft(s);
+		return StringUtil::trimRight(ret);
+	}
+
+	inline static string trimLeft(const string& s) {
+		size_t l = s.length();
+
+		for(size_t i=0; i<l; ++i) {
+			char b = s.at(i);
+			if(b == ' ' ||
+					b == '\t' ||
+					b == '\r' ||
+					b == '\n') {
+				continue;
+			}
+			return s.substr(i);
+		}
+		return "";
+	}
+
+	inline static string trimRight(const string& s) {
+		for(int i=s.length()-1; i>=0; --i) {
+			char b = s.at(i);
+			if(b == ' ' ||
+					b == '\t' ||
+					b == '\r' ||
+					b == '\n') {
+				continue;
+			}
+			return s.substr(0, i+1);
+		}
+		return "";
+	}
 };
 
 

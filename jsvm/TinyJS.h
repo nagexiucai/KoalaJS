@@ -59,7 +59,7 @@ public:
 	
 	void addNative(const string& clsName, const string& funcDecl, JSCallback native, void* data);
 
-	BCVar* addClass(const string& clsName);
+	BCVar* addClass(const string& clsName, JSCallback nc = NULL);
 
 	inline void loadModule(JSModuleLoader loader) {
 		moduleLoader = loader;

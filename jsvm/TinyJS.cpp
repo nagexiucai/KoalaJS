@@ -1,4 +1,5 @@
 #include "TinyJS.h"
+#include "libs/String/StringUtil.h"
 #include <sstream>  
 #include <iostream>  
 
@@ -20,6 +21,10 @@ BCVar* CTinyJS::newObject(const string& clsName) {
 	BCVar* ret = new BCVar();
 	ret->type = BCVar::OBJECT;
 	ret->addChild(PROTOTYPE, cls->var);
+
+	JSCallback nc = cls->var->getNativeConstructor();
+	if(nc != NULL)
+		nc(ret, NULL);
 	return ret;
 }
 
@@ -230,12 +235,15 @@ BCVar* CTinyJS::funcDef(const string& funcName) {
 	return ret;
 }
 
-BCVar* CTinyJS::addClass(const string& clsName) {
+BCVar* CTinyJS::addClass(const string& clsName, JSCallback nc) {
 		BCNode* cls = root->getChildOrCreate(clsName);
 		if(cls == NULL)
 			return NULL;
 
 		cls->var->type = BCVar::CLASS;
+		if(nc != NULL)
+			cls->var->setNativeConstructor(nc);
+
 		return cls->var;
 }
 
@@ -286,7 +294,8 @@ void CTinyJS::addNative(const string& clsName, const string& funcDecl, JSCallbac
 			arg = s;
 			s = "";
 		}
-
+	
+		arg = StringUtil::trim(arg);
 		if(arg.length() == 0) 
 			break;
 		args.push_back(arg);
