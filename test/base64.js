@@ -13,6 +13,4 @@ function f() {
 	print(c + "\n");
 }
 
-while(true) {
-	f();
-}
+f();

@@ -1026,7 +1026,7 @@ LEX_TYPES Compiler::factor() {
 				name = "";
 				int sz = names.size()-1;
 					
-				if(sz == 0) {
+				if(sz == 0 && load) {
 					bytecode.gen(INSTR_LOAD, "this");	
 				}
 				else {
