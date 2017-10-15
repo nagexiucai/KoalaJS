@@ -6,4 +6,4 @@ for(i=0; i<a.length; i++) {
 }
 
 s.replace(",", "--");
-print(s);
+print(s + "\n");

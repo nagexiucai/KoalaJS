@@ -71,6 +71,8 @@ public:
 	inline JSModuleLoader getModuleLoader() {
 		return moduleLoader;
 	}
+
+	BCVar* newObject(const string& clsName);
 private:
 	JSModuleLoader moduleLoader;
 	PC pc;
@@ -125,8 +127,6 @@ private:
 
 	BCVar* getCurrentObj();
 
-	BCVar* newObject(const string& clsName);
-	
 	void compare(OpCode op, BCVar* v1, BCVar* v2);
 
 	void mathOp(OpCode op, BCVar* v1, BCVar* v2);

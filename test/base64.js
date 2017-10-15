@@ -10,7 +10,7 @@ function f() {
 	b.append(".xxx");
 
 	c = RBase64.decode(RBase64.encode(b)).toString();
-	print(c);
+	print(c + "\n");
 }
 
 while(true) {

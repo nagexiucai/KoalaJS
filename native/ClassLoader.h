@@ -3,6 +3,7 @@
 
 #include "TinyJS.h"
 
+using namespace std;
 
 typedef struct _BasicValue {
 	const static unsigned char INT = 0;
@@ -75,7 +76,7 @@ template<class T> class NativeClassLoader: public JSClass {
 		NativeClassLoader<T>::registerClass(tinyJS, className);
 		registerFunctions(tinyJS, className);
 	}
-
 };
+
 
 #endif

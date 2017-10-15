@@ -12,4 +12,4 @@ f.close();
 //f.write(b, b.size());
 //f.close();
 
-print(RMD5.hashHex(b));
+print(RMD5.hashHex(b) + "\n");

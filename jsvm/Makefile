@@ -1,13 +1,28 @@
 CFLAG = -g -I./ -I../
-COMPILER_SRCS = Compiler.cpp Bytecode.cpp Var.cpp bc.cpp \
-		../libs/File/File.cpp 
+COMPILER_SRCS = Compiler.cpp Bytecode.cpp Var.cpp bc.cpp 
 
 JSVM_SRCS = Bytecode.cpp Var.cpp jsvm.cpp TinyJS.cpp \
+	  ../native/ClassLoader.cpp \
 	  ../native/Math/Math.cpp \
+	  ../native/Base64/Base64.cpp \
+	  ../native/Global/Global.cpp \
 	  ../native/Bytes/Bytes.cpp \
-		../libs/File/File.cpp 
+	  ../native/Socket/TCP.cpp \
+	  ../native/Socket/DNS.cpp \
+	  ../native/System/System.cpp \
+	  ../native/File/File.cpp \
+	  ../native/MD5/MD5.cpp 
+#	  ../native/VM/VM.cpp \
+#	  ../native/String/String.cpp \
+#	  ../native/Thread/Thread.cpp \
+#	  ../native/Array/Array.cpp \
+#	  ../native/JSON/JSON.cpp \
 
 #LDFLAG = -lpthread
+
+LIBS = ../libs/Base64/Base64.cpp \
+		../libs/MD5/md5.cpp \
+		../libs/File/File.cpp
 
 COMPILER = jsbc
 VM = jsvm
