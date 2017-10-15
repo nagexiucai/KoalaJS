@@ -25,3 +25,9 @@
 
 .Demos
 	There are some examples showing how to extend native classes at dir 'demos' 
+
+.TinyJS
+	script interpreter
+
+.jsvm
+	bytecode compiler and vm
