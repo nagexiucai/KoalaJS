@@ -73,7 +73,6 @@ class BCVar : public StackItem {
 	FuncT *func;
 
 	inline void init() {
-		refs = 0;
 		pointV = NULL;
 		destroyFunc = NULL;
 		needDestroy = false;
@@ -96,21 +95,25 @@ public:
 	uint8_t type;
 
 	inline BCVar() {
+		refs = 0;
 		init();
 		clean();
 	}
 
 	inline BCVar(int v) {
+		refs = 0;
 		init();
 		setInt(v);
 	}
 
 	inline BCVar(float v) {
+		refs = 0;
 		init();
 		setFloat(v);
 	}
 
 	inline BCVar(const string& v) {
+		refs = 0;
 		init();
 		setString(v);
 	}
@@ -192,7 +195,7 @@ public:
 
 	inline void* getPoint()  { return pointV; }
 	inline FuncT* getFunc() { return func; }
-	inline int getInt()  { return type == INT ? intV : (int)floatV; }
+	inline int getInt()  { return type == FLOAT ? (int)floatV : intV; }
 	inline float getFloat()  { return type == INT ? (float)intV : floatV; }
 	inline double getDouble()  { return type == INT ? (double)intV : (double)floatV; }
 
@@ -216,9 +219,6 @@ public:
 			delete children[i];
 		}
 		children.clear();
-
-		if(func)
-			delete func;
 	}
 	
 	inline void clean() {
@@ -230,6 +230,11 @@ public:
 			pointV = NULL;
 			destroyFunc = NULL;
 		}	
+	
+		if(func != NULL) {
+			delete func;
+			func = NULL;
+		}
 
 		init();
 	}
@@ -258,13 +263,19 @@ public:
 
 	//get function return var 
 	inline BCVar* getReturnVar() {
-		BCNode* n = getChildOrCreate(RETURN);
+		if(func == NULL) 
+			return NULL;
+
+		BCNode* n = func->args->getChildOrCreate(RETURN);
 		return n->var;
 	}
 
 	//set function return var 
 	inline BCVar* setReturnVar(BCVar* v) {
-		BCNode* n = getChildOrCreate(RETURN);
+		if(func == NULL) 
+			return NULL;
+
+		BCNode* n = func->args->getChildOrCreate(RETURN);
 		n->replace(v);
 		return v;
 	}

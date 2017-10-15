@@ -43,7 +43,7 @@ static void moduleLoader(CTinyJS* tinyJS) {
 	JSM::JSDNS::instance().load(tinyJS, "RDNS");
 	JSM::System::instance().load(tinyJS, "RSystem");
 */
-	JSM::Math::instance().load(tinyJS, "RMath");
+//	JSM::Math::instance().load(tinyJS, "RMath");
 }
 
 int main(int argc, char** argv) {

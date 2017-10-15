@@ -30,6 +30,8 @@ void STFunc::resetArgs() {
 	int sz = argNum;
 	if(args->getChild(THIS) != NULL)
 		sz++;
+	if(args->getChild(RETURN) != NULL)
+		sz++;
 
 	BCVar* v = new BCVar();
 	for(int i=0; i<sz; ++i) {

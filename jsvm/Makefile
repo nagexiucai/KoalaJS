@@ -9,14 +9,18 @@ JSVM_SRCS = Bytecode.cpp Var.cpp jsvm.cpp TinyJS.cpp \
 
 #LDFLAG = -lpthread
 
-COMPILER = bc
+COMPILER = jsbc
 VM = jsvm
 
 all:
 	g++ ${CFLAG} -o ${VM} ${JSVM_SRCS} ${LIBS} ${LDFLAG}
+	g++ ${CFLAG} -o ${COMPILER} ${COMPILER_SRCS} ${LIBS} ${LDFLAG}
 
 bc:
 	g++ ${CFLAG} -o ${COMPILER} ${COMPILER_SRCS} ${LIBS} ${LDFLAG}
+
+vm:
+	g++ ${CFLAG} -o ${VM} ${JSVM_SRCS} ${LIBS} ${LDFLAG}
 
 arm:
 	arm-none-linux-gnueabi-g++ ${CFLAG} --static -o ${COMPILER} ${COMPILER_SRCS} ${LIBS} ${LDFLAG}
