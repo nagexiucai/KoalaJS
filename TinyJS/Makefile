@@ -1,6 +1,5 @@
-CFLAG = -g -I../TinyJS -I../ 
-SRCS = jsm.cpp \
-	  ../TinyJS/TinyJS.cpp \
+CFLAG = -g -I./ -I../
+SRCS = jsm.cpp TinyJS.cpp \
 	  ../native/ClassLoader.cpp \
 	  ../native/String/String.cpp \
 	  ../native/Math/Math.cpp \
