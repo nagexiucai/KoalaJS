@@ -211,6 +211,14 @@ public:
 
 	inline ~BCVar() {
 		clean();
+
+		for(int i=0; i<children.size(); ++i) {
+			delete children[i];
+		}
+		children.clear();
+
+		if(func)
+			delete func;
 	}
 	
 	inline void clean() {
@@ -222,14 +230,6 @@ public:
 			pointV = NULL;
 			destroyFunc = NULL;
 		}	
-
-		for(int i=0; i<children.size(); ++i) {
-			delete children[i];
-		}
-		children.clear();
-
-		if(func)
-			delete func;
 
 		init();
 	}
