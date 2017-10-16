@@ -42,6 +42,7 @@ arm:
 	arm-none-linux-gnueabi-g++ ${CFLAG} --static -o ${VM} ${VM_SRCS} ${LIBS} ${LDFLAG}
 
 clean:
+	rm -fr *.bcode
 	rm -fr ${COMPILER} *.o ${COMPILER}.dSYM
 	rm -fr ${VM} *.o ${VM}.dSYM
 
