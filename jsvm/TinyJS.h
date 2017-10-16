@@ -127,6 +127,8 @@ private:
 
 	void doNew(const string& clsName);
 
+	void doGet(BCVar* v, const string& clsName);
+
 	BCVar* getCurrentObj();
 
 	void compare(OpCode op, BCVar* v1, BCVar* v2);

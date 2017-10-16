@@ -89,6 +89,12 @@ BCNode* CTinyJS::findInScopes(const string& name) {
 }
 
 BCNode* CTinyJS::findInClass(BCVar* obj, const string& name) {
+	if(obj->type == BCVar::STRING) {
+		BCNode* cls = findInScopes("String");
+		if(cls != NULL)	
+			return cls->var->getChild(name);
+	}
+
 	while(obj != NULL) {
 		BCNode* n;
 		n = obj->getChild(PROTOTYPE);
@@ -406,6 +412,20 @@ void CTinyJS::mathOp(OpCode op, BCVar* v1, BCVar* v2) {
 	push(v->ref());
 }
 
+void CTinyJS::doGet(BCVar* v, const string& str) {
+	BCNode* n = v->getChild(str);
+	if(n != NULL) {
+			n->var->ref();	
+			push(n);
+			return;
+	}
+	
+	if(v->isArray() && str == "length") {
+		BCVar* i = new BCVar(v->getChildrenNum());
+		push(i->ref());
+	}	
+}
+
 void CTinyJS::exec() {
 	VMScope sc;
 	BCVar* currentObj = root;
@@ -571,12 +591,8 @@ void CTinyJS::exec() {
 				StackItem* i = pop2();
 				if(i != NULL) {
 					BCVar* v = VAR(i);
-					if(v->isObject()) {
-						BCNode* n = v->getChild(str);
-						if(n != NULL) {
-							n->var->ref();	
-							push(n);
-						}
+					if(v->isObject() || v->isArray()) {
+						doGet(v, str);
 					}
 					v->unref();
 				}
@@ -624,13 +640,12 @@ void CTinyJS::exec() {
 					int at = v->getInt();
 					v->unref();
 
-					BCNode* n = node->var->getChild(at);
-					node->var->unref();
-					
+					BCNode* n = node->var->getChildOrCreate(at);
 					if(n != NULL) {
 						n->var->ref();
 						push(n);
 					}
+					node->var->unref();
 				}
 				break;
 			}

@@ -161,6 +161,21 @@ public:
 		}
 	}
 
+	inline void setArray() {
+		clean();
+		type = ARRAY;
+	}
+	
+	inline void setArrayIndex(int idx, BCVar *value) {
+		BCNode* n = getChildOrCreate(idx);
+		n->replace(value);
+	}
+	
+	inline BCVar* getArrayIndex(int idx) {
+		BCNode* n = getChildOrCreate(idx);
+		return n->var;
+	}
+
 	//if size >= 0, means val is a byte bytes, pData is a byte bytes point, and intData is the size of it.
 	inline void setPoint(void* p, int size, JSDestroy destroy, bool needDestroy) {
 		clean();
@@ -216,7 +231,7 @@ public:
 			ss << floatV;
 		else if(type == STRING) 
 			ss << stringV;
-		else if(type == OBJECT) 
+		else if(isObject() || type == ARRAY) 
 			ss << getJSON();
 			
 		return ss.str(); 
@@ -306,10 +321,29 @@ public:
 		return v;
 	}
 
+	inline int getChildrenNum() {
+		return children.size();
+	}
+
 	//get child var by index
 	inline BCNode* getChild(int index) {
 		if(index < 0 || index >= children.size())
 			return NULL;
+		return children[index];
+	}
+
+	//get child var by index or create, will fill all missed children
+	inline BCNode* getChildOrCreate(int index) {
+		if(index < 0)
+			return NULL;
+
+ 		int sz = children.size();
+		if(index >= sz) {
+			for(int i=sz; i<=index; ++i) {
+				BCNode* n = new BCNode("", new BCVar());
+				children.push_back(n);
+			}
+		}
 		return children[index];
 	}
 

@@ -17,7 +17,7 @@
 void _moduleLoader(CTinyJS* tinyJS) {
 //load basic classes
 	JSM::Bytes::instance().load(tinyJS, "Bytes");
-//	JSM::String::instance().load(tinyJS, "String");
+	JSM::String::instance().load(tinyJS, "String");
 
 //load Rkid extended classes
 	JSM::Debug::instance().load(tinyJS, "Debug");

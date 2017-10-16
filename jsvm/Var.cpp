@@ -133,14 +133,12 @@ string BCVar::getJSON(const string& linePrefix) {
 	else if (isArray()) {
 		std::string indentedLinePrefix = linePrefix+"  ";
 		destination += "[\n";
-		/*int len = getArrayLength();
-			if (len>10000) len=10000; // we don't want to get stuck here!
-
-			for (int i=0;i<len;i++) {
-			getArrayIndex(i)->getJSON(destination, indentedLinePrefix);
+		int len = getChildrenNum();
+		if (len>10000) len=10000; // we don't want to get stuck here!
+		for (int i=0;i<len;i++) {
+			destination += getArrayIndex(i)->getJSON(indentedLinePrefix);
 			if (i<len-1) destination  += ",\n";
-			}
-		 */
+		}
 
 		destination += "\n";
 		destination += linePrefix;
