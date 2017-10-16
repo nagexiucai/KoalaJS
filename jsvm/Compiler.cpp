@@ -646,12 +646,13 @@ LEX_TYPES Compiler::statement(bool pop) {
 				vname = vname + "." + l->tkStr;
 				l->chkread(LEX_ID);
 			}
-			bytecode.gen(beConst ? INSTR_CONST : INSTR_VAR, vname.c_str());
+			bytecode.gen(beConst ? INSTR_CONST : INSTR_VAR, vname);
 			// sort out initialiser
 			if (l->tk == '=') {
 				l->chkread('=');
+				bytecode.gen(INSTR_LOAD, vname);
 				base();
-				bytecode.gen(INSTR_STORE, vname.c_str());
+				bytecode.gen(INSTR_ASIGN);
 			}
 
 			if (l->tk != ';')
@@ -988,15 +989,15 @@ LEX_TYPES Compiler::factor() {
 		bytecode.gen(INSTR_UNDEF);
 	}
 	else if (l->tk==LEX_INT) {
-		bytecode.gen(INSTR_INT, l->tkStr.c_str());
+		bytecode.gen(INSTR_INT, l->tkStr);
 		l->chkread(LEX_INT);
 	}
 	else if (l->tk==LEX_FLOAT) {
-		bytecode.gen(INSTR_FLOAT, l->tkStr.c_str());
+		bytecode.gen(INSTR_FLOAT, l->tkStr);
 		l->chkread(LEX_FLOAT);
 	}
 	else if (l->tk==LEX_STR) {
-		bytecode.gen(INSTR_STR, l->tkStr.c_str());
+		bytecode.gen(INSTR_STR, l->tkStr);
 		l->chkread(LEX_STR);
 	}
 	else if(l->tk==LEX_R_FUNCTION) {
@@ -1010,7 +1011,7 @@ LEX_TYPES Compiler::factor() {
 		if (l->tk == '(') {
 			l->chkread('(');
 			l->chkread(')');
-			bytecode.gen(INSTR_NEW, className.c_str());
+			bytecode.gen(INSTR_NEW, className);
 		}
 	}
 	if (l->tk=='{') {

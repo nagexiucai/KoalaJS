@@ -1,5 +1,6 @@
 #include "TinyJS.h"
 #include "libs/String/StringUtil.h"
+#include "libs/File/File.h"
 #include <sstream>  
 #include <iostream>  
 
@@ -35,12 +36,18 @@ BCVar* CTinyJS::newObject(const string& clsName) {
 	return ret;
 }
 
-void CTinyJS::run(const string& fname) {
-	if(!bcode.fromFile(fname))
-		return;
+void CTinyJS::run(const std::string &fname) {
+	std::string oldCwd = cwd;
+	cname = File::getFullname(cwd, fname);
+	cwd = File::getPath(cname);
 
-	code = bcode.getCode(codeSize);
-	exec();
+	if(bcode.fromFile(fname)) {
+		code = bcode.getCode(codeSize);
+		exec();
+	}
+		
+	if(oldCwd.length() > 0)
+		cwd = oldCwd;
 }
 
 StackItem* CTinyJS::pop2() {
@@ -622,9 +629,10 @@ void CTinyJS::exec() {
 				if(i1 != NULL && i1->isNode && i2 != NULL) {
 					BCNode* node = (BCNode*)i1;
 					BCVar* v = VAR(i2);
-
+					
+					bool modi = (!node->beConst || node->var->type == BCVar::UNDEF);
 					node->var->unref();
-					node->replace(v);
+					if(modi) node->replace(v);
 					v->unref();
 					push(node->var->ref());
 				}

@@ -19,13 +19,13 @@ typedef void (*JSModuleLoader)(CTinyJS *tinyJS);
 
 class CTinyJS {
 public:
-	inline CTinyJS() {
+	inline CTinyJS(BCVar* root = NULL) {
 		moduleLoader = NULL;
 		pc = 0;
 		codeSize = 0;
 		code = NULL;
 		stackTop = STACK_DEEP;
-		root = NULL;
+		this->root = NULL;
 		init();
 	}
 
@@ -75,7 +75,15 @@ public:
 	BCVar* newObject(const string& clsName);
 
 	inline BCVar* getRoot() { return root; }
+	
+	inline const std::string& getcwd() { return cwd; }
+
+	inline void setcwd(const std::string& cwd) { this->cwd = cwd; }
+
 private:
+	string cwd;
+	string cname;
+
 	JSModuleLoader moduleLoader;
 	PC pc;
 	PC* code;
