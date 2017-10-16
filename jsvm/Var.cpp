@@ -1,48 +1,48 @@
 #include "Var.h"
-	#include <stdio.h>
+#include <stdio.h>
 
-	BCNode::BCNode(const string& n, BCVar* v) {
-		var = v->ref();
-		name = n;
-		beConst = false;
-		isNode = true;
+BCNode::BCNode(const string& n, BCVar* v) {
+	var = v->ref();
+	name = n;
+	beConst = false;
+	isNode = true;
+}
+
+BCNode::~BCNode() {
+	if(var != NULL)
+		var->unref();
+}
+
+void BCNode::replace(BCVar* v) {
+	BCVar* old = var;
+	var = v->ref();
+	old->unref();
+}
+
+STFunc::STFunc() {
+	args = new BCVar();
+	thisVar = new BCNode(THIS, new BCVar());
+	returnVar = new BCNode(RETURN, new BCVar());
+}
+
+STFunc::~STFunc() {
+	delete args;
+	delete thisVar;
+	delete returnVar;
+}
+
+void STFunc::resetArgs() {
+	int sz = argNum;
+	BCVar* v = new BCVar();
+	for(int i=0; i<sz; ++i) {
+		BCNode* n = args->getChild(i);
+		if(n)
+			n->replace(v);
 	}
 
-	BCNode::~BCNode() {
-		if(var != NULL)
-			var->unref();
-	}
-
-	void BCNode::replace(BCVar* v) {
-		BCVar* old = var;
-		var = v->ref();
-		old->unref();
-	}
-
-	STFunc::STFunc() {
-		args = new BCVar();
-		thisVar = new BCNode(THIS, new BCVar());
-		returnVar = new BCNode(RETURN, new BCVar());
-	}
-
-	STFunc::~STFunc() {
-		delete args;
-		delete thisVar;
-		delete returnVar;
-	}
-
-	void STFunc::resetArgs() {
-		int sz = argNum;
-		BCVar* v = new BCVar();
-		for(int i=0; i<sz; ++i) {
-			BCNode* n = args->getChild(i);
-			if(n)
-				n->replace(v);
-		}
-
-		thisVar->replace(v);
-		returnVar->replace(v);
-	}
+	thisVar->replace(v);
+	returnVar->replace(v);
+}
 
 ////////////////////////////////////////////////////////////////////////////////
 /// convert the given std::string into a quoted std::string suitable for javascript
@@ -149,7 +149,7 @@ string BCVar::getJSON(const string& linePrefix) {
 		// no children or a function... just write value directly
 		destination += getParsableString();
 	}
-	
+
 	return destination;
 }
 

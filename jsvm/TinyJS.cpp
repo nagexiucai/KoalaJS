@@ -6,6 +6,13 @@
 BCVar* CTinyJS::newObject(const string& clsName) {
 	if(clsName.length() == 0)
 		return NULL;
+	
+	BCVar* ret = NULL;
+	if(clsName == ARR) {
+		ret = new BCVar();
+		ret->type = BCVar::ARRAY;
+		return ret;
+	}
 
 	BCNode* cls = findInScopes(clsName);
 	if(cls == NULL) {
@@ -18,7 +25,7 @@ BCVar* CTinyJS::newObject(const string& clsName) {
 		return NULL;
 	}
 
-	BCVar* ret = new BCVar();
+	ret = new BCVar();
 	ret->type = BCVar::OBJECT;
 	ret->addChild(PROTOTYPE, cls->var);
 
@@ -604,6 +611,26 @@ void CTinyJS::exec() {
 					node->replace(v);
 					v->unref();
 					push(node->var->ref());
+				}
+				break;
+			}
+			case INSTR_ARRAY_AT: {
+				StackItem* i2 = pop2();
+				StackItem* i1 = pop2();
+				if(i1 != NULL && i1->isNode && i2 != NULL) {
+					BCNode* node = (BCNode*)i1;
+
+					BCVar* v = VAR(i2);
+					int at = v->getInt();
+					v->unref();
+
+					BCNode* n = node->var->getChild(at);
+					node->var->unref();
+					
+					if(n != NULL) {
+						n->var->ref();
+						push(n);
+					}
 				}
 				break;
 			}

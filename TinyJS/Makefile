@@ -6,7 +6,6 @@ SRCS = jsm.cpp TinyJS.cpp \
 	  ../native/JSON/JSON.cpp \
 	  ../native/VM/VM.cpp \
 	  ../native/Base64/Base64.cpp \
-	  ../native/Array/Array.cpp \
 	  ../native/Thread/Thread.cpp \
 	  ../native/Global/Global.cpp \
 	  ../native/Bytes/Bytes.cpp \

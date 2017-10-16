@@ -1,6 +1,5 @@
 #include "native/Debug/Debug.h"
 #include "native/String/String.h"
-#include "native/Array/Array.h"
 #include "native/Math/Math.h"
 #include "native/JSON/JSON.h"
 #include "native/VM/VM.h"
@@ -19,7 +18,6 @@ void _moduleLoader(CTinyJS* tinyJS) {
 //load basic classes
 	JSM::Bytes::instance().load(tinyJS, "Bytes");
 //	JSM::String::instance().load(tinyJS, "String");
-//	JSM::Array::instance().load(tinyJS, "Array");
 
 //load Rkid extended classes
 	JSM::Debug::instance().load(tinyJS, "Debug");

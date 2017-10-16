@@ -8,6 +8,7 @@
 #include <iostream>  
 #include "Instr.h"
 
+#define ARR "Array"
 #define THIS "this"
 #define PROTOTYPE "prototype"
 #define RETURN "return"
