@@ -146,14 +146,12 @@ void CTinyJS::funcCall(const string& funcName) {
 	}
 
 	FuncT* func = n->var->getFunc();
-	BCNode* arg = NULL;
-	arg = func->args->getChildOrCreate(THIS);
-	arg->replace(object);
+	func->thisVar->replace(object);
 	object->unref(); //unref after pop
 
 	//read arguments
 	for(int i=func->argNum-1; i>=0; --i) {
-		arg = func->args->getChild(i);
+		BCNode* arg = func->args->getChild(i);
 		if(arg == NULL) {
 			ERR("%s argument not match\n", funcName.c_str());
 			return;
@@ -173,12 +171,7 @@ void CTinyJS::funcCall(const string& funcName) {
 		if(func->native != NULL) {
 			func->native(n->var, this);
 			//read return.
-			BCNode* rn = n->var->getChild(RETURN);
-			BCVar* ret;
-			if(rn== NULL)
-				ret = new BCVar();
-			else
-				ret = rn->var;
+			BCVar* ret = func->returnVar->var;
 			push(ret->ref());
 
 			func->resetArgs();
@@ -313,6 +306,7 @@ void CTinyJS::addNative(const string& clsName, const string& funcDecl, JSCallbac
 
 void CTinyJS::init() {
 	root = new BCVar();
+	root->type = BCVar::OBJECT;
 	root->ref();
 }
 

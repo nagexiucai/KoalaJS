@@ -51,6 +51,8 @@ typedef struct STFunc {
 	JSCallback native;
 	PC pc;
 	BCVar* args;
+	BCNode* thisVar;
+	BCNode* returnVar;
 
 	STFunc();
 	~STFunc();
@@ -93,6 +95,7 @@ public:
 	const static uint8_t OBJECT = 7;
 	const static uint8_t CLASS = 8;
 	const static uint8_t BYTES = 9;
+	const static uint8_t ARRAY = 10;
 
 	uint8_t type;
 
@@ -194,6 +197,9 @@ public:
 	inline bool isDouble() { return type == FLOAT; }
 	inline bool isString() { return type == STRING; }
 	inline bool isBytes() { return type == BYTES; }
+	inline bool isObject() { return (type == OBJECT || type == CLASS); }
+	inline bool isArray() { return type == ARRAY; }
+	inline bool isFunction() { return (type == FUNC || type == NFUNC); }
 
 	inline void* getPoint()  { return pointV; }
 	inline FuncT* getFunc() { return func; }
@@ -268,8 +274,7 @@ public:
 		if(func == NULL) 
 			return NULL;
 
-		BCNode* n = func->args->getChildOrCreate(RETURN);
-		return n->var;
+		return func->returnVar->var;
 	}
 
 	//set function return var 
@@ -277,8 +282,24 @@ public:
 		if(func == NULL) 
 			return NULL;
 
-		BCNode* n = func->args->getChildOrCreate(RETURN);
-		n->replace(v);
+		func->returnVar->replace(v);
+		return v;
+	}
+
+	//get function this var 
+	inline BCVar* getThisVar() {
+		if(func == NULL) 
+			return NULL;
+
+		return func->thisVar->var;
+	}
+
+	//set function this var 
+	inline BCVar* setThisVar(BCVar* v) {
+		if(func == NULL) 
+			return NULL;
+
+		func->thisVar->replace(v);
 		return v;
 	}
 
@@ -294,9 +315,17 @@ public:
 	*/
 	inline BCNode* getChild(const string& name) {
 		if(func != NULL) {
-			BCNode* r = func->args->getChild(name);
-			if(r != NULL)
-				return r;
+			if(name == THIS) {
+				return func->thisVar;
+			}
+			else if(name == RETURN) {
+				return func->returnVar;
+			}
+			else {
+				BCNode* r = func->args->getChild(name);
+				if(r != NULL)
+					return r;
+			}
 		}
 
 		int sz = children.size();
@@ -344,6 +373,10 @@ public:
 	inline void setNativeConstructor(JSCallback nc) {
 		nativeConstructor = nc;
 	}
+
+	string getParsableString();
+	string getJSString(const string &str); 
+	string getJSON(const string& linePrefix);
 };
 
 //define BCVar as CScriptVar for native functions compatible with Interpretor

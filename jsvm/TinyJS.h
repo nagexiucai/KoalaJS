@@ -73,6 +73,8 @@ public:
 	}
 
 	BCVar* newObject(const string& clsName);
+
+	inline BCVar* getRoot() { return root; }
 private:
 	JSModuleLoader moduleLoader;
 	PC pc;

@@ -1,6 +1,6 @@
-function f() {
+function f(s) {
 	b = new Bytes();
-	b.from("xxx");
+	b.from(s);
 
 
 	c = new Bytes();
@@ -13,4 +13,4 @@ function f() {
 	print(c + "\n");
 }
 
-f();
+f("ooo");
