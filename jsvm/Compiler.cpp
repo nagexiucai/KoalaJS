@@ -1014,23 +1014,23 @@ LEX_TYPES Compiler::factor() {
 		}
 	}
 	if (l->tk=='{') {
-		BCVar *contents = new BCVar();
-		contents->type = BCVar::OBJECT;
 		/* JSON-style object definition */
 		l->chkread('{');
+		bytecode.gen(INSTR_OBJ);
 		while (l->tk != '}') {
 			string id = l->tkStr;
+			bytecode.gen(INSTR_STR, id);
 			// we only allow strings or IDs on the left hand side of an initialisation
 			if (l->tk==LEX_STR) l->chkread(LEX_STR);
 			else l->chkread(LEX_ID);
 			l->chkread(':');
 			base();
+			bytecode.gen(INSTR_MEMBER);
 			// no need to clean here, as it will definitely be used
 			if (l->tk != '}') l->chkread(',');
 		}
-
+		bytecode.gen(INSTR_OBJ_END);
 		l->chkread('}');
-		return new CScriptVarLink(contents);
 	}
 
 	else if(l->tk==LEX_ID) {

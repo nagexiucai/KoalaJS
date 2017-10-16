@@ -286,7 +286,7 @@ class CScriptVar
 		void trace(std::string indentStr = "", const std::string &name = "");    ///< Dump out the contents of this using trace
 		std::string trace2(void);                                            ///< Dump out the contents of this using trace
 		std::string getFlagsAsString();                                      ///< For debugging - just dump a string version of the flags
-		void getJSON(std::string &destination, const std::string linePrefix=""); ///< Write out all the JS code needed to recreate this script variable to the stream (as JSON)
+		std::string getJSON(const std::string& linePrefix=""); ///< Write out all the JS code needed to recreate this script variable to the stream (as JSON)
 		void setCallback(JSCallback callback, void *userdata);           ///< Set the callback for native functions
 
 		void setNativeConstructor(JSCallback callback); ///< Set the callback for native constructor, added by Misa.Z

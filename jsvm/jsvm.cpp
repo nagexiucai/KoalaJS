@@ -18,13 +18,13 @@ int main(int argc, char** argv) {
 			string s = argv[1];
 			
 			if(s.rfind(".bcode") != string::npos) { //run bytecode
-//				while(true) {
+				while(true) {
 				TRACE("----Loading %s----\n", s.c_str());
 				CTinyJS vm;
 				vm.loadModule(_moduleLoader);
 				vm.run(s);
 				TRACE("----end----\n");
-//				}	
+				}	
 			}
 		} 
 		catch (CScriptException *e) {

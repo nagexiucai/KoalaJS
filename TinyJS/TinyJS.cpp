@@ -1,4 +1,4 @@
- * TinyJS
+ /* TinyJS
  *
  * A single-file Javascript-alike engine
  *
@@ -1323,7 +1323,8 @@ std::string CScriptVar::getParsableString() {
 	return "undefined";
 }
 
-void CScriptVar::getJSON(std::string &destination, const std::string linePrefix) {
+std::string CScriptVar::getJSON(const std::string& linePrefix) {
+	std::string destination;
 	if (isObject()) {
 		std::string indentedLinePrefix = linePrefix+"  ";
 		// children - handle with bracketed list
@@ -1333,7 +1334,7 @@ void CScriptVar::getJSON(std::string &destination, const std::string linePrefix)
 			destination += indentedLinePrefix;
 			destination += getJSString(link->name).c_str();
 			destination += " : ";
-			link->var->getJSON(destination, indentedLinePrefix);
+			destination += link->var->getJSON(indentedLinePrefix);
 			link = link->nextSibling;
 			if (link) {
 				destination  += ",\n";
@@ -1349,7 +1350,7 @@ void CScriptVar::getJSON(std::string &destination, const std::string linePrefix)
 		if (len>10000) len=10000; // we don't want to get stuck here!
 
 		for (int i=0;i<len;i++) {
-			getArrayIndex(i)->getJSON(destination, indentedLinePrefix);
+			destination += getArrayIndex(i)->getJSON(indentedLinePrefix);
 			if (i<len-1) destination  += ",\n";
 		}
 
@@ -1360,6 +1361,8 @@ void CScriptVar::getJSON(std::string &destination, const std::string linePrefix)
 		// no children or a function... just write value directly
 		destination += getParsableString();
 	}
+	
+	return destination;
 }
 
 

@@ -17,7 +17,7 @@ const static OpCode INSTR_VAR					= 0x0001; // VAR x								: declare var x
 const static OpCode INSTR_CONST				= 0x0002; // CONST x							: declare const x
 const static OpCode INSTR_LOAD				= 0x0003; // LOAD x								: load and push x 
 const static OpCode INSTR_STORE				= 0x0004; // STORE x							: pop and store to x
-const static OpCode INSTR_GET					= 0x0005; // : getfield
+const static OpCode INSTR_GET					= 0x0005; // getfield
 const static OpCode INSTR_ASIGN				= 0x0006; // ASIGN								: =
 
 const static OpCode INSTR_INT					= 0x0007; // INT int 							: push int
@@ -76,11 +76,18 @@ const static OpCode INSTR_NEW					= 0x0070; // : new
 
 const static OpCode INSTR_POP					= 0x0080; // : pop and release
 
+const static OpCode INSTR_OBJ					= 0x0090; // : object for JSON 
+const static OpCode INSTR_OBJ_END			= 0x0091; // : object end for JSON 
+const static OpCode INSTR_MEMBER			= 0x0092; // : object member for JSON 
+
 class BCOpCode {
 	public:
 	inline static string instr(OpCode ins) {
 		switch(ins) {
 			case  INSTR_NIL					: return "nil";
+			case  INSTR_OBJ					: return "obj";
+			case  INSTR_OBJ_END			: return "obje";
+			case  INSTR_MEMBER			: return "member";
 			case  INSTR_POP					: return "pop";
 			case  INSTR_VAR					: return "var";
 			case  INSTR_CONST				: return "const";

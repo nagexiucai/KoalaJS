@@ -401,9 +401,11 @@ void CTinyJS::mathOp(OpCode op, BCVar* v1, BCVar* v2) {
 
 void CTinyJS::exec() {
 	VMScope sc;
+	BCVar* currentObj = root;
 	sc.var = root;
 	sc.pc = 0;
 	scopes.push_back(sc);
+
 
 	while(pc < codeSize) {
 		PC ins = code[pc++];
@@ -557,6 +559,22 @@ void CTinyJS::exec() {
 				}
 				break;
 			}
+			case INSTR_GET: {
+				str = bcode.getStr(offset);
+				StackItem* i = pop2();
+				if(i != NULL) {
+					BCVar* v = VAR(i);
+					if(v->isObject()) {
+						BCNode* n = v->getChild(str);
+						if(n != NULL) {
+							n->var->ref();	
+							push(n);
+						}
+					}
+					v->unref();
+				}
+				break;
+			}
 			case INSTR_INT: {
 				BCVar* v = new BCVar(BCVar::INT);
 				v->setInt((int)code[pc++]);
@@ -576,16 +594,45 @@ void CTinyJS::exec() {
 				break;
 			}
 			case INSTR_ASIGN: {
-				StackItem* i1 = pop2();
 				StackItem* i2 = pop2();
-				if(i2 != NULL && i2->isNode && i1 != NULL) {
-					BCNode* node = (BCNode*)i2;
-					BCVar* v = VAR(i1);
+				StackItem* i1 = pop2();
+				if(i1 != NULL && i1->isNode && i2 != NULL) {
+					BCNode* node = (BCNode*)i1;
+					BCVar* v = VAR(i2);
 
 					node->var->unref();
 					node->replace(v);
 					v->unref();
 					push(node->var->ref());
+				}
+				break;
+			}
+			case INSTR_OBJ: {
+				BCVar* obj = new BCVar();
+				obj->type = BCVar::OBJECT;
+				push(currentObj->ref());
+				currentObj = obj->ref(); //need unref for unasign
+				break;
+			}
+			case INSTR_OBJ_END: {
+				StackItem* i = pop2();
+				BCVar* obj = (BCVar*)i;
+				push(currentObj); //that actually means currentObj->ref() for push and unref for unasign.
+				currentObj = obj;
+				obj->unref();
+				break;
+			}
+			case INSTR_MEMBER: {
+				StackItem* i2 = pop2();
+				StackItem* i1 = pop2();
+				if(i1 != NULL && i2 != NULL) {
+					BCVar* nv = VAR(i1);
+					BCVar* v = VAR(i2);
+					string name = nv->getString();
+					nv->unref();
+
+					currentObj->addChild(name, v);
+					v->unref();
 				}
 				break;
 			}

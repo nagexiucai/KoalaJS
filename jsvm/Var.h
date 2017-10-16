@@ -215,6 +215,8 @@ public:
 			ss << floatV;
 		else if(type == STRING) 
 			ss << stringV;
+		else if(type == OBJECT) 
+			ss << getJSON();
 			
 		return ss.str(); 
 	}
@@ -375,8 +377,8 @@ public:
 	}
 
 	string getParsableString();
-	string getJSString(const string &str); 
-	string getJSON(const string& linePrefix);
+	string getJSString(const string &str);
+	string getJSON(const string& linePrefix = "");
 };
 
 //define BCVar as CScriptVar for native functions compatible with Interpretor
