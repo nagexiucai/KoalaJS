@@ -85,8 +85,8 @@ StackItem* CTinyJS::pop2() {
 	if(stackTop == STACK_DEEP) // touch the bottom of stack
 		return NULL;
 
-	StackItem* ret =  stack[stackTop];
-	stack[stackTop] = NULL;
+	StackItem* ret =  vStack[stackTop];
+	vStack[stackTop] = NULL;
 	stackTop++;
 	return ret;
 }
@@ -95,8 +95,8 @@ void CTinyJS::pop() {
 	if(stackTop == STACK_DEEP)
 		return;
 
-	StackItem* i =  stack[stackTop];
-	stack[stackTop] = NULL;
+	StackItem* i =  vStack[stackTop];
+	vStack[stackTop] = NULL;
 	stackTop++;
 	VAR(i)->unref();
 }
@@ -106,7 +106,7 @@ void CTinyJS::push(StackItem* v) {
 		ERR("stack overflow\n");
 		return;
 	}
-	stack[--stackTop] = v;
+	vStack[--stackTop] = v;
 }
 
 BCNode* CTinyJS::find(const string& name) {

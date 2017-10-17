@@ -1,5 +1,6 @@
 #include "Var.h"
 #include <stdio.h>
+#include <string.h>
 
 BCNode::BCNode(const string& n, BCVar* v) {
 	var = v->ref();

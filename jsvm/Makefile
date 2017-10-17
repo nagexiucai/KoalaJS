@@ -17,7 +17,7 @@ JSVM_SRCS = Bytecode.cpp Var.cpp jsvm.cpp TinyJS.cpp Compiler.cpp CodeCache.cpp 
 	  ../native/Thread/Thread.cpp \
 	  ../native/MD5/MD5.cpp 
 
-#LDFLAG = -lpthread
+LDFLAG = -lpthread
 
 LIBS = ../libs/Base64/Base64.cpp \
 		../libs/MD5/md5.cpp \
@@ -37,8 +37,8 @@ vm:
 	g++ ${CFLAG} -o ${VM} ${JSVM_SRCS} ${LIBS} ${LDFLAG}
 
 arm:
-	arm-none-linux-gnueabi-g++ ${CFLAG} --static -o ${COMPILER} ${COMPILER_SRCS} ${LIBS} ${LDFLAG}
-	arm-none-linux-gnueabi-g++ ${CFLAG} --static -o ${VM} ${VM_SRCS} ${LIBS} ${LDFLAG}
+	arm-none-linux-gnueabi-g++ ${CFLAG}  -o ${COMPILER} ${COMPILER_SRCS} ${LIBS} ${LDFLAG}
+	arm-none-linux-gnueabi-g++ ${CFLAG}  -o ${VM} ${JSVM_SRCS} ${LIBS} ${LDFLAG}
 
 clean:
 	rm -fr *.bcode

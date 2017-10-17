@@ -2,6 +2,7 @@
 #define JSM_DEBUG
 
 #include "../ClassLoader.h"
+#include <stdio.h>
 
 namespace JSM {
 

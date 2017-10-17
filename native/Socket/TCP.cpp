@@ -158,7 +158,6 @@ void JSTCPNative::accept(CScriptVar* var, void* data) {
 
 	int cid = ::accept(sid,(struct sockaddr *)&in, &size);
 	if(cid < 0) {
-		TRACE("TCP accept failed, errno: %d\n", errno);
 		return;
 	}
 	

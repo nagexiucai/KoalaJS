@@ -111,7 +111,7 @@ private:
 	void init();
 
 	const static uint16_t STACK_DEEP = 128;
-	StackItem* stack[STACK_DEEP];
+	StackItem* vStack[STACK_DEEP];
 	uint16_t stackTop;
 
 	void push(StackItem* v);
