@@ -1,5 +1,6 @@
 #include "Var.h"
 #include "TinyJS.h"
+#include "Compiler.h"
 #include "../libs/File/File.h"
 #include "../native/ClassLoader.h"
 #include <string.h>
@@ -16,16 +17,26 @@ int main(int argc, char** argv) {
 	else {
 		try {
 			string s = argv[1];
-			
+			TRACE("----Loading %s----\n", s.c_str());
+
 			if(s.rfind(".bcode") != string::npos) { //run bytecode
-				while(true) {
-				TRACE("----Loading %s----\n", s.c_str());
 				CTinyJS vm;
 				vm.loadModule(_moduleLoader);
 				vm.run(s);
-				TRACE("----end----\n");
-				}	
 			}
+			else if(s.rfind(".js") != string::npos) { //run bytecode
+				Compiler compiler;
+				compiler.bytecode.reset();
+				compiler.run(s);
+				compiler.bytecode.dump();
+				TRACE("---compiled to bytecode, continue run it---\n");
+
+				CTinyJS vm;
+				vm.loadModule(_moduleLoader);
+				vm.exec(&compiler.bytecode);
+			}		
+
+			TRACE("----end----\n");
 		} 
 		catch (CScriptException *e) {
 			TRACE("ERROR: %s\n", e->text.c_str());

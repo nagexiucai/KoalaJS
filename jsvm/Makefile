@@ -1,7 +1,7 @@
 CFLAG = -g -I./ -I../
 COMPILER_SRCS = Compiler.cpp Bytecode.cpp Var.cpp bc.cpp 
 
-JSVM_SRCS = Bytecode.cpp Var.cpp jsvm.cpp TinyJS.cpp \
+JSVM_SRCS = Bytecode.cpp Var.cpp jsvm.cpp TinyJS.cpp Compiler.cpp \
 	  ../native/ClassLoader.cpp \
 	  ../native/Math/Math.cpp \
 	  ../native/Base64/Base64.cpp \

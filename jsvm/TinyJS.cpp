@@ -41,9 +41,9 @@ void CTinyJS::run(const std::string &fname) {
 	cname = File::getFullname(cwd, fname);
 	cwd = File::getPath(cname);
 
-	if(bcode.fromFile(fname)) {
-		code = bcode.getCode(codeSize);
-		exec();
+	Bytecode bc;
+	if(bc.fromFile(fname)) {
+		exec(&bc);
 	}
 		
 	if(oldCwd.length() > 0)
@@ -231,7 +231,7 @@ BCVar* CTinyJS::funcDef(const string& funcName) {
 			pc = pc + offset - 1;
 			break;
 		}
-		args.push_back(bcode.getStr(offset));
+		args.push_back(bcode->getStr(offset));
 	}
 	//create function variable
 	ret = new BCVar();
@@ -433,7 +433,10 @@ void CTinyJS::doGet(BCVar* v, const string& str) {
 	}	
 }
 
-void CTinyJS::exec() {
+void CTinyJS::exec(Bytecode* bc) {
+	bcode = bc;
+	code = bcode->getCode(codeSize);
+
 	VMScope sc;
 	BCVar* currentObj = root;
 	sc.var = root;
@@ -559,7 +562,7 @@ void CTinyJS::exec() {
 			}
 			case INSTR_VAR:
 			case INSTR_CONST: {
-				str = bcode.getStr(offset);
+				str = bcode->getStr(offset);
 				if(find(str)) { //find just in current scope
 					ERR("%s has already existed", str.c_str());
 				}
@@ -574,7 +577,7 @@ void CTinyJS::exec() {
 				break;
 			}
 			case INSTR_LOAD: {
-				str = bcode.getStr(offset);
+				str = bcode->getStr(offset);
 				if(str == THIS) {
 					BCVar* v = getCurrentObj();
 					if(v != NULL)
@@ -594,7 +597,7 @@ void CTinyJS::exec() {
 				break;
 			}
 			case INSTR_GET: {
-				str = bcode.getStr(offset);
+				str = bcode->getStr(offset);
 				StackItem* i = pop2();
 				if(i != NULL) {
 					BCVar* v = VAR(i);
@@ -619,7 +622,7 @@ void CTinyJS::exec() {
 			}
 			case INSTR_STR: {
 				BCVar* v = new BCVar(BCVar::STRING);
-				v->setString(bcode.getStr(offset));
+				v->setString(bcode->getStr(offset));
 				push(v->ref());
 				break;
 			}
@@ -687,17 +690,17 @@ void CTinyJS::exec() {
 				break;
 			}
 			case INSTR_FUNC: {
-				BCVar* v = funcDef(bcode.getStr(offset));
+				BCVar* v = funcDef(bcode->getStr(offset));
 				if(v != NULL)
 					push(v->ref());
 				break;
 			}
 			case INSTR_CALL: {
-				funcCall(bcode.getStr(offset));
+				funcCall(bcode->getStr(offset));
 				break;
 			}
 			case INSTR_NEW: {
-				doNew(bcode.getStr(offset));
+				doNew(bcode->getStr(offset));
 				break;
 			}
 		}

@@ -34,7 +34,7 @@ public:
 	}
 
 	inline void reset() {
-		bcode.reset();
+		bcode->reset();
 		pc = 0;
 		codeSize = 0;
 		code = NULL;
@@ -80,6 +80,7 @@ public:
 
 	inline void setcwd(const std::string& cwd) { this->cwd = cwd; }
 
+	void exec(Bytecode* bc);
 private:
 	string cwd;
 	string cname;
@@ -88,12 +89,10 @@ private:
 	PC pc;
 	PC* code;
 	PC codeSize;
-	Bytecode bcode;
+	Bytecode* bcode;
 
 	BCVar* root;
 	vector<VMScope> scopes;
-
-	void exec();
 
 	void init();
 
