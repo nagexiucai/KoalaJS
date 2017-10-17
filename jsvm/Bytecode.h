@@ -54,7 +54,7 @@ public:
 	}
 	void add(PC ins);
 
-	void strs();
+	string strs();
 
 	PC gen(OpCode instr, const string& str = "");
 
@@ -87,7 +87,7 @@ public:
 		return cindex-1;
 	}
 	
-	void dump();
+	string dump();
 	
 	bool toFile(const std::string& fname);
 

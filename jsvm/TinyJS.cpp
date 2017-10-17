@@ -415,6 +415,11 @@ void CTinyJS::mathOp(OpCode op, BCVar* v1, BCVar* v2) {
 				ostr << s << v2->getFloat();
 				break;
 			}
+			case BCVar::ARRAY: 
+			case BCVar::OBJECT: {
+				ostr << s << v2->getJSON();
+				break;
+			}
 		}
 		
 		s = ostr.str();

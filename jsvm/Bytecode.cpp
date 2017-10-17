@@ -57,13 +57,6 @@ PC Bytecode::bytecode(OpCode instr, const string& str) {
 
 	return INS(r, i);
 }
-
-void Bytecode::strs() {
-	uint16_t sz = strTable.size();
-	for(uint16_t i=0; i<sz; ++i) {
-		P("%04X: %s\n", i, strTable[i].c_str()); 
-	}
-}
 	
 PC Bytecode::gen(OpCode instr, const string& str) {
 	int i = 0;
@@ -108,50 +101,73 @@ void Bytecode::set(PC anchor, OpCode op) {
 		codeBuf[anchor] = ins;
 }
 
+string Bytecode::strs() {
+	string ret;
+	char index[8];
+	uint16_t sz = strTable.size();
+	for(uint16_t i=0; i<sz; ++i) {
+		sprintf(index, "%04X: ", i);
+		ret = ret + index + strTable[i] + "\n";
+	}
+	return ret;
+}
 
-void Bytecode::dump() {
+string Bytecode::dump() {
+	string ret;
+	char s[32];
 	PC i = 0;
 	PC ins = 0;
 
-	P("-------string table--------------------\n");
-	strs();
-	P("---------------------------------------\n");
+	ret = "-------string table--------------------\n";
+	ret += strs();
+	ret += "---------------------------------------\n";
 
 	while(i < cindex) {
 		ins = codeBuf[i];
 		OpCode instr = (ins >> 16) & 0xFFFF;
 		OpCode strIndex = ins & 0xFFFF;
 
-		if(strIndex == 0xFFFF)
-			P("%d\t0x%08X\t%s\n", i, ins, BCOpCode::instr(instr).c_str());	
+		if(strIndex == 0xFFFF) {
+			sprintf(s, "%d\t0x%08X\t%s\n", i, ins, BCOpCode::instr(instr).c_str());	
+			ret += s;
+		}
 		else {
 			if(instr == INSTR_JMP || 
 					instr == INSTR_NJMP || 
 					instr == INSTR_NJMPB ||
 					instr == INSTR_JMPB || 
-					instr == INSTR_FUNC_END)
-				P("%d\t0x%08X\t%s %d\n", i, ins, BCOpCode::instr(instr).c_str(), strIndex);	
-			else if(instr == INSTR_STR) 
-				P("%d\t0x%08X\t%s \"%s\"\n", i, ins, BCOpCode::instr(instr).c_str(), getStr(strIndex).c_str());	
-			else 
-				P("%d\t0x%08X\t%s %s\n", i, ins, BCOpCode::instr(instr).c_str(), getStr(strIndex).c_str());	
+					instr == INSTR_FUNC_END) {
+				sprintf(s, "%d\t0x%08X\t%s %d\n", i, ins, BCOpCode::instr(instr).c_str(), strIndex);	
+				ret += s;
+			}
+			else if(instr == INSTR_STR) {
+				sprintf(s, "%d\t0x%08X\t%s \"", i, ins, BCOpCode::instr(instr).c_str());	
+				ret = ret + s + getStr(strIndex) + "\"\n";	
+			}
+			else {
+				sprintf(s, "%d\t0x%08X\t%s ", i, ins, BCOpCode::instr(instr).c_str());	
+				ret = ret + s + getStr(strIndex) + "\n";	
+			}
 		}
 		
 		i++;
 	
 		if(instr == INSTR_INT) {
 			ins = codeBuf[i];
-			P("%d\t0x%08X\t(%d)\n", i, ins, ins);	
+			sprintf(s, "%d\t0x%08X\t(%d)\n", i, ins, ins);	
+			ret += s;
 			i++;
 		}
 		else if(instr == INSTR_FLOAT) {
 			ins = codeBuf[i];
 			float f;
 			memcpy(&f, &ins, sizeof(PC));
-			P("%d\t0x%08X\t(%f)\n", i, ins, f);	
+			sprintf(s, "%d\t0x%08X\t(%f)\n", i, ins, f);	
+			ret += s;
 			i++;
 		}
 	}
+	return ret;
 }
 
 bool Bytecode::toFile(const std::string& fname) {

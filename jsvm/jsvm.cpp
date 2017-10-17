@@ -11,26 +11,30 @@ int main(int argc, char** argv) {
 	std::string input;
 
 	if(argc <= 1) {
-		printf("Usage: jsvm [.bcode file]\n");
+		printf("Usage: jsvm [.bcode or .js file] {args....}\n");
 		return 1;
 	}
 	else {
-while(true) {
+//while(true) {
 		try {
-			string s = argv[1];
-			TRACE("----Loading %s----\n", s.c_str());
-
 			CTinyJS vm;
 			vm.loadModule(_moduleLoader);
-			vm.run(s);
+			
+			//read args 
+			BCVar* args = new BCVar();
+			args->setArray();
+			for(int i=2; i<argc; ++i) {
+				args->setArrayIndex(i-2, new BCVar(argv[i]));
+			}
+			vm.getRoot()->addChild("_args", args);
 
-			TRACE("----end----\n");
+			vm.run(argv[1]);
 		} 
 		catch (CScriptException *e) {
 			TRACE("ERROR: %s\n", e->text.c_str());
 		}
 	}
-}
+//}
 	CodeCache::empty();
 	return 0;
 }

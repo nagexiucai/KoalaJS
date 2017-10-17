@@ -1,5 +1,5 @@
 CFLAG = -g -I./ -I../
-COMPILER_SRCS = Compiler.cpp Bytecode.cpp Var.cpp bc.cpp 
+COMPILER_SRCS = Compiler.cpp Bytecode.cpp Var.cpp jsbc.cpp 
 
 JSVM_SRCS = Bytecode.cpp Var.cpp jsvm.cpp TinyJS.cpp Compiler.cpp CodeCache.cpp \
 	  ../native/ClassLoader.cpp \
