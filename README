@@ -5,8 +5,10 @@
 	under GPL.
 
 .About
-	This TinyJS engine core was forked from https://github.com/gfwilliams/tiny-js.git, by Gordon Williams <gw@pur3.co.uk>.
+	This TinyJS intepretor engine core was forked from https://github.com/gfwilliams/tiny-js.git, by Gordon Williams <gw@pur3.co.uk>.
 	fixed some bugs and done lots of jobs on native interface framework design.
+
+	Bytecode compiler and vm are all wrote by Misa.Z. The interpretor and bytecode runtime share the same native functions interface.	
 
 .How to do arm cross compile on mac osx:
  
