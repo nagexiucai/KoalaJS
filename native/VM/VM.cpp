@@ -17,8 +17,4 @@ void VM::run(CScriptVar *c, void *userdata) {
 	tinyJS->run(fname);
 }
 
-void VM::eval(CScriptVar *c, void *userdata) {
-	CTinyJS *tinyJS = (CTinyJS *)userdata;
-	c->setReturnVar(tinyJS->evaluateComplex(c->getParameter("src")->getString()).var);
-}
 

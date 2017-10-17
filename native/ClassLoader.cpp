@@ -25,8 +25,8 @@ void _moduleLoader(CTinyJS* tinyJS) {
 	JSM::Global::instance().load(tinyJS, "RGlobal");
 	JSM::Math::instance().load(tinyJS, "RMath");
 	JSM::JSON::instance().load(tinyJS, "RJSON");
-//	JSM::VM::instance().load(tinyJS, "RVM");
-//	JSM::JSThread::instance().load(tinyJS, "RThread");
+	JSM::VM::instance().load(tinyJS, "RVM");
+	JSM::JSThread::instance().load(tinyJS, "RThread");
 	JSM::JSBase64::instance().load(tinyJS, "RBase64");
 	JSM::JSMD5::instance().load(tinyJS, "RMD5");
 	JSM::JSFile<JSM::JSFileNative>::instance().load(tinyJS, "RFile");

@@ -15,26 +15,14 @@ int main(int argc, char** argv) {
 		return 1;
 	}
 	else {
+while(true) {
 		try {
 			string s = argv[1];
 			TRACE("----Loading %s----\n", s.c_str());
 
-			if(s.rfind(".bcode") != string::npos) { //run bytecode
-				CTinyJS vm;
-				vm.loadModule(_moduleLoader);
-				vm.run(s);
-			}
-			else if(s.rfind(".js") != string::npos) { //run bytecode
-				Compiler compiler;
-				compiler.bytecode.reset();
-				compiler.run(s);
-				compiler.bytecode.dump();
-				TRACE("---compiled to bytecode, continue run it---\n");
-
-				CTinyJS vm;
-				vm.loadModule(_moduleLoader);
-				vm.exec(&compiler.bytecode);
-			}		
+			CTinyJS vm;
+			vm.loadModule(_moduleLoader);
+			vm.run(s);
 
 			TRACE("----end----\n");
 		} 
@@ -42,5 +30,6 @@ int main(int argc, char** argv) {
 			TRACE("ERROR: %s\n", e->text.c_str());
 		}
 	}
+}
 	return 0;
 }

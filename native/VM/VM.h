@@ -10,8 +10,6 @@ namespace JSM {
 
 		static void run(CScriptVar *c, void *);
 
-		static void eval(CScriptVar *c, void *);
-
 		protected:
 		inline void registerFunctions(CTinyJS* tinyJS, const std::string& className) {
 			/*	addFunction(tinyJS, "", "require(cls)", exec, tinyJS);
@@ -21,7 +19,6 @@ namespace JSM {
 
 			addFunction(tinyJS, className, "exec(src)", exec, tinyJS);
 			addFunction(tinyJS, className, "run(file)", run, tinyJS);
-			addFunction(tinyJS, className, "eval(src)", eval, tinyJS);
 		}
 
 		public:

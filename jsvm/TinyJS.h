@@ -3,6 +3,7 @@
 
 #include "Bytecode.h"
 #include "Var.h"
+#include <stack>
 
 #define VAR(i) (i->isNode ? ((BCNode*)i)->var : (BCVar*)i)
 
@@ -14,6 +15,13 @@ typedef struct {
 } VMScope;
 
 
+typedef struct {
+	PC pc;
+	PC *code;
+	PC size;
+	Bytecode* bcode;
+} CodeT;
+
 class CTinyJS;
 typedef void (*JSModuleLoader)(CTinyJS *tinyJS);
 
@@ -24,6 +32,7 @@ public:
 		pc = 0;
 		codeSize = 0;
 		code = NULL;
+		bcode = NULL;
 		stackTop = STACK_DEEP;
 		this->root = NULL;
 		init();
@@ -34,7 +43,7 @@ public:
 	}
 
 	inline void reset() {
-		bcode->reset();
+		bcode = NULL;
 		pc = 0;
 		codeSize = 0;
 		code = NULL;
@@ -56,6 +65,8 @@ public:
 	}
 
 	void run(const string& fname);
+
+	void exec(const string& code);
 	
 	void addNative(const string& clsName, const string& funcDecl, JSCallback native, void* data);
 
@@ -80,7 +91,6 @@ public:
 
 	inline void setcwd(const std::string& cwd) { this->cwd = cwd; }
 
-	void exec(Bytecode* bc);
 private:
 	string cwd;
 	string cname;
@@ -93,6 +103,9 @@ private:
 
 	BCVar* root;
 	vector<VMScope> scopes;
+	stack<CodeT> codeStack;
+
+	void runCode(Bytecode* bc);
 
 	void init();
 

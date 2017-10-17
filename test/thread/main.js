@@ -5,12 +5,10 @@ var i = 0;
 
 RThread.run("thread.js", "thread arg: xxxx");
 
-var i = 0;
-
 while(true) { 
-	i++;
 	set('count', i);
 	print("main thread set : " + i + "\n");
 
+	i++;
 	RThread.usleep(100000);
 }

@@ -1,4 +1,5 @@
 #include "TinyJS.h"
+#include "Compiler.h"
 #include "libs/String/StringUtil.h"
 #include "libs/File/File.h"
 #include <sstream>  
@@ -40,15 +41,29 @@ void CTinyJS::run(const std::string &fname) {
 	std::string oldCwd = cwd;
 	cname = File::getFullname(cwd, fname);
 	cwd = File::getPath(cname);
-
-	Bytecode bc;
-	if(bc.fromFile(fname)) {
-		exec(&bc);
+	if(cname.find(".bcode") != string::npos) {
+		Bytecode bc;
+		if(bc.fromFile(cname)) {
+			runCode(&bc);
+		}
+	}
+	else {
+		Compiler compiler;
+		compiler.run(cname);
+		compiler.bytecode.dump();
+		runCode(&compiler.bytecode);
 	}
 		
 	if(oldCwd.length() > 0)
 		cwd = oldCwd;
 }
+
+void CTinyJS::exec(const std::string &code) {
+	Compiler compiler;
+	compiler.exec(code);
+	runCode(&compiler.bytecode);
+}
+
 
 StackItem* CTinyJS::pop2() {
 	if(stackTop == STACK_DEEP) // touch the bottom of stack
@@ -143,14 +158,14 @@ void CTinyJS::funcCall(const string& funcName) {
 	}
 
 	object = VAR(si);	
+	//find function in object;
+	BCNode*	n = object->getChild(funcName);
+	if(n == NULL)
+		n = findInClass(object, funcName);
+
 	//find function in scopes;
-	BCNode* n = findInScopes(funcName);
-	if(n == NULL) {
-			//find function in object;
-			n = object->getChild(funcName);
-			if(n == NULL)
-				n = findInClass(object, funcName);
-	}
+	if(n == NULL)
+		n = findInScopes(funcName);
 
 	if(n == NULL) {
 		ERR("Function '%s' not found\n", funcName.c_str());
@@ -433,7 +448,17 @@ void CTinyJS::doGet(BCVar* v, const string& str) {
 	}	
 }
 
-void CTinyJS::exec(Bytecode* bc) {
+void CTinyJS::runCode(Bytecode* bc) {
+	if(code != NULL && bcode != NULL) {
+		CodeT cs;
+		cs.pc = pc;
+		cs.code = code;
+		cs.size = codeSize;
+		cs.bcode = bcode;
+		codeStack.push(cs);	
+	}
+
+	pc = 0;
 	bcode = bc;
 	code = bcode->getCode(codeSize);
 
@@ -706,5 +731,15 @@ void CTinyJS::exec(Bytecode* bc) {
 		}
 	}
 	scopes.pop_back();
+
+	if(!codeStack.empty()) {
+		CodeT cs = codeStack.top();
+		codeStack.pop();
+
+		pc = cs.pc;
+		code = cs.code;
+		codeSize = cs.size;
+		bcode = cs.bcode;
+	}
 }
 

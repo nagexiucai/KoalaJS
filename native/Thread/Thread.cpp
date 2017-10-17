@@ -30,7 +30,7 @@ static void* _vmThread(void* data) {
 	CTinyJS *tJS = new CTinyJS();
 	tJS->loadModule(tinyJS->getModuleLoader());
 	tJS->setcwd(tinyJS->getcwd());
-	tJS->root->addChild("_threadArg", arg);
+	tJS->getRoot()->addChild("_threadArg", arg);
 	arg->unref();
 
 	if(code)
