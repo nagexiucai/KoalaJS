@@ -383,7 +383,6 @@ class CTinyJS {
 		//added by Misa.Z for new object
 		CScriptVar *newObject(const std::string &className);
 
-		CScriptVar *root;   /// root of symbol table
 
 		//added by Misa.Z for native module loading.
 		inline void loadModule(JSModuleLoader loader) {
@@ -409,7 +408,12 @@ class CTinyJS {
 		inline std::string getLexPosition() {
 			return l->getPosition();
 		}	
+	
+		inline CScriptVar* getRoot() {
+			return root;
+		}
 	private:
+		CScriptVar *root;   /// root of symbol table
 		//added by Misa.Z for running file
 		std::string cwd;
 		std::string cname;

@@ -41,17 +41,27 @@ void CTinyJS::run(const std::string &fname) {
 	std::string oldCwd = cwd;
 	cname = File::getFullname(cwd, fname);
 	cwd = File::getPath(cname);
-	if(cname.find(".bcode") != string::npos) {
-		Bytecode bc;
-		if(bc.fromFile(cname)) {
-			runCode(&bc);
-		}
+
+	Bytecode* bc = CodeCache::get(cname);
+	if(bc != NULL) {
+		runCode(bc);
 	}
 	else {
-		Compiler compiler;
-		compiler.run(cname);
-		compiler.bytecode.dump();
-		runCode(&compiler.bytecode);
+		bc = new Bytecode();
+		if(cname.find(".bcode") != string::npos) {
+			if(bc->fromFile(cname)) {
+				CodeCache::cache(cname, bc);
+				runCode(bc);
+			}
+		}
+		else {
+			Compiler compiler;
+			compiler.run(cname);
+			compiler.bytecode.dump();
+			compiler.bytecode.clone(bc);
+			CodeCache::cache(cname, bc);
+			runCode(bc);
+		}
 	}
 		
 	if(oldCwd.length() > 0)
@@ -59,9 +69,15 @@ void CTinyJS::run(const std::string &fname) {
 }
 
 void CTinyJS::exec(const std::string &code) {
-	Compiler compiler;
-	compiler.exec(code);
-	runCode(&compiler.bytecode);
+	Bytecode* bc = CodeCache::get(code);
+	if(bc == NULL) {
+		bc = new Bytecode();
+		Compiler compiler;
+		compiler.exec(code);
+		compiler.bytecode.clone(bc);
+		CodeCache::cache(code, bc);
+	}
+	runCode(bc);
 }
 
 
@@ -372,6 +388,9 @@ void CTinyJS::compare(OpCode op, BCVar* v1, BCVar* v2) {
 				i = (f1 >= f2);
 				break; 
 		}
+	}
+	else if(op == INSTR_NEQ) {
+		i = true;
 	}
 	
 	BCVar* v = new BCVar(i ? 1 : 0);

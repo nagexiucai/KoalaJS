@@ -91,6 +91,16 @@ public:
 	bool toFile(const std::string& fname);
 
 	bool fromFile(const std::string& fname);
+
+	inline void clone(Bytecode* bc) {
+		bc->reset();
+		if(bc == NULL || cindex == 0)
+			return;
+		bc->cindex = cindex;
+		bc->strTable = strTable;
+		bc->codeBuf = new PC[cindex];
+		memcpy(bc->codeBuf, codeBuf, cindex*sizeof(PC));
+	}
 };
 
 #endif

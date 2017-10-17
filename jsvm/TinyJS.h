@@ -2,6 +2,7 @@
 #define BC_CTinyJS_HH
 
 #include "Bytecode.h"
+#include "CodeCache.h"
 #include "Var.h"
 #include <stack>
 

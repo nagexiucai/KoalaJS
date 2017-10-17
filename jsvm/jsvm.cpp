@@ -31,5 +31,6 @@ while(true) {
 		}
 	}
 }
+	CodeCache::empty();
 	return 0;
 }

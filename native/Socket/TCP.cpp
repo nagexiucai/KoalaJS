@@ -52,7 +52,10 @@ void JSTCPNative::shutdown(CScriptVar* var, void* data) {
 void JSTCPNative::send(CScriptVar* var, void* data) {
 	CScriptVar* v = var->getParameter("buf");
 	int size = var->getParameter("size")->getInt();
-	int to = var->getParameter("timeout")->getInt();
+	CScriptVar* n = var->getParameter("timeout");
+	int to = 0;
+	if(n != NULL)
+		to = n->getInt();
 
 	if(size <= 0 || sid < 0 || !v->isBytes())
 		return;
@@ -82,7 +85,7 @@ void JSTCPNative::send(CScriptVar* var, void* data) {
 
 void JSTCPNative::recv(CScriptVar* var, void* data) {
 	int size = var->getParameter("size")->getInt();
-	BCVar* n = var->getParameter("timeout");
+	CScriptVar* n = var->getParameter("timeout");
 	int to = 0;
 	if(n != NULL)
 		to = n->getInt();
