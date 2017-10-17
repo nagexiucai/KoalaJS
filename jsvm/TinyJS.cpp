@@ -57,7 +57,7 @@ void CTinyJS::run(const std::string &fname) {
 		else {
 			Compiler compiler;
 			compiler.run(cname);
-			compiler.bytecode.dump();
+//			compiler.bytecode.dump();
 			compiler.bytecode.clone(bc);
 			CodeCache::cache(cname, bc);
 			runCode(bc);
