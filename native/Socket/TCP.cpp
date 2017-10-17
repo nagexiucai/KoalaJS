@@ -82,7 +82,11 @@ void JSTCPNative::send(CScriptVar* var, void* data) {
 
 void JSTCPNative::recv(CScriptVar* var, void* data) {
 	int size = var->getParameter("size")->getInt();
-	int to = var->getParameter("timeout")->getInt();
+	BCVar* n = var->getParameter("timeout");
+	int to = 0;
+	if(n != NULL)
+		to = n->getInt();
+
 	CTinyJS* tinyJS = (CTinyJS*)data;
 
 	if(size <= 0 || sid < 0)

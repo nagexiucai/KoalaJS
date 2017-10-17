@@ -178,10 +178,12 @@ public:
 
 	//if size >= 0, means val is a byte bytes, pData is a byte bytes point, and intData is the size of it.
 	inline void setPoint(void* p, int size, JSDestroy destroy, bool needDestroy) {
-		clean();
+		if(type != OBJECT)
+			clean();
 
-		if(size == NO_BYTES)
+		if(size == NO_BYTES) {
 			intV = 0;
+		}
 		else {
 			type = BYTES;
 			intV = size;

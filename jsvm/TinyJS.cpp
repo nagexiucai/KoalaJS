@@ -351,26 +351,27 @@ void CTinyJS::compare(OpCode op, BCVar* v1, BCVar* v2) {
 	f2 = v2->getFloat();
 	
 	bool i = false;
-
-	switch(op) {
-		case INSTR_EQ: 
-			i = (f1 == f2);
-			break; 
-		case INSTR_NEQ: 
-			i = (f1 != f2);
-			break; 
-		case INSTR_LES: 
-			i = (f1 < f2);
-			break; 
-		case INSTR_GRT: 
-			i = (f1 > f2);
-			break; 
-		case INSTR_LEQ: 
-			i = (f1 <= f2);
-			break; 
-		case INSTR_GEQ: 
-			i = (f1 >= f2);
-			break; 
+	if(v1->type == v2->type) {
+		switch(op) {
+			case INSTR_EQ: 
+				i = (f1 == f2);
+				break; 
+			case INSTR_NEQ: 
+				i = (f1 != f2);
+				break; 
+			case INSTR_LES: 
+				i = (f1 < f2);
+				break; 
+			case INSTR_GRT: 
+				i = (f1 > f2);
+				break; 
+			case INSTR_LEQ: 
+				i = (f1 <= f2);
+				break; 
+			case INSTR_GEQ: 
+				i = (f1 >= f2);
+				break; 
+		}
 	}
 	
 	BCVar* v = new BCVar(i ? 1 : 0);
@@ -486,6 +487,11 @@ void CTinyJS::runCode(Bytecode* bc) {
 			}
 			case INSTR_FALSE: {
 				BCVar* v = new BCVar(0);	
+				push(v->ref());
+				break;
+			}
+			case INSTR_UNDEF: {
+				BCVar* v = new BCVar();	
 				push(v->ref());
 				break;
 			}

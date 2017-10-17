@@ -6,5 +6,5 @@ b = cs.read(100);
 if(b != undefined) 
 	cs.write(b, b.size()); 
 
-print("closed");
+print("closed.\n");
 cs.close();
