@@ -5,28 +5,6 @@
 
 using namespace std;
 
-typedef struct _BasicValue {
-	const static unsigned char INT = 0;
-	const static unsigned char DOUBLE = 1;
-	const static unsigned char STRING = 2;
-	const static unsigned char BYTES = 3;
-	const static unsigned char UNDEF = 4;
-
-	unsigned char type;
-	struct V {
-		int intV;
-		double doubleV;
-		std::string stringV;
-		unsigned char* bytesV;
-
-		V() {
-			intV = 0;
-			doubleV = 0;
-			bytesV = NULL;
-		}
-	}v;
-} BasicValueT;
-
 #define DECL_INSTANCE(T) static T& instance() { static T t; return t; }
 
 #define MAP_FUNC(func) static inline void func (CScriptVar* var, void *userData) { \
