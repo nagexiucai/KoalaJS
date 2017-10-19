@@ -8,7 +8,8 @@
 #include <iostream>  
 #include "Instr.h"
 
-#define ARR "Array"
+#define CLS_ARR "Array"
+#define CLS_OBJECT "Object"
 #define THIS "this"
 #define PROTOTYPE "prototype"
 #define RETURN "return"

@@ -1,5 +1,5 @@
 #include "TCP.h"
-#include "libs/DNS/DNS.h"
+#include "libs/DNS/dnsc.h"
 #include <cstdlib>
 #include <sys/ioctl.h>
 #include <unistd.h>
@@ -194,7 +194,7 @@ void JSTCPNative::connect(CScriptVar* var, void* data) {
 
 	var->getReturnVar()->setInt(0);
 
-	host = DNS::ip(host);
+	host = DNSC::ip(host);
 	if(host.length() == 0 || port <= 0)
 		return;
 

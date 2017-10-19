@@ -10,9 +10,14 @@ BCVar* CTinyJS::newObject(const string& clsName) {
 		return NULL;
 	
 	BCVar* ret = NULL;
-	if(clsName == ARR) {
+	if(clsName == CLS_ARR) {
 		ret = new BCVar();
 		ret->type = BCVar::ARRAY;
+		return ret;
+	}
+	if(clsName == CLS_OBJECT) {
+		ret = new BCVar();
+		ret->type = BCVar::OBJECT;
 		return ret;
 	}
 
@@ -460,17 +465,15 @@ void CTinyJS::mathOp(OpCode op, BCVar* v1, BCVar* v2) {
 }
 
 void CTinyJS::doGet(BCVar* v, const string& str) {
-	BCNode* n = v->getChild(str);
-	if(n != NULL) {
-			n->var->ref();	
-			push(n);
-			return;
-	}
-	
 	if(v->isArray() && str == "length") {
 		BCVar* i = new BCVar(v->getChildrenNum());
 		push(i->ref());
+		return;
 	}	
+
+	BCNode* n = v->getChildOrCreate(str);
+	n->var->ref();	
+	push(n);
 }
 
 void CTinyJS::runCode(Bytecode* bc) {
