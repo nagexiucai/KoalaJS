@@ -19,7 +19,7 @@ JSVM_SRCS = Bytecode.cpp Var.cpp jsvm.cpp TinyJS.cpp Compiler.cpp CodeCache.cpp 
 
 LDFLAG = -lpthread
 
-LDFLAGARM = --static -lpthread -lc
+LDFLAGARM = --static -lpthread
 
 LIBS = ../libs/Base64/Base64.cpp \
 		../libs/MD5/md5.cpp \
