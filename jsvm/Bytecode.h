@@ -78,14 +78,16 @@ public:
 	/** set reserved instructioin , offset to current pc
 	 @param anchar, anchor of reserved instruction.
 	 @param opCode, opCode.
+	 @param target, target pc.
 	*/
-	void set(PC anchor, OpCode op, PC target = 0xFFFFFFFF);
+	void setJmp(PC anchor, OpCode op, PC target = 0xFFFFFFFF);
 
 	/** add instructioin , offset to current pc
 	 @param anchar, anchor of reserved instruction.
 	 @param opCode, opCode.
+	 @param target, target pc.
 	*/
-	void add(PC anchor, OpCode op, PC target = 0xFFFFFFFF);
+	void addJmp(PC anchor, OpCode op, PC target = 0xFFFFFFFF);
 
 
 

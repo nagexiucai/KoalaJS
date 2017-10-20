@@ -619,6 +619,7 @@ LEX_TYPES Compiler::statement(bool pop) {
 	else if (l->tk==LEX_R_BREAK){
 		l->chkread(LEX_R_BREAK);
 		l->chkread(';');
+		//reserve for jump to end of loop.
 		PC pc = bytecode.reserve();
 		Loop* l = getLoop();
 		if(l != NULL)
@@ -627,6 +628,7 @@ LEX_TYPES Compiler::statement(bool pop) {
 	else if (l->tk==LEX_R_CONTINUE){
 		l->chkread(LEX_R_CONTINUE);
 		l->chkread(';');
+		//reserve for jump to begin of loop condition.
 		PC pc = bytecode.reserve();
 		Loop* l = getLoop();
 		if(l != NULL)
@@ -691,8 +693,8 @@ LEX_TYPES Compiler::statement(bool pop) {
 		l->chkread(')');
 		PC pc = bytecode.reserve();
 		statement(false);
-		bytecode.add(cpc, INSTR_JMPB); //coninue anchor;
-		bytecode.set(pc, INSTR_NJMP); // end anchor;
+		bytecode.addJmp(cpc, INSTR_JMPB); //coninue anchor;
+		bytecode.setJmp(pc, INSTR_NJMP); // end anchor;
 
 		setLoopBreaks(getLoop(), bytecode.getPC());
 		setLoopContinues(getLoop(), cpc);
@@ -709,12 +711,12 @@ LEX_TYPES Compiler::statement(bool pop) {
 		if (l->tk==LEX_R_ELSE) {
 			l->chkread(LEX_R_ELSE);
 			PC pc2 = bytecode.reserve();
-			bytecode.set(pc, INSTR_NJMP);
+			bytecode.setJmp(pc, INSTR_NJMP);
 			statement(false);
-			bytecode.set(pc2, INSTR_JMP);
+			bytecode.setJmp(pc2, INSTR_JMP);
 		}
 		else {
-			bytecode.set(pc, INSTR_NJMP);
+			bytecode.setJmp(pc, INSTR_NJMP);
 		}
 	}
 	else if (l->tk==LEX_R_FOR) {
@@ -734,11 +736,11 @@ LEX_TYPES Compiler::statement(bool pop) {
 		base(); //iterator
 		bytecode.gen(INSTR_POP);
 		l->chkread(')');
-		bytecode.add(cpc, INSTR_JMPB); //continue anchor
-		bytecode.set(loopPC, INSTR_JMP);
+		bytecode.addJmp(cpc, INSTR_JMPB); //continue anchor
+		bytecode.setJmp(loopPC, INSTR_JMP);
 		statement(false);
-		bytecode.add(ipc, INSTR_JMPB); //iterator anchor
-		bytecode.set(breakPC, INSTR_NJMP); //end anchor
+		bytecode.addJmp(ipc, INSTR_JMPB); //iterator anchor
+		bytecode.setJmp(breakPC, INSTR_NJMP); //end anchor
 		
 		setLoopBreaks(getLoop(), bytecode.getPC());
 		setLoopContinues(getLoop(), cpc);
@@ -937,9 +939,9 @@ LEX_TYPES Compiler::ternary() {
 		base(); //first choice
 		PC pc2 = bytecode.reserve(); //keep for jump
 		l->chkread(':');
-		bytecode.set(pc1, INSTR_NJMP);
+		bytecode.setJmp(pc1, INSTR_NJMP);
 		base(); //second choice
-		bytecode.set(pc2, INSTR_JMP);
+		bytecode.setJmp(pc2, INSTR_JMP);
 	} 
 	return ret;	
 }
@@ -985,7 +987,7 @@ LEX_TYPES Compiler::defFunc() {
 	block();
 
 	bytecode.gen(INSTR_RETURN);
-	bytecode.set(pc, INSTR_FUNC_END);
+	bytecode.setJmp(pc, INSTR_FUNC_END);
 	return ret;
 }
 
@@ -1135,7 +1137,7 @@ Loop* Compiler::getLoop() {
 void Compiler::setLoopBreaks(Loop* loop, PC pc) {
 	if(loop != NULL) {
 		for(int i=0; i<loop->breaks.size(); ++i) {
-			bytecode.set(loop->breaks[i], INSTR_JMP, pc);
+			bytecode.setJmp(loop->breaks[i], INSTR_JMP, pc);
 		}
 	}
 }
@@ -1143,7 +1145,7 @@ void Compiler::setLoopBreaks(Loop* loop, PC pc) {
 void Compiler::setLoopContinues(Loop* loop, PC pc) {
 	if(loop != NULL) {
 		for(int i=0; i<loop->continues.size(); ++i) {
-			bytecode.set(loop->continues[i], INSTR_JMPB, pc);
+			bytecode.setJmp(loop->continues[i], INSTR_JMPB, pc);
 		}
 	}
 }

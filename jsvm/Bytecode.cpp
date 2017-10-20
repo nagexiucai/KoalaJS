@@ -91,7 +91,7 @@ PC Bytecode::gen(OpCode instr, const string& str) {
 	return cindex;
 }
 
-void Bytecode::set(PC anchor, OpCode op, PC target) {
+void Bytecode::setJmp(PC anchor, OpCode op, PC target) {
 	if(target == 0xFFFFFFFF)
 		target = cindex;
 
@@ -100,7 +100,7 @@ void Bytecode::set(PC anchor, OpCode op, PC target) {
 	codeBuf[anchor] = ins;
 }
 
-void Bytecode::add(PC anchor, OpCode op, PC target) {
+void Bytecode::addJmp(PC anchor, OpCode op, PC target) {
 	if(target == 0xFFFFFFFF)
 		target = cindex;
 
