@@ -13,6 +13,9 @@ SRCS = jsm.cpp TinyJS.cpp \
 	  ../native/Socket/TCP.cpp \
 	  ../native/Socket/DNS.cpp \
 	  ../native/System/System.cpp \
+	  ../native/Dir/Dir.cpp \
+	  ../native/DNS/DNSC.cpp \
+	  ../native/Array/Array.cpp \
 	  ../native/MD5/MD5.cpp 
 
 LIBS = ../libs/Base64/Base64.cpp \

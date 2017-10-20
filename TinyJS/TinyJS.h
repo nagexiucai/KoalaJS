@@ -221,6 +221,7 @@ class CScriptVar
 		CScriptVar(double varData);
 		CScriptVar(int val);
 		CScriptVar(bool val);
+		CScriptVar(const char* str);
 
 		//added by Misa.Z for point type data
 		//if size != NO_BYTES, means val is a byte bytes, pData is a byte bytes point, and intData is the size of it.
@@ -248,7 +249,7 @@ class CScriptVar
 		int getInt();
 		bool getBool() { return getInt() != 0; }
 		double getDouble();
-		const std::string &getString();
+		const std::string& getString();
 		std::string getParsableString(); ///< get Data as a parsable javascript string
 
 		//added by Misa.Z for point type data

@@ -17,6 +17,7 @@ JSVM_SRCS = Bytecode.cpp Var.cpp jsvm.cpp TinyJS.cpp Compiler.cpp CodeCache.cpp 
 	  ../native/Thread/Thread.cpp \
 	  ../native/DNS/DNSC.cpp \
 	  ../native/Dir/Dir.cpp \
+	  ../native/Array/Array.cpp \
 	  ../native/MD5/MD5.cpp 
 
 LDFLAG = -lpthread

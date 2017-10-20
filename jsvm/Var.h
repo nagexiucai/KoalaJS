@@ -173,7 +173,11 @@ public:
 		BCNode* n = getChildOrCreate(idx);
 		n->replace(value);
 	}
-	
+		
+	inline int getArrayLength() {
+		return getChildrenNum();
+	}
+
 	inline BCVar* getArrayIndex(int idx) {
 		BCNode* n = getChildOrCreate(idx);
 		return n->var;

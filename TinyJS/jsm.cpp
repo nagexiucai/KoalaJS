@@ -39,6 +39,13 @@ int main(int argc, char** argv) {
 	}
 	else {
 		try {
+			CScriptVar* args = new CScriptVar();
+			args->setArray();
+			for(int i=2; i<argc; ++i) {
+				args->setArrayIndex(i-2, new CScriptVar(argv[i]));
+			}
+			tinyJS.getRoot()->addChild("_args", args);
+
 			tinyJS.run(argv[1]);
 		} catch (CScriptException *e) {
 			printf("ERROR: %s\n", e->text.c_str());

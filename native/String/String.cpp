@@ -13,6 +13,11 @@ void String::indexOf(CScriptVar *c, void *) {
 	c->getReturnVar()->setInt(val);
 }
 
+void String::length(CScriptVar *c, void *) {
+	string str = c->getParameter("this")->getString();
+	c->getReturnVar()->setInt(str.length());
+}
+
 void String::substring(CScriptVar *c, void *) {
 	string str = c->getParameter("this")->getString();
 	int lo = c->getParameter("lo")->getInt();

@@ -720,6 +720,13 @@ CScriptVar::CScriptVar() {
 	flags = SCRIPTVAR_UNDEFINED;
 }
 
+CScriptVar::CScriptVar(const char* str) {
+	refs = 0;
+	init();
+	flags = SCRIPTVAR_STRING;
+	strData = str;
+}
+
 CScriptVar::CScriptVar(const std::string &str) {
 	refs = 0;
 	init();
@@ -978,7 +985,7 @@ double CScriptVar::getDouble() {
 	return 0; /* or NaN? */
 }
 
-const std::string &CScriptVar::getString() {
+const std::string& CScriptVar::getString() {
 	/* Because we can't return a std::string that is generated on demand.
 	 * I should really just use char* :) */
 	static std::string s_null = "null";
@@ -1003,6 +1010,10 @@ const std::string &CScriptVar::getString() {
 	}
 	if (isNull()) return s_null;
 	if (isUndefined()) return s_undefined;
+	if (isArray() || isObject()) {
+		strData = getJSON();
+		return strData;
+	}	
 	// are we just a std::string here?
 	return strData;
 }
@@ -1345,7 +1356,7 @@ std::string CScriptVar::getJSON(const std::string& linePrefix) {
 		destination +=  "}";
 	} else if (isArray()) {
 		std::string indentedLinePrefix = linePrefix+"  ";
-		destination += "[\n";
+		destination += "[";
 		int len = getArrayLength();
 		if (len>10000) len=10000; // we don't want to get stuck here!
 
@@ -1354,7 +1365,7 @@ std::string CScriptVar::getJSON(const std::string& linePrefix) {
 			if (i<len-1) destination  += ",\n";
 		}
 
-		destination += "\n";
+//	destination += "\n";
 		destination += linePrefix;
 		destination += "]";
 	} else {

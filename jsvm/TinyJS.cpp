@@ -137,6 +137,11 @@ BCNode* CTinyJS::findInClass(BCVar* obj, const string& name) {
 		if(cls != NULL)	
 			return cls->var->getChild(name);
 	}
+	else if(obj->type == BCVar::ARRAY) {
+		BCNode* cls = findInScopes("Array");
+		if(cls != NULL)	
+			return cls->var->getChild(name);
+	}
 
 	while(obj != NULL) {
 		BCNode* n;

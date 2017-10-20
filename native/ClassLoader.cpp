@@ -14,12 +14,14 @@
 #include "native/System/System.h"
 #include "native/DNS/DNSC.h"
 #include "native/Dir/Dir.h"
+#include "native/Array/Array.h"
 #include "libs/File/File.h"
 
 void _moduleLoader(CTinyJS* tinyJS) {
 //load basic classes
 	JSM::Bytes::instance().load(tinyJS, "Bytes");
 	JSM::String::instance().load(tinyJS, "String");
+	JSM::Array::instance().load(tinyJS, "Array");
 
 //load Rkid extended classes
 	JSM::Debug::instance().load(tinyJS, "Debug");
