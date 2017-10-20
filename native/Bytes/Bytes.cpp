@@ -101,4 +101,18 @@ void Bytes::toString(CScriptVar* var, void* data) {
 	var->getReturnVar()->setString(s);
 }
 
+void Bytes::set(CScriptVar* var, void* data) {
+	CScriptVar* v = var->getParameter("this");
+	int at = var->getParameter("at")->getInt();
+	int ch = var->getParameter("ch")->getInt();
+
+	char* buf = (char*)v->getPoint();
+	int size = v->getInt();
+	
+	if(buf == NULL || at < 0 || at >= size) {
+		return;
+	}
+	buf[at] = (unsigned char)ch;
+}
+
 

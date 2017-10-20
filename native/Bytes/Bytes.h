@@ -14,12 +14,15 @@ namespace JSM {
 
 		static void append(CScriptVar* var, void* data);
 
+		static void set(CScriptVar* var, void* data);
+
 		protected:
 		inline void registerFunctions(CTinyJS* tinyJS, const std::string& className) {
 			addFunction(tinyJS, className, "size()", size, NULL);
 			addFunction(tinyJS, className, "from(src)", from, NULL);
 			addFunction(tinyJS, className, "append(src)", append, NULL);
 			addFunction(tinyJS, className, "toString()", toString, NULL);
+			addFunction(tinyJS, className, "set(at, ch)", set, NULL);
 		}
 
 		public:
