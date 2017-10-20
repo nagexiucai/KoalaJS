@@ -1,6 +1,8 @@
 #ifndef TINYJS_BC_H
 #define TINYJS_BC_H
 #include <string>
+#include <vector>
+#include <stack>
 #include "Bytecode.h"
 
 typedef enum {
@@ -90,6 +92,10 @@ class CScriptLex
 		void getNextToken();     ///< Get the text token from our text string
 };
 
+typedef struct {
+	std::vector<PC> breaks;	
+	std::vector<PC> continues;	
+} Loop;
 
 class Compiler {
 	public:
@@ -114,6 +120,8 @@ class Compiler {
 		int cindex;
 		std::string cwd;
 		std::string cname;
+		
+		std::stack<Loop> loopStack;
 
 		CScriptLex *l;             /// current lexer
 	
@@ -143,6 +151,11 @@ class Compiler {
 
 		LEX_TYPES ternary();
 
+		Loop* getLoop();
+
+		void setLoopBreaks(Loop* loop, PC pc);
+
+		void setLoopContinues(Loop* loop, PC pc);
 };
 
 #endif

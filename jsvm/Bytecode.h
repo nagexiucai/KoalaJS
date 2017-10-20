@@ -79,7 +79,15 @@ public:
 	 @param anchar, anchor of reserved instruction.
 	 @param opCode, opCode.
 	*/
-	void set(PC anchor, OpCode op);
+	void set(PC anchor, OpCode op, PC target = 0xFFFFFFFF);
+
+	/** add instructioin , offset to current pc
+	 @param anchar, anchor of reserved instruction.
+	 @param opCode, opCode.
+	*/
+	void add(PC anchor, OpCode op, PC target = 0xFFFFFFFF);
+
+
 
 	/** reserved current instruction for unknow offset*/
 	inline PC reserve() {

@@ -7,6 +7,7 @@
 #include <fcntl.h>
 #include <string.h>
 #include <stdio.h>
+#include <stdlib.h>
 
 #define INT_SIZE sizeof(uint32_t)
 #define INS_SIZE sizeof(uint16_t)
@@ -90,15 +91,22 @@ PC Bytecode::gen(OpCode instr, const string& str) {
 	return cindex;
 }
 
-void Bytecode::set(PC anchor, OpCode op) {
-	if(anchor >= cindex) 
-		return;
-	PC ins = INS(op, cindex - anchor);
+void Bytecode::set(PC anchor, OpCode op, PC target) {
+	if(target == 0xFFFFFFFF)
+		target = cindex;
 
-	if(op == INSTR_JMPB || op == INSTR_NJMPB)
-		add(ins);
-	else
-		codeBuf[anchor] = ins;
+	int offset = target > anchor ? (target-anchor) : (anchor-target);
+	PC ins = INS(op, offset);
+	codeBuf[anchor] = ins;
+}
+
+void Bytecode::add(PC anchor, OpCode op, PC target) {
+	if(target == 0xFFFFFFFF)
+		target = cindex;
+
+	int offset = target > anchor ? (target-anchor) : (anchor-target);
+	PC ins = INS(op, offset);
+	add(ins);
 }
 
 string Bytecode::strs() {

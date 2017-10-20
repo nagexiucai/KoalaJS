@@ -619,12 +619,18 @@ LEX_TYPES Compiler::statement(bool pop) {
 	else if (l->tk==LEX_R_BREAK){
 		l->chkread(LEX_R_BREAK);
 		l->chkread(';');
-		bytecode.gen(INSTR_BREAK);
+		PC pc = bytecode.reserve();
+		Loop* l = getLoop();
+		if(l != NULL)
+			l->breaks.push_back(pc);
 	} 
 	else if (l->tk==LEX_R_CONTINUE){
 		l->chkread(LEX_R_CONTINUE);
 		l->chkread(';');
-		bytecode.gen(INSTR_CONTINUE);
+		PC pc = bytecode.reserve();
+		Loop* l = getLoop();
+		if(l != NULL)
+			l->continues.push_back(pc);
 	}
 	else if (l->tk==LEX_R_VAR || l->tk == LEX_R_CONST) {
 		bool beConst;
@@ -675,6 +681,9 @@ LEX_TYPES Compiler::statement(bool pop) {
 		l->chkread(';');
 	} 
 	else if (l->tk==LEX_R_WHILE) {
+		Loop loop;
+		loopStack.push(loop);
+
 		l->chkread(LEX_R_WHILE);
 		l->chkread('(');
 		PC cpc = bytecode.getPC();
@@ -682,8 +691,12 @@ LEX_TYPES Compiler::statement(bool pop) {
 		l->chkread(')');
 		PC pc = bytecode.reserve();
 		statement(false);
-		bytecode.set(cpc, INSTR_JMPB);
-		bytecode.set(pc, INSTR_NJMP);
+		bytecode.add(cpc, INSTR_JMPB); //coninue anchor;
+		bytecode.set(pc, INSTR_NJMP); // end anchor;
+
+		setLoopBreaks(getLoop(), bytecode.getPC());
+		setLoopContinues(getLoop(), cpc);
+		loopStack.pop();
 	}
 	else if (l->tk==LEX_R_IF) {
 		l->chkread(LEX_R_IF);
@@ -705,6 +718,9 @@ LEX_TYPES Compiler::statement(bool pop) {
 		}
 	}
 	else if (l->tk==LEX_R_FOR) {
+		Loop loop;
+		loopStack.push(loop);
+
 		l->chkread(LEX_R_FOR);
 		l->chkread('(');
 		statement(); //init
@@ -715,14 +731,18 @@ LEX_TYPES Compiler::statement(bool pop) {
 		PC loopPC = bytecode.reserve();
 		l->chkread(';');
 		PC ipc = bytecode.getPC();
-		base(); //interator
+		base(); //iterator
 		bytecode.gen(INSTR_POP);
 		l->chkread(')');
-		bytecode.set(cpc, INSTR_JMPB);
+		bytecode.add(cpc, INSTR_JMPB); //continue anchor
 		bytecode.set(loopPC, INSTR_JMP);
 		statement(false);
-		bytecode.set(ipc, INSTR_JMPB);
-		bytecode.set(breakPC, INSTR_NJMP);
+		bytecode.add(ipc, INSTR_JMPB); //iterator anchor
+		bytecode.set(breakPC, INSTR_NJMP); //end anchor
+		
+		setLoopBreaks(getLoop(), bytecode.getPC());
+		setLoopContinues(getLoop(), cpc);
+		loopStack.pop();
 	}
 	else {
 		l->chkread(LEX_EOF);
@@ -1106,3 +1126,24 @@ LEX_TYPES Compiler::block() {
 	return ret;
 }
 
+Loop* Compiler::getLoop() {
+	if(loopStack.empty())
+		return NULL;
+	return &loopStack.top();
+}
+
+void Compiler::setLoopBreaks(Loop* loop, PC pc) {
+	if(loop != NULL) {
+		for(int i=0; i<loop->breaks.size(); ++i) {
+			bytecode.set(loop->breaks[i], INSTR_JMP, pc);
+		}
+	}
+}
+
+void Compiler::setLoopContinues(Loop* loop, PC pc) {
+	if(loop != NULL) {
+		for(int i=0; i<loop->continues.size(); ++i) {
+			bytecode.set(loop->continues[i], INSTR_JMPB, pc);
+		}
+	}
+}
