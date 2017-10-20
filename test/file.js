@@ -1,15 +1,13 @@
-f = new RFile();
+if(_args.length == 0) {
+	print("Usage: jsvm file.js {filename}\n");
+}
+else {
+	f = new RFile();
 
-f.open("jsm.cpp", "r");
+	f.open(_args[0], "r");
 
-b = f.read(f.size());
-print("" + b.size() + ": " + b.toString());
+	b = f.read(f.size());
+	print("file: " + _args[0] + "; size: " + b.size() + "\n------\n" + b.toString() + "\n-------\n");
 
-f.close();
-
-
-//f.open("tt", "wc");
-//f.write(b, b.size());
-//f.close();
-
-print(RMD5.hashHex(b) + "\n");
+	f.close();
+}

@@ -1,16 +1,11 @@
-function f(s) {
-	b = new Bytes();
-	b.from(s);
+b = new Bytes();
+b.from("Test Base64");
 
+print("source:\n    \"" + b.toString() + "\"\n");
 
-	c = new Bytes();
-	c.from("-xxx");
+c = RBase64.encode(b);
+print("encoded:\n    \"" + c + "\"\n");
 
-	b.append(c);
-	b.append(".xxx");
+s = RBase64.decode(c).toString();
+print("decoded:\n    \"" + s + "\"\n");
 
-	c = RBase64.decode(RBase64.encode(b)).toString();
-	print(c + "\n");
-}
-
-f("ooo");
