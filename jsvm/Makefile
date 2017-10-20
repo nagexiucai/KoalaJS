@@ -15,11 +15,12 @@ JSVM_SRCS = Bytecode.cpp Var.cpp jsvm.cpp TinyJS.cpp Compiler.cpp CodeCache.cpp 
 	  ../native/String/String.cpp \
 	  ../native/VM/VM.cpp \
 	  ../native/Thread/Thread.cpp \
+	  ../native/DNS/DNSC.cpp \
 	  ../native/MD5/MD5.cpp 
 
 LDFLAG = -lpthread
 
-LDFLAGARM = --static -lpthread
+LDFLAGARM = --static -Wl,--whole-archive -lpthread -Wl,--no-whole-archive -lc
 
 LIBS = ../libs/Base64/Base64.cpp \
 		../libs/MD5/md5.cpp \

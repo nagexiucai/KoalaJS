@@ -15,9 +15,7 @@ typedef struct {
 
 class DNSC {
 public:
-	static bool resolv(const char* server, const char* domain, int type, std::vector<DNSRes>& res);
-
-	static bool resolv(const char* server, const char* domain, std::string& res);
+	static bool resolv(const char* domain, int type, std::vector<DNSRes>& res, const char* server = DEFAULT_SERVER);
 	
 	static std::string ip(const std::string& domain); 
 };

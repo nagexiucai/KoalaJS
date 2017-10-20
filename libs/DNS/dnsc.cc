@@ -27,7 +27,7 @@ static void format_ip_address(uint32_t ip_address, char *buffer) {
   	  segments[1], segments[0]);
 }
 
-bool DNSC::resolv(const char* server, const char* domain, int type, std::vector<DNSRes>& res) {
+bool DNSC::resolv(const char* domain, int type, std::vector<DNSRes>& res, const char* server) {
   char error_message[ERROR_BUFFER + 1], ip_buffer[MAX_IP_STRING_SIZE];
   int i, request_id, packet_size, answer_count;
   int port, timeout, retries, request_q_type;
@@ -114,20 +114,12 @@ bool DNSC::resolv(const char* server, const char* domain, int type, std::vector<
   return true;
 }
 
-bool DNSC::resolv(const char* server, const char* domain, std::string& res) {
-	std::vector<DNSRes> r;
-	DNSC::resolv(server, domain, DNS_A_RECORD, r);	
-	if(r.size() == 0)
-		return false;
-	
-	res = r[0].res;
-	return true;
-}
-
 std::string DNSC::ip(const std::string& domain) {
-	std::string res;
-	if(DNSC::resolv(DEFAULT_SERVER, domain.c_str(), res))
-		return res;
-
-	return "";	
+	std::vector<DNSRes> r;
+	DNSC::resolv(domain.c_str(), DNS_A_RECORD, r);
+	if(r.size() == 0)
+		return "";
+	
+	return r[0].res;
 }
+
