@@ -460,7 +460,11 @@ void CTinyJS::mathOp(OpCode op, BCVar* v1, BCVar* v2) {
 			break; 
 	}
 	
-	BCVar* v = new BCVar(floatMode ? ret : (int)ret);
+	BCVar* v;
+	if(floatMode)
+		v = new BCVar(ret);
+	else
+		v = new BCVar((int)ret);
 	push(v->ref());
 }
 
@@ -621,13 +625,15 @@ void CTinyJS::runCode(Bytecode* bc) {
 			case INSTR_VAR:
 			case INSTR_CONST: {
 				str = bcode->getStr(offset);
-				if(find(str)) { //find just in current scope
-					ERR("%s has already existed", str.c_str());
+				BCNode *node = find(str);
+				if(node != NULL) { //find just in current scope
+					if(node->var->isUndefined()) // declared only before
+						ERR("%s has already existed.\n", str.c_str());
 				}
 				else {
 					VMScope* current = scope();
 					if(current != NULL) {
-						BCNode* node = current->var->addChild(str);
+						node = current->var->addChild(str);
 						if(node != NULL && instr == INSTR_CONST)
 							node->beConst = true;
 					}

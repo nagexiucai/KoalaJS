@@ -78,6 +78,8 @@ class BCVar : public StackItem {
 	FuncT *func;
 
 	inline void init() {
+		intV = 0;
+		floatV = 0.0;
 		pointV = NULL;
 		destroyFunc = NULL;
 		needDestroy = false;
@@ -212,6 +214,7 @@ public:
 	}
 
 	inline bool isInt() { return type == INT; }
+	inline bool isUndefined() { return type == UNDEF; }
 	inline bool isFloat() { return type == FLOAT; }
 	inline bool isDouble() { return type == FLOAT; }
 	inline bool isString() { return type == STRING; }

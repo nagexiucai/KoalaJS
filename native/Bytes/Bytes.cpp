@@ -49,6 +49,7 @@ void Bytes::append(CScriptVar* var, void* data) {
 	CScriptVar* v = var->getParameter("this");
 
 	unsigned char* src = NULL;
+	unsigned char c = 0;
 	int size = 0;
 
 	if(sv->isString()) {
@@ -59,6 +60,11 @@ void Bytes::append(CScriptVar* var, void* data) {
 	else if(sv->isBytes()) {
 		src = (unsigned char*)sv->getPoint();
 		size = sv->getInt();
+	}
+	else if(sv->isInt()) {
+		c = sv->getInt();
+		size = 1;
+		src = &c;
 	}
 	
 	int oldSize = v->getInt();
