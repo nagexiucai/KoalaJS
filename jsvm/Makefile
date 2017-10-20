@@ -16,6 +16,7 @@ JSVM_SRCS = Bytecode.cpp Var.cpp jsvm.cpp TinyJS.cpp Compiler.cpp CodeCache.cpp 
 	  ../native/VM/VM.cpp \
 	  ../native/Thread/Thread.cpp \
 	  ../native/DNS/DNSC.cpp \
+	  ../native/Dir/Dir.cpp \
 	  ../native/MD5/MD5.cpp 
 
 LDFLAG = -lpthread
@@ -35,7 +36,6 @@ VM = jsvm
 
 all:
 	g++ ${CFLAG} -o ${VM} ${JSVM_SRCS} ${LIBS} ${LDFLAG}
-	g++ ${CFLAG} -o ${COMPILER} ${COMPILER_SRCS} ${LIBS} ${LDFLAG}
 
 bc:
 	g++ ${CFLAG} -o ${COMPILER} ${COMPILER_SRCS} ${LIBS} ${LDFLAG}
@@ -44,7 +44,6 @@ vm:
 	g++ ${CFLAG} -o ${VM} ${JSVM_SRCS} ${LIBS} ${LDFLAG}
 
 arm:
-	arm-none-linux-gnueabi-g++ ${CFLAG}  -o ${COMPILER} ${COMPILER_SRCS} ${LIBS} ${LDFLAGARM}
 	arm-none-linux-gnueabi-g++ ${CFLAG}  -o ${VM} ${JSVM_SRCS} ${LIBS} ${LDFLAGARM}
 
 clean:

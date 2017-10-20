@@ -469,7 +469,12 @@ void CTinyJS::mathOp(OpCode op, BCVar* v1, BCVar* v2) {
 }
 
 void CTinyJS::doGet(BCVar* v, const string& str) {
-	if(v->isArray() && str == "length") {
+	if(v->isString() && str == "length") {
+		BCVar* i = new BCVar((int)v->getString().length());
+		push(i->ref());
+		return;
+	}
+	else if(v->isArray() && str == "length") {
 		BCVar* i = new BCVar(v->getChildrenNum());
 		push(i->ref());
 		return;
@@ -665,7 +670,7 @@ void CTinyJS::runCode(Bytecode* bc) {
 				StackItem* i = pop2();
 				if(i != NULL) {
 					BCVar* v = VAR(i);
-					if(v->isObject() || v->isArray()) {
+					if(v->isString() || v->isObject() || v->isArray()) {
 						doGet(v, str);
 					}
 					v->unref();

@@ -13,6 +13,7 @@
 #include "native/Socket/DNS.h"
 #include "native/System/System.h"
 #include "native/DNS/DNSC.h"
+#include "native/Dir/Dir.h"
 #include "libs/File/File.h"
 
 void _moduleLoader(CTinyJS* tinyJS) {
@@ -33,6 +34,7 @@ void _moduleLoader(CTinyJS* tinyJS) {
 	JSM::JSFile<JSM::JSFileNative>::instance().load(tinyJS, "RFile");
 	JSM::JSTCP<JSM::JSTCPNative>::instance().load(tinyJS, "RTCP");
 	JSM::JSDNSC::instance().load(tinyJS, "RDNSC");
+	JSM::JSDir<JSM::JSDirNative>::instance().load(tinyJS, "RDir");
 	JSM::System::instance().load(tinyJS, "RSystem");
 }
 
