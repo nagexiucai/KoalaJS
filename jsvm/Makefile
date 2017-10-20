@@ -36,6 +36,7 @@ VM = jsvm
 
 all:
 	g++ ${CFLAG} -o ${VM} ${JSVM_SRCS} ${LIBS} ${LDFLAG}
+	g++ ${CFLAG} -o ${COMPILER} ${COMPILER_SRCS} ${LIBS} ${LDFLAG}
 
 bc:
 	g++ ${CFLAG} -o ${COMPILER} ${COMPILER_SRCS} ${LIBS} ${LDFLAG}
