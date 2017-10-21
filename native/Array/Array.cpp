@@ -9,3 +9,7 @@ void Array::size(CScriptVar *c, void *) {
 	c->getReturnVar()->setInt(i);
 }
 
+void Array::clear(CScriptVar *c, void *) {
+	c->getParameter("this")->removeAllChildren();
+}
+

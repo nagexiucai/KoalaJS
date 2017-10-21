@@ -250,7 +250,10 @@ public:
 
 	inline ~BCVar() {
 		clean();
+		removeAllChildren();
+	}
 
+	inline void removeAllChildren() {
 		for(int i=0; i<children.size(); ++i) {
 			delete children[i];
 		}
