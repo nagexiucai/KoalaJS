@@ -119,8 +119,18 @@ For example:
 			name = "Misa";
 
 	Run as:
-			0 LOAD   name   ; load variable $name and push it to stack
-			1 STR    "Misa" ; push string "Misa" to stack. 
-			2 ASIGN         ; pop "Misa", pop $name, and asign "Misa" to $name, and push value of $name to stack.
-			3 POP           ; pop and drop.
-		
+			load   name   ; load variable $name and push it to stack
+			str    "Misa" ; push string "Misa" to stack. 
+			asign         ; pop "Misa", pop $name, and asign "Misa" to $name, and push value of $name to stack.
+			pop           ; pop and drop.
+	
+	Bytecode:
+			-------string table--------------------
+			0000: name
+			0001: Misa
+			---------------------------------------
+			0000 0x00030000 ; load name
+			0001 0x00090001 ; str "Misa"
+			0002 0x0006FFFF ; asign
+			0003 0x0080FFFF ; pop
+

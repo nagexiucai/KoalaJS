@@ -635,6 +635,7 @@ LEX_TYPES Compiler::statement(bool pop) {
 			l->continues.push_back(pc);
 	}
 	else if (l->tk==LEX_R_VAR || l->tk == LEX_R_CONST) {
+		pop = false;
 		bool beConst;
 		if(l->tk == LEX_R_VAR) {
 			l->chkread(LEX_R_VAR);
@@ -649,11 +650,11 @@ LEX_TYPES Compiler::statement(bool pop) {
 			string vname = l->tkStr;
 			l->chkread(LEX_ID);
 			// now do stuff defined with dots
-			while (l->tk == '.') {
+			/*while (l->tk == '.') {
 				l->chkread('.');
 				vname = vname + "." + l->tkStr;
 				l->chkread(LEX_ID);
-			}
+			}*/
 			bytecode.gen(beConst ? INSTR_CONST : INSTR_VAR, vname);
 			// sort out initialiser
 			if (l->tk == '=') {
@@ -661,6 +662,7 @@ LEX_TYPES Compiler::statement(bool pop) {
 				bytecode.gen(INSTR_LOAD, vname);
 				base();
 				bytecode.gen(INSTR_ASIGN);
+				bytecode.gen(INSTR_POP);
 			}
 
 			if (l->tk != ';')
