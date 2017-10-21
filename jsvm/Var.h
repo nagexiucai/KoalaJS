@@ -217,6 +217,7 @@ public:
 		}
 	}
 
+	inline bool isNumber() { return (type == INT || type == FLOAT); }
 	inline bool isInt() { return type == INT; }
 	inline bool isUndefined() { return type == UNDEF; }
 	inline bool isFloat() { return type == FLOAT; }

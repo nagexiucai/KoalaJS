@@ -408,8 +408,46 @@ void CTinyJS::compare(OpCode op, BCVar* v1, BCVar* v2) {
 }
 
 void CTinyJS::mathOp(OpCode op, BCVar* v1, BCVar* v2) {
+	if(v1->isNumber() && v2->isNumber()) {
+		//do number 
+		float f1, f2, ret = 0.0;
+		bool floatMode = false;
+		if(v1->type == BCVar::FLOAT || v2->type == BCVar::FLOAT)
+			floatMode = true;
+
+		f1 = v1->getFloat();
+		f2 = v2->getFloat();
+
+
+		switch(op) {
+			case INSTR_PLUS: 
+				ret = (f1 + f2);
+				break; 
+			case INSTR_MINUS: 
+				ret = (f1 - f2);
+				break; 
+			case INSTR_DIV: 
+				ret = (f1 / f2);
+				break; 
+			case INSTR_MULTI: 
+				ret = (f1 * f2);
+				break; 
+			case INSTR_MOD: 
+				ret = (((int)f1) % (int)f2);
+				break; 
+		}
+
+		BCVar* v;
+		if(floatMode)
+			v = new BCVar(ret);
+		else
+			v = new BCVar((int)ret);
+		push(v->ref());
+		return;
+	}
+
 	//do string + 
-	if(v1->type == BCVar::STRING && op == INSTR_PLUS) {
+	if(op == INSTR_PLUS) {
 		string s = v1->getString();
 		ostringstream ostr;  
 		switch(v2->type) {
@@ -435,42 +473,7 @@ void CTinyJS::mathOp(OpCode op, BCVar* v1, BCVar* v2) {
 		s = ostr.str();
 		BCVar* v = new BCVar(s);
 		push(v->ref());
-		return;
 	}
-	//do number 
-	float f1, f2, ret = 0.0;
-	bool floatMode = false;
-	if(v1->type == BCVar::FLOAT || v2->type == BCVar::FLOAT)
-		floatMode = true;
-
-	f1 = v1->getFloat();
-	f2 = v2->getFloat();
-
-	
-	switch(op) {
-		case INSTR_PLUS: 
-			ret = (f1 + f2);
-			break; 
-		case INSTR_MINUS: 
-			ret = (f1 - f2);
-			break; 
-		case INSTR_DIV: 
-			ret = (f1 / f2);
-			break; 
-		case INSTR_MULTI: 
-			ret = (f1 * f2);
-			break; 
-		case INSTR_MOD: 
-			ret = (((int)f1) % (int)f2);
-			break; 
-	}
-	
-	BCVar* v;
-	if(floatMode)
-		v = new BCVar(ret);
-	else
-		v = new BCVar((int)ret);
-	push(v->ref());
 }
 
 void CTinyJS::doGet(BCVar* v, const string& str) {
