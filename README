@@ -43,19 +43,19 @@ Directories:
 TinysJS bytecode has been designed by very simple way, it has only two parts: "instruction set" and "string table". Instruction is 32 bits size with 16 bits high for instruction code (short as INSTR), and 16 bit low for short int (SINT) or offset of string table (SOFF).
 
 string table:
-						-------------------
-						|index	| string	|
-						-------------------
-						| 0 		| str0		|
-						-------------------
-						| 1 		| str1		|
-						-------------------
+						-----------------
+						|index | string |
+						-----------------
+						| 0    | str0   |
+						-----------------
+						| 1    | str1	  |
+						-----------------
 
 Instruction:
 						-------------------------
-						| (16 bits)	| (16 bits)	|
+						| (16 bits) | (16 bits) |
 						-------------------------
-						| INSTR			| SINT/SOFF	|
+						| INSTR     | SINT/SOFF |
 						-------------------------
 
 	
