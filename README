@@ -28,7 +28,6 @@
 ----------------------------------------------------------------------------------------
 TinyJS source code reading guide. by Misa.Z(misa.zhu@gmail.com)
 ----------------------------------------------------------------------------------------
-
 Directories: 
 	|
 	+-	TinyJS : Interpreter.
@@ -49,7 +48,6 @@ Instruction set:
 			| instruction 0   |
 			| instruction 1   |
 			| instruction 2   |
-			| instruction 3   |
 			| ......          |
 			| instruction n-1 |
 			| instruction n   |
@@ -70,9 +68,20 @@ Instruction: (defined in Instr.h)
 			| INSTR     | SINT/SOFF |
 			-------------------------
 
-	For example: load variable 'str1' and push stack.
+	For example: push string variable 'str1' to stack.
 			-------------------------
-			| INSTR_LOAD | 0x00001  |
+			| INSTR_STR  | 0x0001   |
+			-------------------------
+	If INSTR has no operate variable, the lower 16 bits will be filled as 0xFFFF. For example: math operate '='
+			-------------------------
+			| INSTR_ASIGN | 0xFFFF  |
+			-------------------------
+
+How to do with 32 bits INT and FLOAT, INSTR_INT or INSTR_FLOAT will be set the INT or FLOAT value as next instruction. For example: int 655360 
+			-------------------------
+			| INSTR_INT   | 0xFFFF  |
+			-------------------------
+			| 0x000A0000            |
 			-------------------------
 
 2. Bytecode file format
@@ -102,3 +111,16 @@ like this:
 			----------------------------------
 
 3. Stack VM
+
+TinyJS virtual machine runing as a typical stack machine, that means push variables to stack before operate, pop variables from stack and operate, then push the result back to stack.
+
+For example: 
+	Script code:
+			name = "Misa";
+
+	Run as:
+			LOAD   name   ; load variable $name and push it to stack
+			STR    "Misa" ; push string "Misa" to stack. 
+			ASIGN         ; pop "Misa", pop $name, and asign "Misa" to $name, and push value of $name to stack.
+			POP           ; pop and drop.
+		
