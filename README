@@ -30,85 +30,85 @@ TinyJS source code reading guide. by Misa.Z(misa.zhu@gmail.com)
 ----------------------------------------------------------------------------------------
 Directories: 
 	|
-	+-	TinyJS : Interpreter.
-	+-  demos : Demos for embedded TinyJS in your c++ project.
-	+-	jsvm : Bytecode compiler and virtual machine.
-	+-	libs : 3rd libs.
-	+-	native : native class/functions extend.
-	+-	test : test and demo scripts.
+	+- TinyJS : Interpreter.
+	+- demos : Demos for embedded TinyJS in your c++ project.
+	+- jsvm : Bytecode compiler and virtual machine.
+	+- libs : 3rd libs.
+	+- native : native class/functions extend.
+	+- test : test and demo scripts.
 
 1.Bytecode design (Bytecode.h, Bytecode.cpp)
 
 TinysJS bytecode has been designed by very simple way, it has only two parts: "instruction set" and "string table". Instruction is 32 bits size with 16 bits high for instruction code (short as INSTR), and 16 bit low for short int (SINT) or offset of string table (SOFF).
 
 Instruction set:
-			-------------------
-			| 32 bits         |
-			-------------------
-			| instruction 0   |
-			| instruction 1   |
-			| instruction 2   |
-			| ......          |
-			| instruction n-1 |
-			| instruction n   |
-			-------------------
+		-------------------
+		| 32 bits         |
+		-------------------
+		| instruction 0   |
+		| instruction 1   |
+		| instruction 2   |
+		| ......          |
+		| instruction n-1 |
+		| instruction n   |
+		-------------------
 
 String table:
-			-----------------
-			|index | string |
-			-----------------
-			| 0    | str 0  |
-			| 1    | str 1  |
-			-----------------
+		-----------------
+		|index | string |
+		-----------------
+		| 0    | str 0  |
+		| 1    | str 1  |
+		-----------------
 
 Instruction: (defined in Instr.h)
-			-------------------------
-			| 16 bits   | 16 bits   |
-			-------------------------
-			| INSTR     | SINT/SOFF |
-			-------------------------
+		-------------------------
+		| 16 bits   | 16 bits   |
+		-------------------------
+		| INSTR     | SINT/SOFF |
+		-------------------------
 
-	For example: push string variable 'str1' to stack.
-			-------------------------
-			| INSTR_STR  | 0x0001   |
-			-------------------------
-	If INSTR has no operate variable, the lower 16 bits will be filled as 0xFFFF. For example: math operate '='
-			-------------------------
-			| INSTR_ASIGN | 0xFFFF  |
-			-------------------------
+For example: push string variable 'str1' to stack.
+		-------------------------
+		| INSTR_STR  | 0x0001   |
+		-------------------------
+If INSTR has no operate variable, the lower 16 bits will be filled as 0xFFFF. For example: math operate '='
+		-------------------------
+		| INSTR_ASIGN | 0xFFFF  |
+		-------------------------
 
 How to do with 32 bits INT and FLOAT, INSTR_INT or INSTR_FLOAT will be set the INT or FLOAT value as next instruction. For example: int 655360 
-			-------------------------
-			| INSTR_INT   | 0xFFFF  |
-			-------------------------
-			| 0x000A0000            |
-			-------------------------
+		-------------------------
+		| INSTR_INT   | 0xFFFF  |
+		-------------------------
+		| 0x000A0000            |
+		-------------------------
 
 2. Bytecode file format
 
 Bytecode file has two parts: string table and instructions. 
-			----------------
-			| string table | 
-			----------------
-			| instructions | 
-			----------------
+		----------------
+		| string table | 
+		----------------
+		| instructions | 
+		----------------
 
 like this:
-			----------------------------------
-			| str0 len(4 bits) | string 0    | 
-			----------------------------------
-			| str1 len         | string 1    | 
-			----------------------------------
-			| ......                         | 
-			----------------------------------
-			| str(n-1) len     | string(n-1) | 
-			----------------------------------
-			| str(n) len       | string(n)   | 
-			----------------------------------
-			| len  = 0 for end of table      |
-			----------------------------------
-			| instructions                   | 
-			----------------------------------
+		----------------------------------
+		| str0 len(4 bits) | string 0    | 
+		----------------------------------
+		| str1 len         | string 1    | 
+		----------------------------------
+		| ......                         | 
+		----------------------------------
+		| str(n-1) len     | string(n-1) | 
+		----------------------------------
+		| str(n) len       | string(n)   | 
+		----------------------------------
+		| len  = 0 for end of table      |
+		----------------------------------
+		| instructions                   | 
+		----------------------------------
 
 3. Stack VM
 
@@ -116,21 +116,21 @@ TinyJS virtual machine runing as a typical stack machine, that means push variab
 
 For example: 
 	Script code:
-			name = "Misa";
+		name = "Misa";
 
 	Run as:
-			load   name   ; load variable $name and push it to stack
-			str    "Misa" ; push string "Misa" to stack. 
-			asign         ; pop "Misa", pop $name, and asign "Misa" to $name, and push value of $name to stack.
-			pop           ; pop and drop.
-	
+		load   name   ; load variable $name and push it to stack
+		str    "Misa" ; push string "Misa" to stack. 
+		asign         ; pop "Misa", pop $name, and asign "Misa" to $name, and push value of $name to stack.
+		pop           ; pop and drop.
+
 	Bytecode:
-			-------string table--------------------
-			0000: name
-			0001: Misa
-			---------------------------------------
-			0000 0x00030000 ; load name
-			0001 0x00090001 ; str "Misa"
-			0002 0x0006FFFF ; asign
-			0003 0x0080FFFF ; pop
+		-------string table--------------------
+		0000: name
+		0001: Misa
+		---------------------------------------
+		0000 0x00030000 ; load name
+		0001 0x00090001 ; str "Misa"
+		0002 0x0006FFFF ; asign
+		0003 0x0080FFFF ; pop
 
