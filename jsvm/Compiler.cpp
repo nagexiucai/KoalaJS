@@ -675,6 +675,7 @@ LEX_TYPES Compiler::statement(bool pop) {
 	}
 	else if (l->tk==LEX_R_RETURN) {
 		l->chkread(LEX_R_RETURN);
+		pop = false;
 		if (l->tk != ';') {
 			base();
 			bytecode.gen(INSTR_RETURNV);
@@ -987,8 +988,11 @@ LEX_TYPES Compiler::defFunc() {
 
 	int funcBegin = l->tokenStart;
 	block();
+	
+	OpCode op = bytecode.getOpCode(bytecode.getPC() - 1) >> 16;
 
-	bytecode.gen(INSTR_RETURN);
+	if(op != INSTR_RETURN && op != INSTR_RETURNV)
+		bytecode.gen(INSTR_RETURN);
 	bytecode.setJmp(pc, INSTR_FUNC_END);
 	return ret;
 }

@@ -194,7 +194,9 @@ void JSTCPNative::connect(CScriptVar* var, void* data) {
 
 	var->getReturnVar()->setInt(0);
 
-	host = DNSC::ip(host);
+	if(!DNSC::isIP(host.c_str()))
+		host = DNSC::ip(host);
+
 	if(host.length() == 0 || port <= 0)
 		return;
 

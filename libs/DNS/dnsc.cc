@@ -27,6 +27,17 @@ static void format_ip_address(uint32_t ip_address, char *buffer) {
   	  segments[1], segments[0]);
 }
 
+bool DNSC::isIP(const char* host) {
+	while(true) {
+		char c = *(host++);
+		if(c == 0)
+			break;
+		if(c != '.' && (c < '0' || c > '9'))
+			return false;
+	}
+	return true;
+}
+
 bool DNSC::resolv(const char* domain, int type, std::vector<DNSRes>& res, const char* server) {
   char error_message[ERROR_BUFFER + 1], ip_buffer[MAX_IP_STRING_SIZE];
   int i, request_id, packet_size, answer_count;

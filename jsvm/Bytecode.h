@@ -96,6 +96,10 @@ public:
 		add(INS(INSTR_NIL, 0xFFFF));
 		return cindex-1;
 	}
+
+	inline void back() {
+		cindex--;
+	}
 	
 	string dump();
 	

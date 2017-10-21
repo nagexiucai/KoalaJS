@@ -17,6 +17,8 @@ class DNSC {
 public:
 	static bool resolv(const char* domain, int type, std::vector<DNSRes>& res, const char* server = DEFAULT_SERVER);
 	
+	static bool isIP(const char* host); 
+
 	static std::string ip(const std::string& domain); 
 };
 

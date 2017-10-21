@@ -619,10 +619,7 @@ void CTinyJS::runCode(Bytecode* bc) {
 				}
 				break;
 			}
-			case INSTR_RETURN: { //return without value
-				BCVar* v = new BCVar();
-				push(v->ref());
-			}
+			case INSTR_RETURN:  //return without value
 			case INSTR_RETURNV: { //return with value
 				VMScope* sc = scope();
 				if(sc != NULL) {
