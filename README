@@ -119,8 +119,8 @@ For example:
 			name = "Misa";
 
 	Run as:
-			LOAD   name   ; load variable $name and push it to stack
-			STR    "Misa" ; push string "Misa" to stack. 
-			ASIGN         ; pop "Misa", pop $name, and asign "Misa" to $name, and push value of $name to stack.
-			POP           ; pop and drop.
+			0 LOAD   name   ; load variable $name and push it to stack
+			1 STR    "Misa" ; push string "Misa" to stack. 
+			2 ASIGN         ; pop "Misa", pop $name, and asign "Misa" to $name, and push value of $name to stack.
+			3 POP           ; pop and drop.
 		
