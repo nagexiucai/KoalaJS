@@ -978,7 +978,7 @@ LEX_TYPES Compiler::defFunc() {
 	//do arguments
 	l->chkread('(');
 	while (l->tk!=')') {
-		bytecode.gen(INSTR_ARG, l->tkStr.c_str());
+		bytecode.gen(INSTR_VAR, l->tkStr.c_str());
 		l->chkread(LEX_ID);
 		if (l->tk!=')') l->chkread(',');
 	}
@@ -992,7 +992,7 @@ LEX_TYPES Compiler::defFunc() {
 
 	if(op != INSTR_RETURN && op != INSTR_RETURNV)
 		bytecode.gen(INSTR_RETURN);
-	bytecode.setJmp(pc, INSTR_FUNC_END);
+	bytecode.setJmp(pc, INSTR_JMP);
 	return ret;
 }
 

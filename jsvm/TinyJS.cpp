@@ -267,7 +267,7 @@ BCVar* CTinyJS::funcDef(const string& funcName) {
 		OpCode instr = ins >> 16;
 		OpCode offset = ins & 0x0000FFFF;
 
-		if(instr == INSTR_FUNC_END) {
+		if(instr == INSTR_JMP) {
 			funcPC = pc;
 			pc = pc + offset - 1;
 			break;

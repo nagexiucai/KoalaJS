@@ -27,8 +27,6 @@ const static OpCode INSTR_ARRAY_AT		= 0x000A; // ARRAT 								: get array eleme
 
 const static OpCode INSTR_CALL				= 0x0010; // CALL x								: call function x and push res
 const static OpCode INSTR_FUNC				= 0x0011; // FUNC x								: function definetion x
-const static OpCode INSTR_ARG					= 0x0012; // : function arg
-const static OpCode INSTR_FUNC_END		= 0x0013; // FUNC_END x						: function definetion end offset x
 
 const static OpCode INSTR_NOT					= 0x0020; // NOT									: !
 const static OpCode INSTR_MULTI				= 0x0021; // MULTI								: *
@@ -104,7 +102,6 @@ class BCOpCode {
 			case  INSTR_JMPB				: return "jmpb";
 			case  INSTR_NJMPB				: return "njmpb";
 			case  INSTR_FUNC				: return "func";
-			case  INSTR_FUNC_END		: return "funce";
 			case  INSTR_CALL				: return "call";
 			case  INSTR_NOT					: return "not";
 			case  INSTR_MULTI				: return "multi";
@@ -140,7 +137,6 @@ class BCOpCode {
 			case  INSTR_FALSE				: return "false";
 			case  INSTR_NULL				: return "null";
 			case  INSTR_UNDEF				: return "undef";
-			case  INSTR_ARG					: return "arg";
 			case  INSTR_NEW					: return "new";
 			case  INSTR_GET					: return "get";
 			default									: return "";

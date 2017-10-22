@@ -143,8 +143,7 @@ string Bytecode::dump() {
 			if(instr == INSTR_JMP || 
 					instr == INSTR_NJMP || 
 					instr == INSTR_NJMPB ||
-					instr == INSTR_JMPB || 
-					instr == INSTR_FUNC_END) {
+					instr == INSTR_JMPB) {
 				sprintf(s, "%04d 0x%08X ; %s %d\n", i, ins, BCOpCode::instr(instr).c_str(), strIndex);	
 				ret += s;
 			}
