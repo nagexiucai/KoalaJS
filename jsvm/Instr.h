@@ -37,11 +37,13 @@ const static OpCode INSTR_MOD					= 0x0023; // MOD									: %
 const static OpCode INSTR_PLUS				= 0x0024; // PLUS									: + 
 const static OpCode INSTR_MINUS				= 0x0025; // MINUS								: - 
 const static OpCode INSTR_NEG					= 0x0026; // NEG									: negate -
-const static OpCode INSTR_PPLUS				= 0x0027; // PPLUS								: ++
-const static OpCode INSTR_MMINUS			= 0x0028; // MMINUS								: --
-const static OpCode INSTR_LSHIFT			= 0x0029; // LSHIFT								: <<
-const static OpCode INSTR_RSHIFT			= 0x002A; // RSHIFT								: >>
-const static OpCode INSTR_URSHIFT			= 0x002B; // URSHIFT							: >>>
+const static OpCode INSTR_PPLUS				= 0x0027; // PPLUS								: x++
+const static OpCode INSTR_MMINUS			= 0x0028; // MMINUS								: x--
+const static OpCode INSTR_PPLUS_PRE		= 0x0029; // PPLUS								: ++x
+const static OpCode INSTR_MMINUS_PRE	= 0x002A; // MMINUS								: --x
+const static OpCode INSTR_LSHIFT			= 0x002B; // LSHIFT								: <<
+const static OpCode INSTR_RSHIFT			= 0x002C; // RSHIFT								: >>
+const static OpCode INSTR_URSHIFT			= 0x002D; // URSHIFT							: >>>
 
 const static OpCode INSTR_EQ					= 0x0030; // EQ										: ==
 const static OpCode INSTR_NEQ					= 0x0031; // NEQ									: !=
@@ -113,6 +115,8 @@ class BCOpCode {
 			case  INSTR_NEG					: return "neg";
 			case  INSTR_PPLUS				: return "pplus";
 			case  INSTR_MMINUS			: return "mminus";
+			case  INSTR_PPLUS_PRE		: return "pplusp";
+			case  INSTR_MMINUS_PRE	: return "mminusp";
 			case  INSTR_LSHIFT			: return "lshift";
 			case  INSTR_RSHIFT			: return "rshift";
 			case  INSTR_URSHIFT			: return "urshift";

@@ -826,10 +826,10 @@ LEX_TYPES Compiler::expr() {
 		bytecode.gen(INSTR_NEG);
 	}
 	else if(pre==LEX_PLUSPLUS) {
-		bytecode.gen(INSTR_PPLUS);
+		bytecode.gen(INSTR_PPLUS_PRE);
 	}
 	else if(pre==LEX_MINUSMINUS) {
-		bytecode.gen(INSTR_MMINUS);
+		bytecode.gen(INSTR_MMINUS_PRE);
 	}
 
 	while (l->tk=='+' || l->tk=='-' ||

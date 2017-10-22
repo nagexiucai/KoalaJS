@@ -625,13 +625,47 @@ void CTinyJS::runCode(Bytecode* bc) {
 				}
 				break;
 			}
-			case INSTR_PPLUS: {
+			case INSTR_MMINUS_PRE: {
+				StackItem* it = pop2();
+				if(it != NULL) {
+					BCVar* v = VAR(it);
+					int i = v->getInt() - 1;
+					v->setInt(i);
+					push(v);
+				}
+				break;
+			}
+			case INSTR_MMINUS: {
+				StackItem* it = pop2();
+				if(it != NULL) {
+					BCVar* v = VAR(it);
+					int i = v->getInt();
+					v->setInt(i-1);
+					v->unref();
+					v = new BCVar(i);
+					push(v->ref());
+				}
+				break;
+			}
+			case INSTR_PPLUS_PRE: {
 				StackItem* it = pop2();
 				if(it != NULL) {
 					BCVar* v = VAR(it);
 					int i = v->getInt() + 1;
 					v->setInt(i);
 					push(v);
+				}
+				break;
+			}
+			case INSTR_PPLUS: {
+				StackItem* it = pop2();
+				if(it != NULL) {
+					BCVar* v = VAR(it);
+					int i = v->getInt();
+					v->setInt(i+1);
+					v->unref();
+					v = new BCVar(i);
+					push(v->ref());
 				}
 				break;
 			}
