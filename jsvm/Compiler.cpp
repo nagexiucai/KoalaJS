@@ -792,18 +792,17 @@ LEX_TYPES Compiler::term() {
 	ret = unary();
 
 	while (l->tk=='*' || l->tk=='/' || l->tk=='%') {
-		int op = l->tk;
+		LEX_TYPES op = l->tk;
 		l->chkread(l->tk);
 		unary();
 
-		if(l->tk == '*')
+		if(op == '*')
 			bytecode.gen(INSTR_MULTI);
-		else if(l->tk == '/')
+		else if(op == '/')
 			bytecode.gen(INSTR_DIV);
 		else
 			bytecode.gen(INSTR_MOD);
 	}
-
 
 	return ret;	
 }
@@ -1000,7 +999,12 @@ LEX_TYPES Compiler::defFunc() {
 LEX_TYPES Compiler::factor() {
 	LEX_TYPES ret = LEX_EOF;
 
-	if (l->tk==LEX_R_TRUE) {
+	if (l->tk=='(') {
+		l->chkread('(');
+		base();
+		l->chkread(')');
+	}
+	else if (l->tk==LEX_R_TRUE) {
 		l->chkread(LEX_R_TRUE);
 		bytecode.gen(INSTR_TRUE);
 	}
