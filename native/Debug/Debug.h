@@ -12,6 +12,11 @@ namespace JSM {
 			printf("%s", s.c_str());
 		}
 
+		static void println(CScriptVar *v, void *userdata) {
+			string s = v->getParameter("text")->getString() + "\n";
+			printf("%s", s.c_str());
+		}
+
 		static void dump(CScriptVar *v, void *userdata) {
 			CTinyJS *js = (CTinyJS*)userdata;
 			//js->root->trace("> ");
@@ -20,7 +25,9 @@ namespace JSM {
 		protected:
 		void registerFunctions(CTinyJS* tinyJS, const std::string& className) {
 			addFunction(tinyJS, "", "print(text)", print, NULL);
+			addFunction(tinyJS, "", "println(text)", println, NULL);
 			addFunction(tinyJS, className, "print(text)", print, NULL);
+			addFunction(tinyJS, className, "println(text)", println, NULL);
 			addFunction(tinyJS, className, "dump()", dump, tinyJS);
 		}
 

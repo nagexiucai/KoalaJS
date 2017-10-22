@@ -561,6 +561,22 @@ void CTinyJS::runCode(Bytecode* bc) {
 				}
 				break;
 			}
+			case INSTR_NEG: {
+				StackItem* i = pop2();
+				if(i != NULL) {
+					BCVar* v = VAR(i);
+					if(v->isInt()) {
+						int n = v->getInt();
+						v->setInt(-n);
+					}
+					else if(v->isFloat()) {
+						float n = v->getFloat();
+						v->setFloat(-n);
+					}
+					push(v);
+				}
+				break;
+			}
 			case INSTR_NOT: {
 				StackItem* i = pop2();
 				if(i != NULL) {
