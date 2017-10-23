@@ -53,8 +53,8 @@ typedef struct STFunc {
 	JSCallback native;
 	PC pc;
 	BCVar* args;
-	BCNode* thisVar;
-	BCNode* returnVar;
+	BCNode* thisNode;
+	BCNode* returnNode;
 
 	STFunc();
 	~STFunc();
@@ -306,7 +306,7 @@ public:
 		if(func == NULL) 
 			return NULL;
 
-		return func->returnVar->var;
+		return func->returnNode->var;
 	}
 
 	//set function return var 
@@ -314,7 +314,7 @@ public:
 		if(func == NULL) 
 			return NULL;
 
-		func->returnVar->replace(v);
+		func->returnNode->replace(v);
 		return v;
 	}
 
@@ -323,7 +323,7 @@ public:
 		if(func == NULL) 
 			return NULL;
 
-		return func->thisVar->var;
+		return func->thisNode->var;
 	}
 
 	//set function this var 
@@ -331,7 +331,7 @@ public:
 		if(func == NULL) 
 			return NULL;
 
-		func->thisVar->replace(v);
+		func->thisNode->replace(v);
 		return v;
 	}
 
@@ -367,10 +367,10 @@ public:
 	inline BCNode* getChild(const string& name) {
 		if(func != NULL) {
 			if(name == THIS) {
-				return func->thisVar;
+				return func->thisNode;
 			}
 			else if(name == RETURN) {
-				return func->returnVar;
+				return func->returnNode;
 			}
 			else {
 				BCNode* r = func->args->getChild(name);

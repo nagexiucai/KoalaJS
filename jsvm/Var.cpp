@@ -22,14 +22,14 @@ void BCNode::replace(BCVar* v) {
 
 STFunc::STFunc() {
 	args = new BCVar();
-	thisVar = new BCNode(THIS, new BCVar());
-	returnVar = new BCNode(RETURN, new BCVar());
+	thisNode = new BCNode(THIS, new BCVar());
+	returnNode = new BCNode(RETURN, new BCVar());
 }
 
 STFunc::~STFunc() {
 	delete args;
-	delete thisVar;
-	delete returnVar;
+	delete thisNode;
+	delete returnNode;
 }
 
 void STFunc::resetArgs() {
@@ -41,8 +41,8 @@ void STFunc::resetArgs() {
 			n->replace(v);
 	}
 
-	thisVar->replace(v);
-	returnVar->replace(v);
+	thisNode->replace(v);
+	returnNode->replace(v);
 }
 
 ////////////////////////////////////////////////////////////////////////////////

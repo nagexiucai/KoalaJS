@@ -84,6 +84,8 @@ public:
 		return moduleLoader;
 	}
 
+	BCVar* newObject(BCNode* cls);
+
 	BCVar* newObject(const string& clsName);
 
 	inline BCVar* getRoot() { return root; }

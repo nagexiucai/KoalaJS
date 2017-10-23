@@ -42,6 +42,23 @@ BCVar* CTinyJS::newObject(const string& clsName) {
 	return ret;
 }
 
+BCVar* CTinyJS::newObject(BCNode* cls) {
+	BCVar* ret = NULL;
+	if(cls->var->type != BCVar::CLASS) {
+		ERR("%s is not a class\n", cls->name.c_str());
+		return NULL;
+	}
+
+	ret = new BCVar();
+	ret->type = BCVar::OBJECT;
+	ret->addChild(PROTOTYPE, cls->var);
+
+	JSCallback nc = cls->var->getNativeConstructor();
+	if(nc != NULL)
+		nc(ret, NULL);
+	return ret;
+}
+
 void CTinyJS::run(const std::string &fname) {
 	std::string oldCwd = cwd;
 	cname = File::getFullname(cwd, fname);
@@ -123,6 +140,7 @@ BCNode* CTinyJS::find(const string& name) {
 }
 
 BCNode* CTinyJS::findInScopes(const string& name) {
+	BCNode* n = NULL;
 	for(int i=scopes.size() - 1; i >= 0; --i) {
 		BCNode* r = scopes[i].var->getChild(name);
 		if(r != NULL)
@@ -132,6 +150,10 @@ BCNode* CTinyJS::findInScopes(const string& name) {
 }
 
 BCNode* CTinyJS::findInClass(BCVar* obj, const string& name) {
+	BCNode* n = obj->getChild(name);
+	if(n != NULL)
+		return n;
+
 	if(obj->type == BCVar::STRING) {
 		BCNode* cls = findInScopes("String");
 		if(cls != NULL)	
@@ -160,11 +182,45 @@ BCNode* CTinyJS::findInClass(BCVar* obj, const string& name) {
 }
 
 BCVar* CTinyJS::getCurrentObj() {
-	return root;
+	BCNode* n = findInScopes(THIS);
+	if(n != NULL)
+		return n->var;
+
+	BCVar* ret = new BCVar();
+	ret->type = BCVar::OBJECT;
+	return ret;
 }
 
 void CTinyJS::doNew(const string& clsName) {
-	BCVar* ret = newObject(clsName);
+	BCVar* ret = NULL;
+
+	if(clsName.length() == 0) {
+		ret = new BCVar();	
+		ret->type = BCVar::OBJECT;
+	}	
+	else if(clsName == CLS_ARR) {
+		ret = new BCVar();
+		ret->type = BCVar::ARRAY;
+	}
+	else if(clsName == CLS_OBJECT) {
+		ret = new BCVar();
+		ret->type = BCVar::OBJECT;
+	}
+	else {
+		BCNode* cls = findInScopes(clsName);
+		if(cls == NULL) {
+			ERR("Class %s not found\n", clsName.c_str());
+			return;
+		}
+		if(cls->var->isFunction()) {
+			BCVar* v = getCurrentObj();
+			push(v->ref());	
+			funcCall(clsName);
+			return;
+		}
+		ret = newObject(cls);
+	}
+
 	if(ret != NULL)
 		push(ret->ref());
 }
@@ -207,7 +263,7 @@ void CTinyJS::funcCall(const string& funcName) {
 	}
 
 	FuncT* func = n->var->getFunc();
-	func->thisVar->replace(object);
+	func->thisNode->replace(object);
 	object->unref(); //unref after pop
 
 	//read arguments
@@ -232,7 +288,7 @@ void CTinyJS::funcCall(const string& funcName) {
 		if(func->native != NULL) {
 			func->native(n->var, this);
 			//read return.
-			BCVar* ret = func->returnVar->var;
+			BCVar* ret = func->returnNode->var;
 			push(ret->ref());
 
 			func->resetArgs();
@@ -674,8 +730,12 @@ void CTinyJS::runCode(Bytecode* bc) {
 				VMScope* sc = scope();
 				if(sc != NULL) {
 					FuncT* func = sc->var->getFunc();
-					if(func != NULL)
+					if(func != NULL) {
+						BCVar* thisVar = func->thisNode->var;
+						if(instr == INSTR_RETURN) //return without value, push "this" to stack
+							push(thisVar->ref());
 						func->resetArgs();
+					}
 
 					pc = sc->pc;
 					scopes.pop_back();
@@ -708,11 +768,21 @@ void CTinyJS::runCode(Bytecode* bc) {
 						push(v->ref());
 				}
 				else {
-					BCNode* node = findInScopes(str);
+					BCNode* node;
+					BCVar* thisVar = getCurrentObj();
+					if(thisVar != NULL) {
+						node = thisVar->getChild(str);
+						if(node == NULL)
+							node = findInClass(thisVar, str);
+					}
+
 					if(node == NULL) {
-						VMScope* current = scope();
-						if(current != NULL) {
-							node = current->var->addChild(str);
+						node = findInScopes(str);
+						if(node == NULL) {
+							VMScope* current = scope();
+							if(current != NULL) {
+								node = current->var->addChild(str);
+							}
 						}
 					}
 					node->var->ref();
