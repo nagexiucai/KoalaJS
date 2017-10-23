@@ -181,13 +181,16 @@ BCNode* CTinyJS::findInClass(BCVar* obj, const string& name) {
 	return NULL;
 }
 
-BCVar* CTinyJS::getCurrentObj() {
+BCVar* CTinyJS::getCurrentObj(bool create) {
 	BCNode* n = findInScopes(THIS);
 	if(n != NULL)
 		return n->var;
 
-	BCVar* ret = new BCVar();
-	ret->type = BCVar::OBJECT;
+	BCVar* ret = NULL;
+	if(create) {
+		ret = new BCVar();
+		ret->type = BCVar::OBJECT;
+	}
 	return ret;
 }
 
@@ -213,7 +216,7 @@ void CTinyJS::doNew(const string& clsName) {
 			return;
 		}
 		if(cls->var->isFunction()) {
-			BCVar* v = getCurrentObj();
+			BCVar* v = getCurrentObj(true);
 			push(v->ref());	
 			funcCall(clsName);
 			return;
@@ -225,7 +228,7 @@ void CTinyJS::doNew(const string& clsName) {
 		push(ret->ref());
 }
 	
-void CTinyJS::funcCall(const string& funcName) {
+void CTinyJS::funcCall(const string& funcName, bool member) {
 	BCVar* ret = NULL;
 
 	if(funcName.length() == 0)
@@ -246,7 +249,7 @@ void CTinyJS::funcCall(const string& funcName) {
 		n = findInClass(object, funcName);
 
 	//find function in scopes;
-	if(n == NULL)
+	if(n == NULL && !member)
 		n = findInScopes(funcName);
 
 	if(n == NULL) {
@@ -763,17 +766,22 @@ void CTinyJS::runCode(Bytecode* bc) {
 			case INSTR_LOAD: {
 				str = bcode->getStr(offset);
 				if(str == THIS) {
-					BCVar* v = getCurrentObj();
+					BCVar* v = getCurrentObj(true);
 					if(v != NULL)
 						push(v->ref());
 				}
 				else {
-					BCNode* node;
-					BCVar* thisVar = getCurrentObj();
-					if(thisVar != NULL) {
-						node = thisVar->getChild(str);
-						if(node == NULL)
-							node = findInClass(thisVar, str);
+					BCNode* node = NULL;
+					VMScope* sc = scope();
+					node = sc->var->getChild(str);
+
+					if(node == NULL) {
+						BCVar* thisVar = getCurrentObj();
+						if(thisVar != NULL) {
+							node = thisVar->getChild(str);
+							if(node == NULL)
+								node = findInClass(thisVar, str);
+						}
 					}
 
 					if(node == NULL) {
@@ -785,6 +793,7 @@ void CTinyJS::runCode(Bytecode* bc) {
 							}
 						}
 					}
+
 					node->var->ref();
 					push(node);
 				}
@@ -890,7 +899,11 @@ void CTinyJS::runCode(Bytecode* bc) {
 				break;
 			}
 			case INSTR_CALL: {
-				funcCall(bcode->getStr(offset));
+				funcCall(bcode->getStr(offset));	
+				break;
+			}
+			case INSTR_CALLO: {
+				funcCall(bcode->getStr(offset), true);
 				break;
 			}
 			case INSTR_NEW: {

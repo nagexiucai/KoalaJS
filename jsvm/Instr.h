@@ -25,8 +25,9 @@ const static OpCode INSTR_FLOAT				= 0x0008; // FLOAT float					: push float
 const static OpCode INSTR_STR					= 0x0009; // STR "str"						: push str
 const static OpCode INSTR_ARRAY_AT		= 0x000A; // ARRAT 								: get array element at
 
-const static OpCode INSTR_CALL				= 0x0010; // CALL x								: call function x and push res
-const static OpCode INSTR_FUNC				= 0x0011; // FUNC x								: function definetion x
+const static OpCode INSTR_FUNC				= 0x0010; // FUNC x								: function definetion x
+const static OpCode INSTR_CALL				= 0x0011; // CALL x								: call function x and push res
+const static OpCode INSTR_CALLO				= 0x0012; // CALL obj.x						: call object member function x and push res
 
 const static OpCode INSTR_NOT					= 0x0020; // NOT									: !
 const static OpCode INSTR_MULTI				= 0x0021; // MULTI								: *
@@ -103,6 +104,7 @@ class BCOpCode {
 			case  INSTR_NJMPB				: return "njmpb";
 			case  INSTR_FUNC				: return "func";
 			case  INSTR_CALL				: return "call";
+			case  INSTR_CALLO				: return "callo";
 			case  INSTR_NOT					: return "not";
 			case  INSTR_MULTI				: return "multi";
 			case  INSTR_DIV					: return "div";

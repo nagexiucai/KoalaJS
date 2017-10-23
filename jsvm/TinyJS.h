@@ -146,13 +146,13 @@ private:
 
 	BCVar* funcDef(const string& funcName);
 
-	void funcCall(const string& funcName);
+	void funcCall(const string& funcName, bool member = false);
 
 	void doNew(const string& clsName);
 
 	void doGet(BCVar* v, const string& clsName);
 
-	BCVar* getCurrentObj();
+	BCVar* getCurrentObj(bool create = false);
 
 	void compare(OpCode op, BCVar* v1, BCVar* v2);
 

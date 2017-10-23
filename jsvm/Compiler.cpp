@@ -1041,8 +1041,9 @@ LEX_TYPES Compiler::factor() {
 		const std::string className = l->tkStr;
 		l->chkread(LEX_ID);
 		if (l->tk == '(') {
-			l->chkread('(');
-			l->chkread(')');
+			//l->chkread('(');
+			callFunc();
+			//l->chkread(')');
 			bytecode.gen(INSTR_NEW, className);
 		}
 	}
@@ -1081,14 +1082,15 @@ LEX_TYPES Compiler::factor() {
 					
 				if(sz == 0 && load) {
 					bytecode.gen(INSTR_LOAD, "this");	
+					bytecode.gen(INSTR_CALL, names[sz]);	
 				}
 				else {
 					for(int i=0; i<sz; i++) {
 						bytecode.gen(load ? INSTR_LOAD:INSTR_GET, names[i]);	
 						load = false;
 					}
+					bytecode.gen(INSTR_CALLO, names[sz]);	
 				}
-				bytecode.gen(INSTR_CALL, names[sz]);	
 				load = false;
 			} 
 			else if (l->tk == '.') { // ------------------------------------- Record Access
