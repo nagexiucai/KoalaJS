@@ -898,6 +898,18 @@ void CTinyJS::runCode(Bytecode* bc) {
 					push(v->ref());
 				break;
 			}
+			case INSTR_CLASS: {
+				str = bcode->getStr(offset);
+				BCVar* v = addClass(str, NULL);
+				push(v->ref());
+				sc.var = v;
+				scopes.push_back(sc);
+				break;
+			}
+			case INSTR_CLASS_END: {
+				scopes.pop_back();
+				break;
+			}
 			case INSTR_CALL: {
 				funcCall(bcode->getStr(offset));	
 				break;

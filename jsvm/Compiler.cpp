@@ -1017,7 +1017,6 @@ LEX_TYPES Compiler::defClass() {
 	l->chkread('{');
 	while (l->tk!='}') {
 		defFunc();
-		bytecode.gen(INSTR_MEMBER);
 	}
 	l->chkread('}');
 	bytecode.gen(INSTR_CLASS_END);
