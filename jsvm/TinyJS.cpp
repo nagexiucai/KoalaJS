@@ -907,7 +907,6 @@ void CTinyJS::runCode(Bytecode* bc) {
 				BCVar* v = funcDef(str, (instr == INSTR_FUNC ? true:false));
 				if(v != NULL)
 					push(v->ref());
-				scope()->var->addChild(str, v);
 				break;
 			}
 			case INSTR_CLASS: {

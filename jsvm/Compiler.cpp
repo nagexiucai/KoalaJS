@@ -674,7 +674,10 @@ LEX_TYPES Compiler::statement(bool pop) {
 	}
 	else if(l->tk==LEX_R_FUNCTION) {
 		l->chkread(LEX_R_FUNCTION);
-		defFunc();
+		string name;
+		defFunc(name);
+		bytecode.gen(INSTR_MEMBERN, name);
+		pop = false;
 	}
 	else if(l->tk==LEX_R_CLASS) {
 		defClass();
@@ -969,10 +972,10 @@ LEX_TYPES Compiler::callFunc() {
 	return ret;
 }
 
-LEX_TYPES Compiler::defFunc() {
+LEX_TYPES Compiler::defFunc(string& name) {
 	LEX_TYPES ret = LEX_EOF;
 	// actually parse a function...
-	std::string name = "";
+	name = "";
 	/* we can have functions without names */
 	if (l->tk == LEX_ID) {
 		name = l->tkStr;
@@ -983,16 +986,16 @@ LEX_TYPES Compiler::defFunc() {
 		if(name == "get") {
 			name = l->tkStr;
 			l->chkread(LEX_ID);
-			bytecode.gen(INSTR_FUNC_GET, name);
+			bytecode.gen(INSTR_FUNC_GET);
 		}
 		else if(name == "set") {
 			name = l->tkStr;
 			l->chkread(LEX_ID);
-			bytecode.gen(INSTR_FUNC_SET, name);
+			bytecode.gen(INSTR_FUNC_SET);
 		}
 	}
 	else {
-		bytecode.gen(INSTR_FUNC, name);
+		bytecode.gen(INSTR_FUNC);
 	}
 	//do arguments
 	l->chkread('(');
@@ -1030,8 +1033,8 @@ LEX_TYPES Compiler::defClass() {
 	//do arguments
 	l->chkread('{');
 	while (l->tk!='}') {
-		defFunc();
-		bytecode.gen(INSTR_POP);
+		defFunc(name);
+		bytecode.gen(INSTR_MEMBERN, name);
 	}
 	l->chkread('}');
 	bytecode.gen(INSTR_CLASS_END);
@@ -1078,7 +1081,8 @@ LEX_TYPES Compiler::factor() {
 	}
 	else if(l->tk==LEX_R_FUNCTION) {
 		l->chkread(LEX_R_FUNCTION);
-		defFunc();
+		string name;
+		defFunc(name);
 	}
 	else if(l->tk==LEX_R_CLASS) {
 		defClass();

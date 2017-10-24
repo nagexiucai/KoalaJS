@@ -132,7 +132,7 @@ class Compiler {
 
 		LEX_TYPES base();
 
-		LEX_TYPES defFunc();
+		LEX_TYPES defFunc(string& name);
 
 		LEX_TYPES defClass();
 
