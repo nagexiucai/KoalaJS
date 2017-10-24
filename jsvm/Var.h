@@ -244,6 +244,10 @@ public:
 			ss << stringV;
 		else if(isObject() || type == ARRAY) 
 			ss << getJSON();
+		else if(isFunction())
+			ss << "function ()";
+		else if(isUndefined())
+			ss << "undefined";
 			
 		return ss.str(); 
 	}
