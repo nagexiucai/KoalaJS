@@ -82,10 +82,6 @@ string BCVar::getJSString(const string &str) {
 }
 
 string BCVar::getParsableString() {
-	// Numbers can just be put in directly
-	if (isInt() || isFloat()) {
-		return getString();
-	}
 	if (isFunction()) {
 		std::string funcStr;
 		funcStr += "function (";
@@ -108,7 +104,7 @@ string BCVar::getParsableString() {
 	if (isString()){
 		return getJSString(getString());
 	}
-	return "undefined";
+	return getString();
 }
 
 string BCVar::getJSON(const string& linePrefix) {

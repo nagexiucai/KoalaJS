@@ -39,6 +39,8 @@ BCVar* CTinyJS::newObject(const string& clsName) {
 	JSCallback nc = cls->var->getNativeConstructor();
 	if(nc != NULL)
 		nc(ret, NULL);
+	else
+		construct(ret);
 	return ret;
 }
 
@@ -56,6 +58,8 @@ BCVar* CTinyJS::newObject(BCNode* cls) {
 	JSCallback nc = cls->var->getNativeConstructor();
 	if(nc != NULL)
 		nc(ret, NULL);
+	else
+		construct(ret);
 	return ret;
 }
 
@@ -194,6 +198,13 @@ BCVar* CTinyJS::getCurrentObj(bool create) {
 	return ret;
 }
 
+void CTinyJS::construct(BCVar* obj) {
+//	push(obj->ref());
+//	if(!funcCall(CONSTRUCTOR))
+//		push(obj->ref());
+//	push(obj->ref());
+}
+
 void CTinyJS::doNew(const string& clsName) {
 	BCVar* ret = NULL;
 
@@ -228,18 +239,17 @@ void CTinyJS::doNew(const string& clsName) {
 		push(ret->ref());
 }
 	
-void CTinyJS::funcCall(const string& funcName, bool member) {
+bool CTinyJS::funcCall(const string& funcName, bool member) {
 	BCVar* ret = NULL;
 
 	if(funcName.length() == 0)
-		return;
+		return false;
 	
 	//read object
 	StackItem* si = pop2();
 	BCVar* object = NULL;
 	if(si == NULL)  {
-		ERR("Function '%s' not found\n", funcName.c_str());
-		return;
+		return false;
 	}
 
 	object = VAR(si);	
@@ -253,16 +263,17 @@ void CTinyJS::funcCall(const string& funcName, bool member) {
 		n = findInScopes(funcName);
 
 	if(n == NULL) {
-		ERR("Function '%s' not found\n", funcName.c_str());
+		if(funcName != CONSTRUCTOR)
+			ERR("Function '%s' not found\n", funcName.c_str());
 		object->unref(); //unref after pop
-		return;
+		return false;
 	}
 
 	if(n->var->type != BCVar::FUNC &&
 			n->var->type != BCVar::NFUNC) {
 		ERR("%s is not a function\n", funcName.c_str());
 		object->unref(); //unref after pop
-		return;
+		return false;
 	}
 
 	FuncT* func = n->var->getFunc();
@@ -274,13 +285,13 @@ void CTinyJS::funcCall(const string& funcName, bool member) {
 		BCNode* arg = func->args->getChild(i);
 		if(arg == NULL) {
 			ERR("%s argument not match\n", funcName.c_str());
-			return;
+			return false;
 		}
 
 		si = pop2();
 		if(si == NULL) {
 			ERR("%s argument not match\n", funcName.c_str());
-			return;
+			return false;
 		}
 		BCVar* v = VAR(si);
 		arg->replace(v);
@@ -296,7 +307,7 @@ void CTinyJS::funcCall(const string& funcName, bool member) {
 
 			func->resetArgs();
 		}
-		return;
+		return true;
 	}
 
 	//js function
@@ -305,6 +316,7 @@ void CTinyJS::funcCall(const string& funcName, bool member) {
 	sc.var = n->var;
 	scopes.push_back(sc);
 	pc = func->pc;
+	return true;
 }
 
 BCVar* CTinyJS::funcDef(const string& funcName, bool regular) {

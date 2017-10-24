@@ -146,9 +146,11 @@ private:
 
 	BCVar* funcDef(const string& funcName, bool regular = true);
 
-	void funcCall(const string& funcName, bool member = false);
+	bool funcCall(const string& funcName, bool member = false);
 
 	void doNew(const string& clsName);
+
+	void construct(BCVar* obj);
 
 	void doGet(BCVar* v, const string& clsName);
 

@@ -13,6 +13,7 @@
 #define THIS "this"
 #define PROTOTYPE "prototype"
 #define RETURN "return"
+#define CONSTRUCTOR "constructor"
 
 using namespace std;
 
@@ -245,8 +246,6 @@ public:
 			ss << stringV;
 		else if(isObject() || type == ARRAY) 
 			ss << getJSON();
-		else if(isFunction())
-			ss << "function ()";
 		else if(isUndefined())
 			ss << "undefined";
 			
