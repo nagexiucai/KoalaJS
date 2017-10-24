@@ -1,16 +1,17 @@
-// class demo
-function Man(name, age) {
+// javascript class demo
+function Jedi(name, age) {
 	this.name = name;
 	this.age = age;
-	this.show = function() {
-		println("name: " + name);
-		println("age: " + age);
+	this.say = function() {
+		print("name: " + name);
+		print(", age: " + age);
+		println(", May the Force be with you!");
 	};
 }
 
-man = new Man("Misa", 25);
-man.show();
+jedi = new Jedi("Misa", 25);
+jedi.say();
 
-man.name = "Yoda";
-man.age = 1800;
-man.show();
+jedi.name = "Yoda";
+jedi.age = 1800;
+jedi.say();

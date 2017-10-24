@@ -239,6 +239,7 @@ std::string CScriptLex::getTokenStr(int token) {
 		case LEX_R_BREAK        : return "break";
 		case LEX_R_CONTINUE     : return "continue";
 		case LEX_R_FUNCTION     : return "function";
+		case LEX_R_CLASS     		: return "class";
 		case LEX_R_RETURN       : return "return";
 		case LEX_R_CONST        : return "CONST";
 		case LEX_R_VAR          : return "var";
@@ -306,6 +307,7 @@ void CScriptLex::getNextToken() {
 		else if (tkStr=="break")     tk = LEX_R_BREAK;
 		else if (tkStr=="continue")  tk = LEX_R_CONTINUE;
 		else if (tkStr=="function")  tk = LEX_R_FUNCTION;
+		else if (tkStr=="class") 		 tk = LEX_R_CLASS;
 		else if (tkStr=="return")    tk = LEX_R_RETURN;
 		else if (tkStr=="var")       tk = LEX_R_VAR;
 		else if (tkStr=="const")     tk = LEX_R_CONST;
@@ -671,7 +673,11 @@ LEX_TYPES Compiler::statement(bool pop) {
 		l->chkread(';');
 	}
 	else if(l->tk==LEX_R_FUNCTION) {
+		l->chkread(LEX_R_FUNCTION);
 		defFunc();
+	}
+	else if(l->tk==LEX_R_CLASS) {
+		defClass();
 	}
 	else if (l->tk==LEX_R_RETURN) {
 		l->chkread(LEX_R_RETURN);
@@ -966,7 +972,6 @@ LEX_TYPES Compiler::callFunc() {
 LEX_TYPES Compiler::defFunc() {
 	LEX_TYPES ret = LEX_EOF;
 	// actually parse a function...
-	l->chkread(LEX_R_FUNCTION);
 	std::string funcName = "";
 	/* we can have functions without names */
 	if (l->tk==LEX_ID) {
@@ -974,11 +979,11 @@ LEX_TYPES Compiler::defFunc() {
 		l->chkread(LEX_ID);
 	}
 
-	bytecode.gen(INSTR_FUNC, funcName.c_str());
+	bytecode.gen(INSTR_FUNC, funcName);
 	//do arguments
 	l->chkread('(');
 	while (l->tk!=')') {
-		bytecode.gen(INSTR_VAR, l->tkStr.c_str());
+		bytecode.gen(INSTR_VAR, l->tkStr);
 		l->chkread(LEX_ID);
 		if (l->tk!=')') l->chkread(',');
 	}
@@ -995,6 +1000,31 @@ LEX_TYPES Compiler::defFunc() {
 	bytecode.setJmp(pc, INSTR_JMP);
 	return ret;
 }
+
+LEX_TYPES Compiler::defClass() {
+	LEX_TYPES ret = LEX_EOF;
+	// actually parse a function...
+	l->chkread(LEX_R_CLASS);
+	std::string name = "";
+	/* we can have functions without names */
+	if (l->tk==LEX_ID) {
+		name = l->tkStr;
+		l->chkread(LEX_ID);
+	}
+
+	bytecode.gen(INSTR_CLASS, name);
+	//do arguments
+	l->chkread('{');
+	while (l->tk!='}') {
+		defFunc();
+		bytecode.gen(INSTR_MEMBER);
+	}
+	l->chkread('}');
+	bytecode.gen(INSTR_CLASS_END);
+
+	return ret;
+}
+
 
 LEX_TYPES Compiler::factor() {
 	LEX_TYPES ret = LEX_EOF;
@@ -1033,7 +1063,11 @@ LEX_TYPES Compiler::factor() {
 		l->chkread(LEX_STR);
 	}
 	else if(l->tk==LEX_R_FUNCTION) {
+		l->chkread(LEX_R_FUNCTION);
 		defFunc();
+	}
+	else if(l->tk==LEX_R_CLASS) {
+		defClass();
 	}
 	else if (l->tk==LEX_R_NEW) {
 		// new -> create a new object

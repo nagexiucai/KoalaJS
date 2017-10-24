@@ -42,6 +42,7 @@ typedef enum {
 	LEX_R_BREAK,
 	LEX_R_CONTINUE,
 	LEX_R_FUNCTION,
+	LEX_R_CLASS,
 	LEX_R_RETURN,
 	LEX_R_VAR,
 	LEX_R_CONST,
@@ -132,6 +133,8 @@ class Compiler {
 		LEX_TYPES base();
 
 		LEX_TYPES defFunc();
+
+		LEX_TYPES defClass();
 
 		LEX_TYPES callFunc();
 
