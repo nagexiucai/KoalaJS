@@ -26,10 +26,12 @@ const static OpCode INSTR_STR					= 0x0009; // STR "str"						: push str
 const static OpCode INSTR_ARRAY_AT		= 0x000A; // ARRAT 								: get array element at
 
 const static OpCode INSTR_FUNC				= 0x0010; // FUNC x								: function definetion x
-const static OpCode INSTR_CALL				= 0x0011; // CALL x								: call function x and push res
-const static OpCode INSTR_CALLO				= 0x0012; // CALL obj.x						: call object member function x and push res
-const static OpCode INSTR_CLASS				= 0x0013; // class								: define class
-const static OpCode INSTR_CLASS_END		= 0x0014; // class end						: end of class definition
+const static OpCode INSTR_FUNC_GET		= 0x0011; // GET FUNC x						: class get function definetion x
+const static OpCode INSTR_FUNC_SET		= 0x0012; // SET FUNC x						: class set function definetion x
+const static OpCode INSTR_CALL				= 0x0013; // CALL x								: call function x and push res
+const static OpCode INSTR_CALLO				= 0x0014; // CALL obj.x						: call object member function x and push res
+const static OpCode INSTR_CLASS				= 0x0015; // class								: define class
+const static OpCode INSTR_CLASS_END		= 0x0016; // class end						: end of class definition
 
 const static OpCode INSTR_NOT					= 0x0020; // NOT									: !
 const static OpCode INSTR_MULTI				= 0x0021; // MULTI								: *
@@ -105,6 +107,8 @@ class BCOpCode {
 			case  INSTR_JMPB				: return "jmpb";
 			case  INSTR_NJMPB				: return "njmpb";
 			case  INSTR_FUNC				: return "func";
+			case  INSTR_FUNC_GET		: return "funcget";
+			case  INSTR_FUNC_SET		: return "funcset";
 			case  INSTR_CLASS				: return "class";
 			case  INSTR_CLASS_END		: return "classe";
 			case  INSTR_CALL				: return "call";

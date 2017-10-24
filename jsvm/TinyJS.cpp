@@ -307,7 +307,7 @@ void CTinyJS::funcCall(const string& funcName, bool member) {
 	pc = func->pc;
 }
 
-BCVar* CTinyJS::funcDef(const string& funcName) {
+BCVar* CTinyJS::funcDef(const string& funcName, bool regular) {
 	BCVar* ret = NULL;
 	vector<string> args;
 
@@ -337,6 +337,7 @@ BCVar* CTinyJS::funcDef(const string& funcName) {
 	ret = new BCVar();
 	int argNum = args.size();
 	ret->setFunction(argNum, funcPC);
+	ret->getFunc()->regular = regular;
 	//set args as top children 
 	for(int i=0; i<argNum; ++i) {
 		ret->getFunc()->args->addChild(args[i]);
@@ -547,7 +548,24 @@ void CTinyJS::doGet(BCVar* v, const string& str) {
 		return;
 	}	
 
-	BCNode* n = v->getChildOrCreate(str);
+	BCNode* n = v->getChild(str);
+	if(n == NULL)
+		n = findInClass(v, str);
+
+	if(n != NULL) {
+		if(n->var->isFunction()) {
+			FuncT* func = n->var->getFunc();
+			if(!func->regular) { //class get/set function.
+				push(v->ref());
+				funcCall(str, true);
+				return;
+			}
+		}
+	}
+	else {
+		n = v->addChild(str);
+	}
+
 	n->var->ref();	
 	push(n);
 }
@@ -892,8 +910,10 @@ void CTinyJS::runCode(Bytecode* bc) {
 				}
 				break;
 			}
-			case INSTR_FUNC: {
-				BCVar* v = funcDef(bcode->getStr(offset));
+			case INSTR_FUNC: 
+			case INSTR_FUNC_GET: 
+			case INSTR_FUNC_SET: {
+				BCVar* v = funcDef(bcode->getStr(offset), (instr == INSTR_FUNC ? true:false));
 				if(v != NULL)
 					push(v->ref());
 				break;

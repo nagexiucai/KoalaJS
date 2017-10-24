@@ -972,14 +972,28 @@ LEX_TYPES Compiler::callFunc() {
 LEX_TYPES Compiler::defFunc() {
 	LEX_TYPES ret = LEX_EOF;
 	// actually parse a function...
-	std::string funcName = "";
+	std::string name = "";
 	/* we can have functions without names */
-	if (l->tk==LEX_ID) {
-		funcName = l->tkStr;
+	if (l->tk == LEX_ID) {
+		name = l->tkStr;
 		l->chkread(LEX_ID);
 	}
-
-	bytecode.gen(INSTR_FUNC, funcName);
+	
+	if(l->tk == LEX_ID) { //class get/set token
+		if(name == "get") {
+			name = l->tkStr;
+			l->chkread(LEX_ID);
+			bytecode.gen(INSTR_FUNC_GET, name);
+		}
+		else if(name == "set") {
+			name = l->tkStr;
+			l->chkread(LEX_ID);
+			bytecode.gen(INSTR_FUNC_SET, name);
+		}
+	}
+	else {
+		bytecode.gen(INSTR_FUNC, name);
+	}
 	//do arguments
 	l->chkread('(');
 	while (l->tk!=')') {

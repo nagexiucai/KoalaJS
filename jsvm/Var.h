@@ -49,6 +49,7 @@ argNum : arguments number
 pc : function start PC
  */
 typedef struct STFunc {
+	bool regular; //false: class get/set or true: regular function
 	int argNum;
 	JSCallback native;
 	PC pc;

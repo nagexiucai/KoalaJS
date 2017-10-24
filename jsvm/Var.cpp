@@ -21,6 +21,8 @@ void BCNode::replace(BCVar* v) {
 }
 
 STFunc::STFunc() {
+	argNum = 0;
+	regular = true;
 	args = new BCVar();
 	thisNode = new BCNode(THIS, new BCVar());
 	returnNode = new BCNode(RETURN, new BCVar());

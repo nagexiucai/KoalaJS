@@ -144,7 +144,7 @@ private:
 	//pop stack and release it.
 	void pop();
 
-	BCVar* funcDef(const string& funcName);
+	BCVar* funcDef(const string& funcName, bool regular = true);
 
 	void funcCall(const string& funcName, bool member = false);
 
