@@ -342,10 +342,6 @@ BCVar* CTinyJS::funcDef(const string& funcName, bool regular) {
 	for(int i=0; i<argNum; ++i) {
 		ret->getFunc()->args->addChild(args[i]);
 	}
-	//add function to current scope 
-	if(funcName.length() > 0) {
-		scope()->var->addChild(funcName, ret);
-	}
 	return ret;
 }
 
@@ -790,8 +786,7 @@ void CTinyJS::runCode(Bytecode* bc) {
 				}
 				else {
 					BCNode* node = NULL;
-					VMScope* sc = scope();
-					node = sc->var->getChild(str);
+					node = scope()->var->getChild(str);
 
 					if(node == NULL) {
 						BCVar* thisVar = getCurrentObj();
@@ -801,7 +796,6 @@ void CTinyJS::runCode(Bytecode* bc) {
 								node = findInClass(thisVar, str);
 						}
 					}
-
 					if(node == NULL) {
 						node = findInScopes(str);
 						if(node == NULL) {
@@ -811,7 +805,6 @@ void CTinyJS::runCode(Bytecode* bc) {
 							}
 						}
 					}
-
 					node->var->ref();
 					push(node);
 				}
@@ -881,31 +874,28 @@ void CTinyJS::runCode(Bytecode* bc) {
 				}
 				break;
 			}
-			case INSTR_OBJ: {
+			case INSTR_OBJ:
+			case INSTR_ARRAY: {
 				BCVar* obj = new BCVar();
-				obj->type = BCVar::OBJECT;
-				push(currentObj->ref());
-				currentObj = obj->ref(); //need unref for unasign
+				obj->type = instr == INSTR_OBJ ? BCVar::OBJECT : BCVar::ARRAY;
+				sc.var = obj;
+				scopes.push_back(sc);
 				break;
 			}
+			case INSTR_ARRAY_END: 
 			case INSTR_OBJ_END: {
-				StackItem* i = pop2();
-				BCVar* obj = (BCVar*)i;
-				push(currentObj); //that actually means currentObj->ref() for push and unref for unasign.
-				currentObj = obj;
-				obj->unref();
+				BCVar* obj = scope()->var;
+				push(obj->ref()); //that actually means currentObj->ref() for push and unref for unasign.
+				scopes.pop_back();
 				break;
 			}
-			case INSTR_MEMBER: {
-				StackItem* i2 = pop2();
-				StackItem* i1 = pop2();
-				if(i1 != NULL && i2 != NULL) {
-					BCVar* nv = VAR(i1);
-					BCVar* v = VAR(i2);
-					string name = nv->getString();
-					nv->unref();
-
-					currentObj->addChild(name, v);
+			case INSTR_MEMBER: 
+			case INSTR_MEMBERN: {
+				str = instr == INSTR_MEMBER ? "" : bcode->getStr(offset);
+				StackItem* i = pop2();
+				if(i != NULL) {
+					BCVar* v = VAR(i);
+					scope()->var->addChild(str, v);
 					v->unref();
 				}
 				break;
@@ -913,9 +903,11 @@ void CTinyJS::runCode(Bytecode* bc) {
 			case INSTR_FUNC: 
 			case INSTR_FUNC_GET: 
 			case INSTR_FUNC_SET: {
-				BCVar* v = funcDef(bcode->getStr(offset), (instr == INSTR_FUNC ? true:false));
+				str = bcode->getStr(offset);
+				BCVar* v = funcDef(str, (instr == INSTR_FUNC ? true:false));
 				if(v != NULL)
 					push(v->ref());
+				scope()->var->addChild(str, v);
 				break;
 			}
 			case INSTR_CLASS: {

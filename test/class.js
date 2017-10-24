@@ -18,10 +18,15 @@ jedi.say();
 
 //class definition
 class Hello {
-	say(name) {
-		println("hello :" + name);
+	say(word) {
+		println(word);
+	}
+
+	get word() {
+		return "Rule the Galaxy!";
 	}
 }
 
 h = new Hello();
-h.say("Misa");
+h.say(h.word);
+

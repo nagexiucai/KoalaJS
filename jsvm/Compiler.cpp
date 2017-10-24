@@ -1101,20 +1101,18 @@ LEX_TYPES Compiler::factor() {
 		bytecode.gen(INSTR_OBJ);
 		while (l->tk != '}') {
 			string id = l->tkStr;
-			bytecode.gen(INSTR_STR, id);
 			// we only allow strings or IDs on the left hand side of an initialisation
 			if (l->tk==LEX_STR) l->chkread(LEX_STR);
 			else l->chkread(LEX_ID);
 			l->chkread(':');
 			base();
-			bytecode.gen(INSTR_MEMBER);
+			bytecode.gen(INSTR_MEMBERN, id);
 			// no need to clean here, as it will definitely be used
 			if (l->tk != '}') l->chkread(',');
 		}
 		bytecode.gen(INSTR_OBJ_END);
 		l->chkread('}');
 	}
-
 	else if(l->tk==LEX_ID) {
 		string name = l->tkStr;
 		l->chkread(LEX_ID);
@@ -1173,6 +1171,18 @@ LEX_TYPES Compiler::factor() {
 				load = false;
 			}
 		}
+	}
+	else if (l->tk=='[') {
+		/* JSON-style array */
+		l->chkread('[');
+		bytecode.gen(INSTR_ARRAY);
+		while (l->tk != ']') {
+			base();
+			bytecode.gen(INSTR_MEMBER);
+			if (l->tk != ']') l->chkread(',');
+		}
+		l->chkread(']');
+		bytecode.gen(INSTR_ARRAY_END);
 	}
 
 	return ret;

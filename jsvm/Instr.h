@@ -24,6 +24,8 @@ const static OpCode INSTR_INT					= 0x0007; // INT int 							: push int
 const static OpCode INSTR_FLOAT				= 0x0008; // FLOAT float					: push float 
 const static OpCode INSTR_STR					= 0x0009; // STR "str"						: push str
 const static OpCode INSTR_ARRAY_AT		= 0x000A; // ARRAT 								: get array element at
+const static OpCode INSTR_ARRAY				= 0x000B; // ARRAY 								: array start
+const static OpCode INSTR_ARRAY_END		= 0x000C; // ARRAY_END 						: array end
 
 const static OpCode INSTR_FUNC				= 0x0010; // FUNC x								: function definetion x
 const static OpCode INSTR_FUNC_GET		= 0x0011; // GET FUNC x						: class get function definetion x
@@ -32,6 +34,8 @@ const static OpCode INSTR_CALL				= 0x0013; // CALL x								: call function x a
 const static OpCode INSTR_CALLO				= 0x0014; // CALL obj.x						: call object member function x and push res
 const static OpCode INSTR_CLASS				= 0x0015; // class								: define class
 const static OpCode INSTR_CLASS_END		= 0x0016; // class end						: end of class definition
+const static OpCode INSTR_MEMBER			= 0x0017; // member without name
+const static OpCode INSTR_MEMBERN			= 0x0018; // : member with name
 
 const static OpCode INSTR_NOT					= 0x0020; // NOT									: !
 const static OpCode INSTR_MULTI				= 0x0021; // MULTI								: *
@@ -61,7 +65,6 @@ const static OpCode INSTR_OR					= 0x0042; // OR										: |
 const static OpCode INSTR_XOR					= 0x0043; // XOR									: ^
 const static OpCode INSTR_AND					= 0x0044; // AND									: &
 
-
 const static OpCode INSTR_BREAK				= 0x0050; // : break
 const static OpCode INSTR_CONTINUE		= 0x0051; // : continue
 const static OpCode INSTR_RETURN			= 0x0052; // : return none value
@@ -83,7 +86,6 @@ const static OpCode INSTR_POP					= 0x0080; // : pop and release
 
 const static OpCode INSTR_OBJ					= 0x0090; // : object for JSON 
 const static OpCode INSTR_OBJ_END			= 0x0091; // : object end for JSON 
-const static OpCode INSTR_MEMBER			= 0x0092; // : object member for JSON 
 
 class BCOpCode {
 	public:
@@ -93,6 +95,7 @@ class BCOpCode {
 			case  INSTR_OBJ					: return "obj";
 			case  INSTR_OBJ_END			: return "obje";
 			case  INSTR_MEMBER			: return "member";
+			case  INSTR_MEMBERN			: return "membern";
 			case  INSTR_POP					: return "pop";
 			case  INSTR_VAR					: return "var";
 			case  INSTR_CONST				: return "const";
@@ -100,6 +103,8 @@ class BCOpCode {
 			case  INSTR_FLOAT				: return "float";
 			case  INSTR_STR					: return "str";
 			case  INSTR_ARRAY_AT		: return "arrat";
+			case  INSTR_ARRAY				: return "arr";
+			case  INSTR_ARRAY_END		: return "arre";
 			case  INSTR_LOAD				: return "load";
 			case  INSTR_STORE				: return "store";
 			case  INSTR_JMP					: return "jmp";
