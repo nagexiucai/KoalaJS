@@ -2,3 +2,9 @@
 *.bcode
 *.swp
 jsvm/.DS_Store
+jsvm/jsvm.dSYM/Contents/Resources/DWARF/jsvm
+jsvm/jsvm.dSYM/Contents/Info.plist
+jsvm/jsvm
+jsvm/jsbc.dSYM/Contents/Resources/DWARF/jsbc
+jsvm/jsbc.dSYM/Contents/Info.plist
+jsvm/jsbc

@@ -17,6 +17,7 @@ jedi.age = 1800;
 jedi.say();
 
 //class definition
+print("\n");
 class Hello {
 	constructor() {
 		this.name = "";
@@ -27,6 +28,7 @@ class Hello {
 	}
 
 	get word() {
+		println("Get-function word");
 		return "Rule the Galaxy!";
 	}
 }

@@ -892,7 +892,10 @@ void CTinyJS::runCode(Bytecode* bc) {
 			case INSTR_OBJ:
 			case INSTR_ARRAY: {
 				BCVar* obj = new BCVar();
-				obj->type = instr == INSTR_OBJ ? BCVar::OBJECT : BCVar::ARRAY;
+				if(instr == INSTR_OBJ)
+					obj->type = BCVar::OBJECT;
+				else
+					obj->type = BCVar::ARRAY;
 				sc.var = obj;
 				scopes.push_back(sc);
 				break;

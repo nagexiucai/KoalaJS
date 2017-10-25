@@ -1,7 +1,7 @@
 CFLAG = -g -I./ -I../
 COMPILER_SRCS = Compiler.cpp Bytecode.cpp Var.cpp jsbc.cpp 
 
-JSVM_SRCS = Bytecode.cpp Var.cpp jsvm.cpp TinyJS.cpp Compiler.cpp CodeCache.cpp \
+JSVM_SRCS = Bytecode.cpp TinyJS.cpp Var.cpp jsvm.cpp Compiler.cpp CodeCache.cpp \
 	  ../native/ClassLoader.cpp \
 	  ../native/Math/Math.cpp \
 	  ../native/Base64/Base64.cpp \
@@ -47,6 +47,7 @@ vm:
 
 arm:
 	arm-none-linux-gnueabi-g++ ${CFLAG}  -o ${VM} ${JSVM_SRCS} ${LIBS} ${LDFLAGARM}
+#	arm-none-linux-gnueabi-g++ ${CFLAG} -o ${COMPILER} ${COMPILER_SRCS} ${LIBS} ${LDFLAGARM}
 
 clean:
 	rm -fr *.bcode
