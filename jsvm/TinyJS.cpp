@@ -39,8 +39,6 @@ BCVar* CTinyJS::newObject(const string& clsName) {
 	JSCallback nc = cls->var->getNativeConstructor();
 	if(nc != NULL)
 		nc(ret, NULL);
-	else
-		construct(ret);
 	return ret;
 }
 
@@ -58,8 +56,6 @@ BCVar* CTinyJS::newObject(BCNode* cls) {
 	JSCallback nc = cls->var->getNativeConstructor();
 	if(nc != NULL)
 		nc(ret, NULL);
-	else
-		construct(ret);
 	return ret;
 }
 
@@ -198,11 +194,14 @@ BCVar* CTinyJS::getCurrentObj(bool create) {
 	return ret;
 }
 
-void CTinyJS::construct(BCVar* obj) {
+bool CTinyJS::construct(BCVar* obj) {
 	push(obj->ref());
-	funcCall(CONSTRUCTOR);
-	obj->ref();
-	pop();
+	if(!funcCall(CONSTRUCTOR)) {
+		obj = (BCVar*)pop2();
+		obj->unref(false);
+		return false;
+	}
+	return true;
 }
 
 void CTinyJS::doNew(const string& clsName) {
@@ -234,10 +233,8 @@ void CTinyJS::doNew(const string& clsName) {
 			return;
 		}
 		ret = newObject(cls);
-		if(ret->getRefs() == 0)
-			ret->ref();
-		push(ret);
-		return;
+		if(construct(ret))	
+			return;
 	}
 
 	if(ret != NULL)
@@ -309,7 +306,6 @@ bool CTinyJS::funcCall(const string& funcName, bool member) {
 			//read return.
 			BCVar* ret = func->returnNode->var;
 			push(ret->ref());
-
 			func->resetArgs();
 		}
 		return true;

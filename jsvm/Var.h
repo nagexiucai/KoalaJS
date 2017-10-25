@@ -290,9 +290,9 @@ public:
 		return this;
 	}
 	
-	inline BCVar* unref() {
+	inline BCVar* unref(bool del = true) {
 		refs--;
-		if(refs == 0) {
+		if(refs == 0 && del) {
 			delete this;
 			return NULL;
 		}

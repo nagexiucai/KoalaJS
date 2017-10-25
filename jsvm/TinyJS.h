@@ -150,7 +150,7 @@ private:
 
 	void doNew(const string& clsName);
 
-	void construct(BCVar* obj);
+	bool construct(BCVar* obj);
 
 	void doGet(BCVar* v, const string& clsName);
 
