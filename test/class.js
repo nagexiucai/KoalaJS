@@ -18,8 +18,12 @@ jedi.say();
 
 //class definition
 class Hello {
+	constructor() {
+		this.name = "";
+	}
+
 	say(word) {
-		println(word);
+		println(name + ": " + word);
 	}
 
 	get word() {
@@ -28,5 +32,6 @@ class Hello {
 }
 
 h = new Hello();
+h.name = "Misa";
 h.say(h.word);
 

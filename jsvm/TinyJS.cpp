@@ -199,10 +199,9 @@ BCVar* CTinyJS::getCurrentObj(bool create) {
 }
 
 void CTinyJS::construct(BCVar* obj) {
-//	push(obj->ref());
-//	if(!funcCall(CONSTRUCTOR))
-//		push(obj->ref());
-//	push(obj->ref());
+	push(obj->ref());
+	if(!funcCall(CONSTRUCTOR))
+		push(obj->ref());
 }
 
 void CTinyJS::doNew(const string& clsName) {
@@ -233,6 +232,7 @@ void CTinyJS::doNew(const string& clsName) {
 			return;
 		}
 		ret = newObject(cls);
+		return;
 	}
 
 	if(ret != NULL)
