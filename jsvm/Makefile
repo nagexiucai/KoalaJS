@@ -39,23 +39,25 @@ TARGET = build
 ARM = arm-none-linux-gnueabi-
 
 all: 
-	mkdir -p $(TARGET)
+	mkdir -p $(TARGET)/include
 	g++ $(CFLAG) -c $(TINYJS) $(NATIVE) $(LIBS)
 	ar cq $(TARGET)/libTinyJS.a *.o
 	rm -f *o
 	g++ $(CFLAG) -o $(TARGET)/$(VM) jsvm.cpp $(LDFLAG) -L./$(TARGET) -lTinyJS
-	cp ../native/*.h *.h $(TARGET)
+	g++ $(CFLAG) -o $(TARGET)/$(COMPILER) jsbc.cpp $(LDFLAG) -L./$(TARGET) -lTinyJS
+	rm -fr $(TARGET)/*.dSYM
+	cp ../native/*.h *.h $(TARGET)/include
 
 bc:
 	g++ $(CFLAG) -o $(TARGET)/$(COMPILER) jsbc.cpp $(LDFLAG) -L./$(TARGET) -lTinyJS
 
 arm: 
-	mkdir -p $(TARGET)/arm
+	mkdir -p $(TARGET)/include
 	$(ARM)g++ $(CFLAG) -c $(TINYJS) $(LIBS) $(NATIVE) 
-	$(ARM)ar cq $(TARGET)/arm/libTinyJS.a *.o
+	$(ARM)ar cq $(TARGET)/libTinyJS-arm.a *.o
 	rm -f *o
-	$(ARM)g++ $(CFLAG)  -o $(TARGET)/arm/$(VM) jsvm.cpp $(LDFLAGARM) -L./$(TARGET)/arm -lTinyJS
-	cp ../native/*.h *.h $(TARGET)
+	$(ARM)g++ $(CFLAG)  -o $(TARGET)/$(VM)-arm jsvm.cpp $(LDFLAGARM) -L./$(TARGET) -lTinyJS-arm
+	cp ../native/*.h *.h $(TARGET)/include
 
 clean:
 	rm -fr $(TARGET)
