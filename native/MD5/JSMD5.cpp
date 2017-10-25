@@ -1,4 +1,4 @@
-#include "MD5.h"
+#include "JSMD5.h"
 #include "libs/MD5/md5.h"
 
 using namespace std;

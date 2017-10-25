@@ -1,4 +1,4 @@
-#include "DNSC.h"
+#include "JSDNSC.h"
 #include "libs/DNS/dnsc.h"
 
 using namespace std;

@@ -5,18 +5,18 @@ SRCS = jsm.cpp TinyJS.cpp \
 	  ../native/Math/Math.cpp \
 	  ../native/JSON/JSON.cpp \
 	  ../native/VM/VM.cpp \
-	  ../native/Base64/Base64.cpp \
+	  ../native/Base64/JSBase64.cpp \
 	  ../native/Thread/Thread.cpp \
 	  ../native/Global/Global.cpp \
 	  ../native/Bytes/Bytes.cpp \
-	  ../native/File/File.cpp \
+	  ../native/File/JSFile.cpp \
 	  ../native/Socket/TCP.cpp \
 	  ../native/Socket/DNS.cpp \
 	  ../native/System/System.cpp \
 	  ../native/Dir/Dir.cpp \
-	  ../native/DNS/DNSC.cpp \
+	  ../native/DNS/JSDNSC.cpp \
 	  ../native/Array/Array.cpp \
-	  ../native/MD5/MD5.cpp 
+	  ../native/MD5/JSMD5.cpp 
 
 LIBS = ../libs/Base64/Base64.cpp \
 		../libs/MD5/md5.cpp \

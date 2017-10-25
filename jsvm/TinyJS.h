@@ -28,7 +28,7 @@ typedef void (*JSModuleLoader)(CTinyJS *tinyJS);
 
 class CTinyJS {
 public:
-	inline CTinyJS(BCVar* root = NULL) {
+	inline CTinyJS() {
 		moduleLoader = NULL;
 		pc = 0;
 		codeSize = 0;

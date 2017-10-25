@@ -140,7 +140,6 @@ BCNode* CTinyJS::find(const string& name) {
 }
 
 BCNode* CTinyJS::findInScopes(const string& name) {
-	BCNode* n = NULL;
 	for(int i=scopes.size() - 1; i >= 0; --i) {
 		BCNode* r = scopes[i].var->getChild(name);
 		if(r != NULL)
