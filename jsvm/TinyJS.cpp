@@ -200,8 +200,9 @@ BCVar* CTinyJS::getCurrentObj(bool create) {
 
 void CTinyJS::construct(BCVar* obj) {
 	push(obj->ref());
-	if(!funcCall(CONSTRUCTOR))
-		push(obj->ref());
+	funcCall(CONSTRUCTOR);
+	obj->ref();
+	pop();
 }
 
 void CTinyJS::doNew(const string& clsName) {
@@ -227,11 +228,15 @@ void CTinyJS::doNew(const string& clsName) {
 		}
 		if(cls->var->isFunction()) {
 			BCVar* v = getCurrentObj(true);
-			push(v->ref());	
-			funcCall(clsName);
+			push(v->ref());	//push this
+			if(!funcCall(clsName))
+				pop(); //pop and drop this
 			return;
 		}
 		ret = newObject(cls);
+		if(ret->getRefs() == 0)
+			ret->ref();
+		push(ret);
 		return;
 	}
 
@@ -265,14 +270,14 @@ bool CTinyJS::funcCall(const string& funcName, bool member) {
 	if(n == NULL) {
 		if(funcName != CONSTRUCTOR)
 			ERR("Function '%s' not found\n", funcName.c_str());
-		object->unref(); //unref after pop
+		push(object); //push back to stack
 		return false;
 	}
 
 	if(n->var->type != BCVar::FUNC &&
 			n->var->type != BCVar::NFUNC) {
 		ERR("%s is not a function\n", funcName.c_str());
-		object->unref(); //unref after pop
+		push(object); //push back to stack
 		return false;
 	}
 
@@ -564,8 +569,10 @@ void CTinyJS::doGet(BCVar* v, const string& str) {
 		if(n->var->isFunction()) {
 			FuncT* func = n->var->getFunc();
 			if(!func->regular) { //class get/set function.
-				push(v->ref());
-				funcCall(str, true);
+				push(v->ref()); //push this
+				if(!funcCall(str, true))
+					pop(); //pop and drop this
+
 				return;
 			}
 		}
@@ -934,11 +941,13 @@ void CTinyJS::runCode(Bytecode* bc) {
 				break;
 			}
 			case INSTR_CALL: {
-				funcCall(bcode->getStr(offset));	
+				if(!funcCall(bcode->getStr(offset)))
+					pop();//drop this
 				break;
 			}
 			case INSTR_CALLO: {
-				funcCall(bcode->getStr(offset), true);
+				if(!funcCall(bcode->getStr(offset), true))
+					pop(); //drop this
 				break;
 			}
 			case INSTR_NEW: {
