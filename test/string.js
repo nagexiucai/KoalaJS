@@ -14,4 +14,4 @@ print("\n");
 
 print("replace 'c' by '--':\n    ");
 s.replace(",", "--");
-print(s + "\n");
+println(s);

@@ -37,7 +37,7 @@ LDFLAG = -lpthread
 LDFLAGARM = --static -Wl,--whole-archive -lpthread -Wl,--no-whole-archive -lc
 
 COMPILER = jsbc
-VM = jsvm
+VM = jsh
 
 TARGET = build
 ARM = arm-none-linux-gnueabi-
@@ -47,21 +47,22 @@ all:
 	g++ $(CFLAG) -c $(TINYJS) $(NATIVE) $(LIBS)
 	ar cq $(TARGET)/libTinyJS.a *.o
 	rm -f *o
-	g++ $(CFLAG) -o $(TARGET)/$(VM) $(VM_DIR)/jsvm.cpp $(LDFLAG) -L./$(TARGET) -lTinyJS
-	g++ $(CFLAG) -o $(TARGET)/$(COMPILER) $(VM_DIR)/jsbc.cpp $(LDFLAG) -L./$(TARGET) -lTinyJS
-	rm -fr $(TARGET)/*.dSYM
+	g++ $(CFLAG) -o $(VM) $(VM_DIR)/jsh.cpp $(LDFLAG) -L./$(TARGET) -lTinyJS
+	rm -fr *.dSYM
 	cp $(NATIVE_DIR)/*.h $(VM_DIR)/*.h $(TARGET)/include
 
-bc:
-	g++ $(CFLAG) -o $(TARGET)/$(COMPILER) $(VM_DIR)/jsbc.cpp $(LDFLAG) -L./$(TARGET) -lTinyJS
+sh:
+	g++ $(CFLAG) -o $(VM) $(VM_DIR)/jsh.cpp $(LDFLAG) -L./$(TARGET) -lTinyJS
 
 arm: 
 	mkdir -p $(TARGET)/include
 	$(ARM)g++ $(CFLAG) -c $(TINYJS) $(LIBS) $(NATIVE) 
 	$(ARM)ar cq $(TARGET)/libTinyJS-arm.a *.o
 	rm -f *o
-	$(ARM)g++ $(CFLAG)  -o $(TARGET)/$(VM)-arm $(VM_DIR)/jsvm.cpp $(LDFLAGARM) -L./$(TARGET) -lTinyJS-arm
+	$(ARM)g++ $(CFLAG)  -o $(VM)-arm $(VM_DIR)/jsh.cpp $(LDFLAGARM) -L./$(TARGET) -lTinyJS-arm
 	cp $(NATIVE_DIR)/*.h $(VM_DIR)/*.h $(TARGET)/include
 
 clean:
 	rm -fr $(TARGET)
+	rm -fr $(VM)
+	rm -fr $(VM)-arm

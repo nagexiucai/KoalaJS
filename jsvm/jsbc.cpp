@@ -9,7 +9,7 @@ int main(int argc, char** argv) {
 	std::string input;
 
 	if(argc <= 1) {
-		TRACE("Usage: bc [file.js] (-t to test-only)\n");
+		ERR("Usage: bc [file.js] (-t to test-only)\n");
 		return 1;
 	}
 	else {
@@ -34,7 +34,7 @@ int main(int argc, char** argv) {
 				compiler.bytecode.toFile(s);
 			}
 		} catch (CScriptException *e) {
-			TRACE("ERROR: %s\n", e->text.c_str());
+			ERR("ERROR: %s\n", e->text.c_str());
 		}
 	}
 	return 0;

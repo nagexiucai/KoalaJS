@@ -18,13 +18,13 @@ SRCS = jsm.cpp TinyJS.cpp \
 	  ../native/Array/Array.cpp \
 	  ../native/MD5/JSMD5.cpp 
 
-LIBS = ../libs/Base64/Base64.cpp \
-		../libs/MD5/md5.cpp \
-		../libs/DNS/query.cc \
-    ../libs/DNS/response.cc \
-		../libs/DNS/dnsc.cc \
-		 ../libs/DNS/request.cc \
-		../libs/File/File.cpp
+LIBS = ../utils/Base64/Base64.cpp \
+		../utils/MD5/md5.cpp \
+		../utils/DNS/query.cc \
+    ../utils/DNS/response.cc \
+		../utils/DNS/dnsc.cc \
+		 ../utils/DNS/request.cc \
+		../utils/File/File.cpp
 
 LDFLAG = -lpthread
 

@@ -549,13 +549,12 @@ void Compiler::run(const std::string &fname) {
 	cname = File::getFullname(cwd, fname);
 	cwd = File::getPath(cname);
 
-	//	TRACE("Runing file \"%s\n", cname.c_str());
 	std::string input = File::read(cname);
 	if(input.length() > 0) {
 		exec(input);
 	}
 	else {
-		//		TRACE("Can not run file \"%s\" at \"%s\" %s.\n", fname.c_str(), cname.c_str(), l->getPosition().c_str());
+		ERR("Can not run file \"%s\" at \"%s\" %s.\n", fname.c_str(), cname.c_str(), l->getPosition().c_str());
 	}
 
 	if(oldCwd.length() > 0)

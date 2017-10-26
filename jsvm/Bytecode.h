@@ -7,8 +7,11 @@
 #include "Instr.h"
 
 #ifndef TRACE
-//#define TRACE printf
-#define TRACE(...) fprintf (stderr, __VA_ARGS__)
+#define TRACE(...) fprintf (stdout, __VA_ARGS__)
+#endif // TRACE
+
+#ifndef ERR
+#define ERR(...) fprintf (stderr, __VA_ARGS__)
 #endif // TRACE
 
 using namespace std;

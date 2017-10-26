@@ -8,8 +8,6 @@
 
 #define VAR(i) (i->isNode ? ((BCNode*)i)->var : (BCVar*)i)
 
-#define ERR(...) fprintf (stderr, __VA_ARGS__)
-
 typedef struct {
 	BCVar* var;
 	PC pc; //stack pc
@@ -56,13 +54,12 @@ public:
 			BCVar* v = VAR(i);
 			v->unref();
 		}
+		stackTop = STACK_DEEP;
 
 		if(root != NULL) {
 			delete root;
 			root = NULL;
 		}
-		
-		root = NULL;
 	}
 
 	void run(const string& fname);
