@@ -119,12 +119,12 @@ Arrays are implemented as a linked list - hence a lookup time is O(n)
 	*/
 
 #include "TinyJS.h"
-#include "../libs/File/File.h"
+#include "utils/File/File.h"
 #include <assert.h>
 #include <sstream>
 #include <stdlib.h>
 
-#include "libs/Thread/Thread.h"
+#include "utils/Thread/Thread.h"
 
 #define ASSERT(X) assert(X)
 	/* Frees the given link IF it isn't owned by anything else */

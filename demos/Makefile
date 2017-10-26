@@ -1,7 +1,7 @@
 CFLAG = -g -I../native -I../TinyJS -I../ -I./
 VM_CFLAG = -g  -I../build/include
 
-LIBS = ../libs/File/File.cpp
+LIBS = ../utils/File/File.cpp
 
 SRCS = demoClass.cpp \
 	  ../TinyJS/TinyJS.cpp 
