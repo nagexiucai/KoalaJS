@@ -10,6 +10,7 @@ void _moduleLoader(CTinyJS* tinyJS);
 void help() {
 	printf("\033[4m\033[0;33m[Help] JSM Javascript engine, input javascript code,\n"
 			"commands:\n"
+			"\thelp       : show this help.\n"
 			"\tbc         : compiler the whole javascript to bytecode.\n"
 			"\tbc  [file] : compiler file to bytecode. will reset runtime.\n"
 			"\treset      : reset runtime, clear all variable and stack.\n"
