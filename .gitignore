@@ -8,3 +8,9 @@ jsvm/jsvm
 jsvm/jsbc.dSYM/Contents/Resources/DWARF/jsbc
 jsvm/jsbc.dSYM/Contents/Info.plist
 jsvm/jsbc
+
+demos/demoClass
+
+*.plist
+
+demos/demoClass.dSYM/Contents/Resources/DWARF/demoClass

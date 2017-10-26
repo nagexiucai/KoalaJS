@@ -1,4 +1,4 @@
-#include "../native/ClassLoader.h"
+#include "ClassLoader.h"
 
 //demo how to implement native class
 class MyNativeClass {
