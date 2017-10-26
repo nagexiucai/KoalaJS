@@ -8,7 +8,7 @@
 void _moduleLoader(CTinyJS* tinyJS);
 
 void help() {
-	printf("\033[4m\033[0;33m[Help] JSM Javascript engine, input javascript code,\n"
+	printf("\033[4m\033[0;33m[Help] JSM Javascript engine, you can run javascript file directly like \"jsh [file]\", or input javascript code here.\n"
 			"commands:\n"
 			"\thelp       : show this help.\n"
 			"\tbc         : compiler the whole javascript to bytecode.\n"
