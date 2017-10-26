@@ -7,6 +7,7 @@
 
 void _moduleLoader(CTinyJS* tinyJS);
 
+//show help message
 void help() {
 	printf("\033[4m\033[0;33m[Help] JSM Javascript engine, you can run javascript file directly like \"jsh [file]\", or input javascript code here.\n"
 			"commands:\n"
@@ -19,6 +20,7 @@ void help() {
 			"\texit       : quit shell.\033[0m\n");
 }
 
+//js shell
 void jshell() {
 	std::string input;
 	std::string run;
@@ -94,6 +96,7 @@ void jshell() {
 	}	
 }
 
+//run js file.
 void run(int argc, char** argv) {
 	try {
 		CTinyJS tinyJS;
