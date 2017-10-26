@@ -38,10 +38,16 @@ public:
 	}
 
 	inline ~CTinyJS() {
-		reset();
+		clear();
+	}
+	
+	inline void reset() {
+		clear();
+		init();
+		loadModule(moduleLoader);
 	}
 
-	inline void reset() {
+	inline void clear() {
 		bcode = NULL;
 		pc = 0;
 		codeSize = 0;

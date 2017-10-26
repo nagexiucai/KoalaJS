@@ -1,4 +1,4 @@
-CFLAG = -O2 -I./ -I./jsvm -I./utils
+CFLAG = -g -I./ -I./jsvm -I./utils
 
 VM_DIR = jsvm
 NATIVE_DIR = native
@@ -42,27 +42,29 @@ VM = jsh
 TARGET = build
 ARM = arm-none-linux-gnueabi-
 
-all: 
+all: lib sh
+
+sh:
+	g++ $(CFLAG) -o $(VM) jsh.cpp $(LDFLAG) -L./$(TARGET) -lTinyJS
+	rm -fr *.dSYM
+
+lib: 
 	mkdir -p $(TARGET)/include
 	g++ $(CFLAG) -c $(TINYJS) $(NATIVE) $(LIBS)
 	ar cq $(TARGET)/libTinyJS.a *.o
 	rm -f *o
-	g++ $(CFLAG) -o $(VM) $(VM_DIR)/jsh.cpp $(LDFLAG) -L./$(TARGET) -lTinyJS
-	rm -fr *.dSYM
 	cp $(NATIVE_DIR)/*.h $(VM_DIR)/*.h $(TARGET)/include
-
-sh:
-	g++ $(CFLAG) -o $(VM) $(VM_DIR)/jsh.cpp $(LDFLAG) -L./$(TARGET) -lTinyJS
 
 arm: 
 	mkdir -p $(TARGET)/include
 	$(ARM)g++ $(CFLAG) -c $(TINYJS) $(LIBS) $(NATIVE) 
 	$(ARM)ar cq $(TARGET)/libTinyJS-arm.a *.o
 	rm -f *o
-	$(ARM)g++ $(CFLAG)  -o $(VM)-arm $(VM_DIR)/jsh.cpp $(LDFLAGARM) -L./$(TARGET) -lTinyJS-arm
+	$(ARM)g++ $(CFLAG)  -o $(VM)-arm jsh.cpp $(LDFLAGARM) -L./$(TARGET) -lTinyJS-arm
 	cp $(NATIVE_DIR)/*.h $(VM_DIR)/*.h $(TARGET)/include
 
 clean:
 	rm -fr $(TARGET)
 	rm -fr $(VM)
 	rm -fr $(VM)-arm
+	rm -fr *.dSYM

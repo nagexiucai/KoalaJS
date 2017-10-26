@@ -581,10 +581,6 @@ void CTinyJS::doGet(BCVar* v, const string& str) {
 }
 
 void CTinyJS::runCode(Bytecode* bc) {
-	if(root == NULL) {
-		init();
-	}
-
 	if(code != NULL && bcode != NULL) {
 		CodeT cs;
 		cs.pc = pc;
