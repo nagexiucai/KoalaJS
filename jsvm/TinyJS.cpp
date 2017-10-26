@@ -1,7 +1,7 @@
 #include "TinyJS.h"
 #include "Compiler.h"
-#include "libs/String/StringUtil.h"
-#include "libs/File/File.h"
+#include "utils/String/StringUtil.h"
+#include "utils/File/File.h"
 #include <sstream>  
 #include <iostream>  
 

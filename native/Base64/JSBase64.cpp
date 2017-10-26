@@ -1,5 +1,5 @@
 #include "JSBase64.h"
-#include "libs/Base64/Base64.h"
+#include "utils/Base64/Base64.h"
 
 using namespace std;
 using namespace JSM;

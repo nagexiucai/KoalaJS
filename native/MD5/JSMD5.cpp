@@ -1,5 +1,5 @@
 #include "JSMD5.h"
-#include "libs/MD5/md5.h"
+#include "utils/MD5/md5.h"
 
 using namespace std;
 using namespace JSM;

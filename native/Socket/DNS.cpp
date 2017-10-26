@@ -1,5 +1,5 @@
 #include "DNS.h"
-#include "libs/DNS/dnsc.h"
+#include "utils/DNS/dnsc.h"
 
 using namespace std;
 using namespace JSM;

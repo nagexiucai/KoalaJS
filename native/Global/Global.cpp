@@ -1,6 +1,6 @@
 #include "Global.h"
-#include "libs/File/File.h"
 #include <cstdlib>
+#include <stdio.h>
 #include <map>
 
 using namespace std;

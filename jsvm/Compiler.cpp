@@ -1,6 +1,6 @@
 #include "Compiler.h"
-#include "../libs/File/File.h"
-#include "../libs/String/StringUtil.h"
+#include "utils/File/File.h"
+#include "utils/String/StringUtil.h"
 #include <assert.h>
 #include <sstream>
 #include <stdlib.h>

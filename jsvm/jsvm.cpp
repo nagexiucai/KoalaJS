@@ -1,8 +1,7 @@
 #include "Var.h"
 #include "TinyJS.h"
 #include "Compiler.h"
-#include "../libs/File/File.h"
-#include "../native/ClassLoader.h"
+#include <stdio.h>
 #include <string.h>
 
 void _moduleLoader(CTinyJS* tinyJS);

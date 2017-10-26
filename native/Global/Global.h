@@ -2,7 +2,7 @@
 #define JSM_Global
 
 #include "../ClassLoader.h"
-#include "libs/Thread/Thread.h"
+#include "utils/Thread/Thread.h"
 
 typedef struct _BasicValue {
 	const static unsigned char INT = 0;

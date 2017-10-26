@@ -1,5 +1,5 @@
 #include "TCP.h"
-#include "libs/DNS/dnsc.h"
+#include "utils/DNS/dnsc.h"
 #include <cstdlib>
 #include <sys/ioctl.h>
 #include <unistd.h>

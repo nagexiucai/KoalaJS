@@ -15,7 +15,6 @@
 #include "native/DNS/JSDNSC.h"
 #include "native/Dir/Dir.h"
 #include "native/Array/Array.h"
-#include "libs/File/File.h"
 
 void _moduleLoader(CTinyJS* tinyJS) {
 //load basic classes

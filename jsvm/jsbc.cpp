@@ -1,7 +1,8 @@
 #include "Compiler.h"
 #include "Var.h"
-#include "../libs/File/File.h"
+#include "utils/File/File.h"
 #include <string.h>
+#include <stdio.h>
 
 int main(int argc, char** argv) {
 	Compiler compiler;
