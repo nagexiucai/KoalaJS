@@ -33,7 +33,7 @@ Directories:
 	+- TinyJS : Interpreter.
 	+- demos : Demos for embedded TinyJS in your c++ project.
 	+- jsvm : Bytecode compiler and virtual machine.
-	+- libs : 3rd libs.
+	+- utils : 3rd libs.
 	+- native : native class/functions extend.
 	+- test : test and demo scripts.
 
