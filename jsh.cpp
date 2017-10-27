@@ -116,14 +116,32 @@ void run(int argc, char** argv) {
 	}
 }
 
+//run js file.
+void compile(const char* fname) {
+	try {
+		Compiler compiler;
+		compiler.run(fname);
+		string s = compiler.bytecode.dump();
+		printf("%s\n", s.c_str());
+	} 
+	catch (CScriptException *e) {
+		ERR("ERROR: %s\n", e->text.c_str());
+	}
+}
+
 int main(int argc, char** argv) {
 	if(argc <= 1) {
 		jshell();
 	}
-	else {
+	else if(argc >= 2) {
+		if(strcmp(argv[1], "-v") == 0) {
+			compile(argv[2]);
+		}
+		else {
 		//while(true) {
 		run(argc, argv);
-		//}
+		//}	
+		}
 	}
 	CodeCache::empty();
 	return 0;
