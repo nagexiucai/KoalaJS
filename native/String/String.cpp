@@ -1,4 +1,5 @@
 #include "String.h"
+#include "utils/String/StringUtil.h"
 #include <cstdlib>
 
 using namespace std;
@@ -28,6 +29,16 @@ void String::substring(CScriptVar *c, void *) {
 		c->getReturnVar()->setString(str.substr(lo, l));
 	else
 		c->getReturnVar()->setString("");
+}
+
+void String::trimR(CScriptVar *c, void *) {
+	string str = c->getParameter("this")->getString();
+	c->getReturnVar()->setString(StringUtil::trimRight(str));
+}
+
+void String::trimL(CScriptVar *c, void *) {
+	string str = c->getParameter("this")->getString();
+	c->getReturnVar()->setString(StringUtil::trimLeft(str));
 }
 
 void String::charAt(CScriptVar *c, void *) {

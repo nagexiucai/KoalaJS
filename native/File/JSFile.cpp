@@ -101,32 +101,34 @@ void JSFileNative::open(CScriptVar* var, void* data) {
 	std::string fname = var->getParameter("fname")->getString();
 	std::string mode = var->getParameter("mode")->getString();
 
-	var->getReturnVar()->setInt(-1);
-	
-	if(fname.length() == 0)
-		return;
+	int fd = -1;
+	if(fname.length() == 0) { //no name for stdin fd
+		if(mode.find('w') != string::npos)
+			fd = 1;
+		else
+			fd = 0;
+	}
+	else {
+		int m = O_RDONLY;
+		if(mode.find("rw") != string::npos)
+			m = O_RDWR;
+		else if(mode.find('r') != string::npos)
+			m = O_RDONLY;
+		else if(mode.find('w') != string::npos)
+			m = O_WRONLY;
 
-	int m = 0;
+		if(mode.find('c') != string::npos) 
+			m |= O_CREAT;
+		if(mode.find('t') != string::npos) 
+			m |= O_TRUNC;
+		if(mode.find('a') != string::npos) 
+			m |= O_APPEND;
 
-	if(mode.find("rw") != string::npos)
-		m = O_RDWR;
-	else if(mode.find('r') != string::npos)
-		m = O_RDONLY;
-	else if(mode.find('w') != string::npos)
-		m = O_WRONLY;
-
-	if(mode.find('c') != string::npos) 
-		m |= O_CREAT;
-	if(mode.find('t') != string::npos) 
-		m |= O_TRUNC;
-	if(mode.find('a') != string::npos) 
-		m |= O_APPEND;
-
-	int f = ::open(fname.c_str(), m, S_IRUSR | S_IWUSR | S_IRGRP); 
-	if(f < 0)
-		return;
-
-	fid = f;
-	var->getReturnVar()->setInt(f);
+		fd = ::open(fname.c_str(), m, S_IRUSR | S_IWUSR | S_IRGRP); 
+		if(fd < 0)
+			return;
+	}
+	fid = fd;
+	var->getReturnVar()->setInt(fd);
 }
 
