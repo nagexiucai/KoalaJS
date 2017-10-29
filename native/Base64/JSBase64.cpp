@@ -25,7 +25,7 @@ void JSBase64::encode(CScriptVar *c, void *userdata) {
 
 void JSBase64::decode(CScriptVar *c, void *userdata) {
 	std::string src = c->getParameter("src")->getString();
-	CTinyJS* tinyJS = (CTinyJS*)userdata;
+	KoalaJS* tinyJS = (KoalaJS*)userdata;
 
 	size_t size = 0;
 	unsigned char* p = Base64::decode(src, size);

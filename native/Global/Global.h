@@ -39,7 +39,7 @@ namespace JSM {
 		static void get(CScriptVar *c, void *);
 
 		protected:
-		inline void registerFunctions(CTinyJS* tinyJS, const std::string& className) {
+		inline void registerFunctions(KoalaJS* tinyJS, const std::string& className) {
 			addFunction(tinyJS, className, "get(name)", get, NULL);
 			addFunction(tinyJS, className, "set(name, value)", set, NULL);
 		}

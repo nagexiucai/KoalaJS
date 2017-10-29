@@ -98,7 +98,7 @@ namespace JSM {
 		static void randInt(CScriptVar *c, void *userdata);
 
 		protected:
-		void registerFunctions(CTinyJS *tinyJS, const std::string& className) {
+		void registerFunctions(KoalaJS *tinyJS, const std::string& className) {
 			// --- Math and Trigonometry functions ---
 			addFunction(tinyJS, className, "abs(a)", Math::abs, 0);
 			addFunction(tinyJS, className, "round(a)", Math::round, 0);

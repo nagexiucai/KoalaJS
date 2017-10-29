@@ -1,5 +1,5 @@
-#ifndef BC_CTinyJS_HH
-#define BC_CTinyJS_HH
+#ifndef BC_KoalaJS_HH
+#define BC_KoalaJS_HH
 
 #include "Bytecode.h"
 #include "CodeCache.h"
@@ -21,12 +21,12 @@ typedef struct {
 	Bytecode* bcode;
 } CodeT;
 
-class CTinyJS;
-typedef void (*JSModuleLoader)(CTinyJS *tinyJS);
+class KoalaJS;
+typedef void (*JSModuleLoader)(KoalaJS *tinyJS);
 
-class CTinyJS {
+class KoalaJS {
 public:
-	inline CTinyJS() {
+	inline KoalaJS() {
 		moduleLoader = NULL;
 		pc = 0;
 		codeSize = 0;
@@ -37,7 +37,7 @@ public:
 		init();
 	}
 
-	inline ~CTinyJS() {
+	inline ~KoalaJS() {
 		clear();
 	}
 	
@@ -155,7 +155,7 @@ private:
 
 	void doNew(const string& clsName);
 
-	bool construct(BCVar* obj);
+	bool construct(BCVar* obj, int argNum);
 
 	void doGet(BCVar* v, const string& clsName);
 

@@ -11,7 +11,7 @@ namespace JSM {
 		static void parse(CScriptVar *c, void *);
 
 		protected:
-		inline void registerFunctions(CTinyJS* tinyJS, const std::string& className) {
+		inline void registerFunctions(KoalaJS* tinyJS, const std::string& className) {
 			addFunction(tinyJS, className, "toString(obj)", toString, NULL);
 			addFunction(tinyJS, className, "parse(src)", parse, tinyJS);
 		}

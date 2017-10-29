@@ -31,7 +31,7 @@ namespace JSM {
 		static void trim(CScriptVar *c, void *);
 
 		protected:
-		inline void registerFunctions(CTinyJS* tinyJS, const std::string& className) {
+		inline void registerFunctions(KoalaJS* tinyJS, const std::string& className) {
 			addFunction(tinyJS, className, "indexOf(search)", indexOf, NULL); // find the position of a string in a string, -1 if not
 			addFunction(tinyJS, className, "substring(lo,hi)", substring, NULL);
 			addFunction(tinyJS, className, "charAt(pos)", charAt, NULL);

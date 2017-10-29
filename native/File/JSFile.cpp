@@ -88,7 +88,7 @@ void JSFileNative::write(CScriptVar* var, void* data) {
 
 void JSFileNative::read(CScriptVar* var, void* data) {
 	int size = var->getParameter("size")->getInt();
-	CTinyJS* tinyJS = (CTinyJS*)data;
+	KoalaJS* tinyJS = (KoalaJS*)data;
 
 	if(size <= 0 || fid < 0)
 		return;

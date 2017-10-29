@@ -15,7 +15,7 @@ namespace JSM {
 		static void usleep(CScriptVar *c, void *);
 
 		protected:
-		inline void registerFunctions(CTinyJS* tinyJS, const std::string& className) {
+		inline void registerFunctions(KoalaJS* tinyJS, const std::string& className) {
 			addFunction(tinyJS, className, "exec(src, arg)", exec, tinyJS);
 			addFunction(tinyJS, className, "run(file, arg)", run, tinyJS);
 			addFunction(tinyJS, className, "sleep(sec)", sleep, NULL);

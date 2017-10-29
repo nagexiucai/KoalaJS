@@ -4,7 +4,7 @@ VM_DIR = jsvm
 NATIVE_DIR = native
 LIBS_DIR = utils
 
-TINYJS = $(VM_DIR)/Bytecode.cpp $(VM_DIR)/TinyJS.cpp $(VM_DIR)/Var.cpp $(VM_DIR)/Compiler.cpp $(VM_DIR)/CodeCache.cpp
+TINYJS = $(VM_DIR)/Bytecode.cpp $(VM_DIR)/KoalaJS.cpp $(VM_DIR)/Var.cpp $(VM_DIR)/Compiler.cpp $(VM_DIR)/CodeCache.cpp
 
 NATIVE = $(NATIVE_DIR)/ClassLoader.cpp \
 	  $(NATIVE_DIR)/Math/Math.cpp \
@@ -45,23 +45,23 @@ ARM = arm-none-linux-gnueabi-
 all: lib sh
 
 sh:
-	g++ $(CFLAG) -o $(VM) jsh.cpp $(LDFLAG) -L./$(TARGET) -lTinyJS
+	g++ $(CFLAG) -o $(VM) jsh.cpp $(LDFLAG) -L./$(TARGET) -lKoalaJS
 	rm -fr *.dSYM
 
 lib: 
 	mkdir -p $(TARGET)/include
 	g++ $(CFLAG) -c $(TINYJS) $(NATIVE) $(LIBS)
-	rm -f $(TARGET)/libTinyJS.a
-	ar cq $(TARGET)/libTinyJS.a *.o
+	rm -f $(TARGET)/libKoalaJS.a
+	ar cq $(TARGET)/libKoalaJS.a *.o
 	rm -f *o
 	cp $(NATIVE_DIR)/*.h $(VM_DIR)/*.h $(TARGET)/include
 
 arm: 
 	mkdir -p $(TARGET)/include
 	$(ARM)g++ $(CFLAG) -c $(TINYJS) $(LIBS) $(NATIVE) 
-	$(ARM)ar cq $(TARGET)/libTinyJS-arm.a *.o
+	$(ARM)ar cq $(TARGET)/libKoalaJS-arm.a *.o
 	rm -f *o
-	$(ARM)g++ $(CFLAG)  -o $(VM)-arm jsh.cpp $(LDFLAGARM) -L./$(TARGET) -lTinyJS-arm
+	$(ARM)g++ $(CFLAG)  -o $(VM)-arm jsh.cpp $(LDFLAGARM) -L./$(TARGET) -lKoalaJS-arm
 	cp $(NATIVE_DIR)/*.h $(VM_DIR)/*.h $(TARGET)/include
 
 clean:

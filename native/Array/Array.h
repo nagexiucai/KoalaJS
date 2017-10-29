@@ -10,7 +10,7 @@ namespace JSM {
 		static void clear(CScriptVar *c, void *);
 
 		protected:
-		inline void registerFunctions(CTinyJS* tinyJS, const std::string& className) {
+		inline void registerFunctions(KoalaJS* tinyJS, const std::string& className) {
 			addFunction(tinyJS, className, "size()", size, NULL);
 			addFunction(tinyJS, className, "clear()", clear, NULL);
 		}

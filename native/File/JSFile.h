@@ -36,7 +36,7 @@ class JSFile: public NativeClassLoader<T> {
 	MAP_FUNC(seek)
 
 	protected:
-	inline void registerFunctions(CTinyJS* tinyJS, const std::string& className) {
+	inline void registerFunctions(KoalaJS* tinyJS, const std::string& className) {
 		JSClass::addFunction(tinyJS, className, "size()", size, NULL);
 		JSClass::addFunction(tinyJS, className, "close()", close, NULL);
 		JSClass::addFunction(tinyJS, className, "open(fname, mode)", open, NULL);

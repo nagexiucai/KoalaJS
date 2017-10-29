@@ -1,11 +1,11 @@
 #include "Var.h"
-#include "TinyJS.h"
+#include "KoalaJS.h"
 #include "Compiler.h"
 #include "utils/String/StringUtil.h"
 #include <stdio.h>
 #include <string.h>
 
-void _moduleLoader(CTinyJS* tinyJS);
+void _moduleLoader(KoalaJS* tinyJS);
 
 //show help message
 void help() {
@@ -20,7 +20,7 @@ void help() {
 //js shell
 void jshell() {
 	std::string input;
-	CTinyJS tinyJS;
+	KoalaJS tinyJS;
 	tinyJS.loadModule(_moduleLoader);
 	help();
 	printf("\033[4m\033[0;32mjsh:>\033[0m ");
@@ -76,7 +76,7 @@ void jshell() {
 //run js file.
 void run(int argc, char** argv) {
 	try {
-		CTinyJS tinyJS;
+		KoalaJS tinyJS;
 		tinyJS.loadModule(_moduleLoader);
 
 		//read args 

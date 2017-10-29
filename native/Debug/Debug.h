@@ -18,12 +18,12 @@ namespace JSM {
 		}
 
 		static void dump(CScriptVar *v, void *userdata) {
-			CTinyJS *js = (CTinyJS*)userdata;
+			KoalaJS *js = (KoalaJS*)userdata;
 			//js->root->trace("> ");
 		}
 
 		protected:
-		void registerFunctions(CTinyJS* tinyJS, const std::string& className) {
+		void registerFunctions(KoalaJS* tinyJS, const std::string& className) {
 			addFunction(tinyJS, "", "print(text)", print, NULL);
 			addFunction(tinyJS, "", "println(text)", println, NULL);
 			addFunction(tinyJS, className, "print(text)", print, NULL);

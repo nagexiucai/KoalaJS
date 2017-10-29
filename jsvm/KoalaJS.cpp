@@ -1,11 +1,11 @@
-#include "TinyJS.h"
+#include "KoalaJS.h"
 #include "Compiler.h"
 #include "utils/String/StringUtil.h"
 #include "utils/File/File.h"
 #include <sstream>  
 #include <iostream>  
 
-BCVar* CTinyJS::newObject(const string& clsName) {
+BCVar* KoalaJS::newObject(const string& clsName) {
 	if(clsName.length() == 0)
 		return NULL;
 	
@@ -42,7 +42,7 @@ BCVar* CTinyJS::newObject(const string& clsName) {
 	return ret;
 }
 
-BCVar* CTinyJS::newObject(BCNode* cls) {
+BCVar* KoalaJS::newObject(BCNode* cls) {
 	BCVar* ret = NULL;
 	if(cls->var->type != BCVar::CLASS) {
 		ERR("%s is not a class\n", cls->name.c_str());
@@ -59,7 +59,7 @@ BCVar* CTinyJS::newObject(BCNode* cls) {
 	return ret;
 }
 
-void CTinyJS::run(const std::string &fname) {
+void KoalaJS::run(const std::string &fname) {
 	std::string oldCwd = cwd;
 	cname = File::getFullname(cwd, fname);
 	cwd = File::getPath(cname);
@@ -90,7 +90,7 @@ void CTinyJS::run(const std::string &fname) {
 		cwd = oldCwd;
 }
 
-void CTinyJS::exec(const std::string &code) {
+void KoalaJS::exec(const std::string &code) {
 	Bytecode* bc = CodeCache::get(code);
 	if(bc == NULL) {
 		bc = new Bytecode();
@@ -103,7 +103,7 @@ void CTinyJS::exec(const std::string &code) {
 }
 
 
-StackItem* CTinyJS::pop2() {
+StackItem* KoalaJS::pop2() {
 	if(stackTop == STACK_DEEP) // touch the bottom of stack
 		return NULL;
 
@@ -113,7 +113,7 @@ StackItem* CTinyJS::pop2() {
 	return ret;
 }
 
-void CTinyJS::pop() {
+void KoalaJS::pop() {
 	if(stackTop == STACK_DEEP)
 		return;
 
@@ -123,7 +123,7 @@ void CTinyJS::pop() {
 	VAR(i)->unref();
 }
 
-void CTinyJS::push(StackItem* v) {
+void KoalaJS::push(StackItem* v) {
 	if(stackTop == 0) { //stack overflow
 		ERR("stack overflow\n");
 		return;
@@ -131,7 +131,7 @@ void CTinyJS::push(StackItem* v) {
 	vStack[--stackTop] = v;
 }
 
-BCNode* CTinyJS::find(const string& name) {
+BCNode* KoalaJS::find(const string& name) {
 	VMScope* sc = scope();
 	if(sc == NULL)
 		return NULL;
@@ -139,7 +139,7 @@ BCNode* CTinyJS::find(const string& name) {
 	return sc->var->getChild(name);
 }
 
-BCNode* CTinyJS::findInScopes(const string& name) {
+BCNode* KoalaJS::findInScopes(const string& name) {
 	for(int i=scopes.size() - 1; i >= 0; --i) {
 		BCNode* r = scopes[i].var->getChild(name);
 		if(r != NULL)
@@ -148,7 +148,7 @@ BCNode* CTinyJS::findInScopes(const string& name) {
 	return NULL;
 }
 
-BCNode* CTinyJS::findInClass(BCVar* obj, const string& name) {
+BCNode* KoalaJS::findInClass(BCVar* obj, const string& name) {
 	BCNode* n = obj->getChild(name);
 	if(n != NULL)
 		return n;
@@ -180,7 +180,7 @@ BCNode* CTinyJS::findInClass(BCVar* obj, const string& name) {
 	return NULL;
 }
 
-BCVar* CTinyJS::getCurrentObj(bool create) {
+BCVar* KoalaJS::getCurrentObj(bool create) {
 	BCNode* n = findInScopes(THIS);
 	if(n != NULL)
 		return n->var;
@@ -193,9 +193,11 @@ BCVar* CTinyJS::getCurrentObj(bool create) {
 	return ret;
 }
 
-bool CTinyJS::construct(BCVar* obj) {
+bool KoalaJS::construct(BCVar* obj, int argNum) {
 	push(obj->ref());
-	if(!funcCall(CONSTRUCTOR, true)) {
+	string fname = CONSTRUCTOR;
+	fname = fname + "$" + StringUtil::from(argNum);
+	if(!funcCall(fname, true)) {
 		obj = (BCVar*)pop2();
 		obj->unref(false);
 		return false;
@@ -203,45 +205,48 @@ bool CTinyJS::construct(BCVar* obj) {
 	return true;
 }
 
-void CTinyJS::doNew(const string& clsName) { //TODO: construct with arguments.
+void KoalaJS::doNew(const string& clsName) { //TODO: construct with arguments.
 	BCVar* ret = NULL;
 	
 	size_t pos = clsName.find("$");
-	string cname = clsName;
+	string cn = clsName;
+	int argNum = 0;
 	if(pos != string::npos)	{
-		cname = clsName.substr(0, pos);
+		cn = clsName.substr(0, pos);
+		string argS = clsName.substr(pos + 1);
+		argNum = atoi(argS.c_str());
 	}
 
-	if(cname.length() == 0) {
+	if(cn.length() == 0) {
 		ret = new BCVar();	
 		ret->type = BCVar::OBJECT;
 	}	
-	else if(cname == CLS_ARR) {
+	else if(cn == CLS_ARR) {
 		ret = new BCVar();
 		ret->type = BCVar::ARRAY;
 	}
-	else if(cname == CLS_OBJECT) {
+	else if(cn == CLS_OBJECT) {
 		ret = new BCVar();
 		ret->type = BCVar::OBJECT;
 	}
 	else {
 		BCNode* cls = findInScopes(clsName);
-		if(cls == NULL)
-			cls = findInScopes(cname);
+		if(cls == NULL && cn != clsName)
+			cls = findInScopes(cn);
 
 		if(cls == NULL) {
-			ERR("Class %s not found\n", cname.c_str());
+			ERR("Class %s not found\n", cn.c_str());
 			return;
 		}
 		if(cls->var->isFunction()) {
 			BCVar* v = getCurrentObj(true);
 			push(v->ref());	//push this
-			if(!funcCall(cname))
+			if(!funcCall(cn))
 				pop(); //pop and drop this
 			return;
 		}
 		ret = newObject(cls);
-		if(construct(ret))	
+		if(construct(ret, argNum))
 			return;
 	}
 
@@ -249,7 +254,7 @@ void CTinyJS::doNew(const string& clsName) { //TODO: construct with arguments.
 		push(ret->ref());
 }
 
-BCNode* CTinyJS::findFunc(BCVar* owner, const string& fname, bool member) {
+BCNode* KoalaJS::findFunc(BCVar* owner, const string& fname, bool member) {
 	//find function in object;
 	BCNode*	n = owner->getChild(fname);
 	if(n == NULL)
@@ -269,7 +274,7 @@ BCNode* CTinyJS::findFunc(BCVar* owner, const string& fname, bool member) {
 	return n;
 }
 	
-bool CTinyJS::funcCall(const string& funcName, bool member) {
+bool KoalaJS::funcCall(const string& funcName, bool member) {
 	BCVar* ret = NULL;
 
 	if(funcName.length() == 0)
@@ -342,7 +347,7 @@ bool CTinyJS::funcCall(const string& funcName, bool member) {
 	return true;
 }
 
-BCVar* CTinyJS::funcDef(const string& funcName, bool regular) {
+BCVar* KoalaJS::funcDef(const string& funcName, bool regular) {
 	BCVar* ret = NULL;
 	vector<string> args;
 
@@ -380,7 +385,7 @@ BCVar* CTinyJS::funcDef(const string& funcName, bool regular) {
 	return ret;
 }
 
-BCVar* CTinyJS::addClass(const string& clsName, JSCallback nc) {
+BCVar* KoalaJS::addClass(const string& clsName, JSCallback nc) {
 		BCNode* cls = root->getChildOrCreate(clsName);
 		if(cls == NULL)
 			return NULL;
@@ -392,7 +397,7 @@ BCVar* CTinyJS::addClass(const string& clsName, JSCallback nc) {
 		return cls->var;
 }
 
-void CTinyJS::addNative(const string& clsName, const string& funcDecl, JSCallback native, void* data) {
+void KoalaJS::addNative(const string& clsName, const string& funcDecl, JSCallback native, void* data) {
 	BCVar* clsVar = NULL;
 	if(clsName.length() == 0) {
 		clsVar = root;
@@ -457,13 +462,13 @@ void CTinyJS::addNative(const string& clsName, const string& funcDecl, JSCallbac
 	clsVar->addChild(funcName, funcVar);
 }
 
-void CTinyJS::init() {
+void KoalaJS::init() {
 	root = new BCVar();
 	root->type = BCVar::OBJECT;
 	root->ref();
 }
 
-void CTinyJS::compare(OpCode op, BCVar* v1, BCVar* v2) {
+void KoalaJS::compare(OpCode op, BCVar* v1, BCVar* v2) {
 	float f1, f2;
 	f1 = v1->getFloat();
 	f2 = v2->getFloat();
@@ -499,7 +504,7 @@ void CTinyJS::compare(OpCode op, BCVar* v1, BCVar* v2) {
 	push(v->ref());
 }
 
-void CTinyJS::mathOp(OpCode op, BCVar* v1, BCVar* v2) {
+void KoalaJS::mathOp(OpCode op, BCVar* v1, BCVar* v2) {
 	if(v1->isNumber() && v2->isNumber()) {
 		//do number 
 		float f1, f2, ret = 0.0;
@@ -568,7 +573,7 @@ void CTinyJS::mathOp(OpCode op, BCVar* v1, BCVar* v2) {
 	}
 }
 
-void CTinyJS::doGet(BCVar* v, const string& str) {
+void KoalaJS::doGet(BCVar* v, const string& str) {
 	if(v->isString() && str == "length") {
 		BCVar* i = new BCVar((int)v->getString().length());
 		push(i->ref());
@@ -604,7 +609,7 @@ void CTinyJS::doGet(BCVar* v, const string& str) {
 	push(n);
 }
 
-void CTinyJS::runCode(Bytecode* bc) {
+void KoalaJS::runCode(Bytecode* bc) {
 	if(code != NULL && bcode != NULL) {
 		CodeT cs;
 		cs.pc = pc;

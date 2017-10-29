@@ -1,7 +1,7 @@
 #ifndef JS_CLASS_LOADER_HH
 #define JS_CLASS_LOADER_HH
 
-#include "TinyJS.h"
+#include "KoalaJS.h"
 
 using namespace std;
 
@@ -14,14 +14,14 @@ using namespace std;
 
 class JSClass {
 	protected:
-		void addFunction(CTinyJS* tinyJS, const std::string& className, const std::string& decl, JSCallback ptr, void* data) {
+		void addFunction(KoalaJS* tinyJS, const std::string& className, const std::string& decl, JSCallback ptr, void* data) {
 			tinyJS->addNative(className, decl, ptr, data);
 		}
 
-		virtual void registerFunctions(CTinyJS* tinyJS, const std::string& className)  = 0;
+		virtual void registerFunctions(KoalaJS* tinyJS, const std::string& className)  = 0;
 
 	public: 
-		void load(CTinyJS* tinyJS, const std::string& className) {
+		void load(KoalaJS* tinyJS, const std::string& className) {
 			registerFunctions(tinyJS, className);
 		}
 
@@ -45,12 +45,12 @@ template<class T> class NativeClassLoader: public JSClass {
 		return cls;	
 	}
 
-	static void registerClass(CTinyJS* tinyJS, const std::string& className) {
+	static void registerClass(KoalaJS* tinyJS, const std::string& className) {
 		tinyJS->addClass(className, constructor);
 	}
 
 	public:
-	void load(CTinyJS* tinyJS, const std::string& className) {
+	void load(KoalaJS* tinyJS, const std::string& className) {
 		NativeClassLoader<T>::registerClass(tinyJS, className);
 		registerFunctions(tinyJS, className);
 	}

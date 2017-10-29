@@ -28,7 +28,7 @@ class JSDir: public NativeClassLoader<T> {
 	MAP_FUNC(read)
 
 	protected:
-	inline void registerFunctions(CTinyJS* tinyJS, const std::string& className) {
+	inline void registerFunctions(KoalaJS* tinyJS, const std::string& className) {
 		JSClass::addFunction(tinyJS, className, "close()", close, NULL);
 		JSClass::addFunction(tinyJS, className, "open(name)", open, NULL);
 		JSClass::addFunction(tinyJS, className, "read()", read, NULL);

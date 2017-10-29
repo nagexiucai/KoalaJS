@@ -90,7 +90,7 @@ void JSTCPNative::recv(CScriptVar* var, void* data) {
 	if(n != NULL)
 		to = n->getInt();
 
-	CTinyJS* tinyJS = (CTinyJS*)data;
+	KoalaJS* tinyJS = (KoalaJS*)data;
 
 	if(size <= 0 || sid < 0)
 		return;
@@ -147,7 +147,7 @@ void JSTCPNative::bind(CScriptVar* var, void* data) {
 }
 
 void JSTCPNative::accept(CScriptVar* var, void* data) {
-	CTinyJS* tinyJS = (CTinyJS*)data;
+	KoalaJS* tinyJS = (KoalaJS*)data;
 	if(sid < 0)
 		return;
 
