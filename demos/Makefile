@@ -1,23 +1,14 @@
-CFLAG = -g -I../native -I../TinyJS -I../ -I./
-VM_CFLAG = -g  -I../build/include
+CFLAG = -g  -I../build/include
 
-LIBS = ../utils/File/File.cpp
+SRCS = demoClass.cpp 
 
-SRCS = demoClass.cpp \
-	  ../TinyJS/TinyJS.cpp 
-
-VM_SRCS = demoClass.cpp 
-
-LDFLAG = -lpthread
-VM_LDFLAG = -lpthread -L../build -lTinyJS
+LDFLAG = -lpthread -L../build -lKoalaJS
 
 TARGET = demoClass
-VM_TARGET = demoClass-vm
 
 all:
-	g++ ${CFLAG} -o ${TARGET} ${SRCS} ${LIBS} ${LDFLAG}
-	g++ ${VM_CFLAG} -o ${VM_TARGET} ${VM_SRCS} ${VM_LDFLAG}
+	g++ ${CFLAG} -o ${TARGET} ${SRCS} ${LDFLAG}
 
 clean:
-	rm -fr ${TARGET} ${VM_TARGET} *.o *.dSYM
+	rm -fr ${TARGET} *.o *.dSYM
 

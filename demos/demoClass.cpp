@@ -1,32 +1,6 @@
 #include "ClassLoader.h"
 
-//demo how to implement native class
-class MyNativeClass {
-		int i;
-	public:
-		void test(CScriptVar* var, void* data) {
-			printf("NativeClass test function %d.%d\r\n", (*(int*)data)++, i++);
-		}
-
-		MyNativeClass(void *p) {
-			i = 0;
-		}	
-};
-
 static int _count = 0;
-
-template<class T> class MyNativeClassLoader : public NativeClassLoader<T> {
-
-	MAP_FUNC(test)
-
-	protected:
-		void registerFunctions(CTinyJS* tinyJS, const std::string& className) {
-			JSClass::addFunction(tinyJS, className, "test()", test, (void*)&_count);
-		}
-
-	public:
-		DECL_INSTANCE(MyNativeClassLoader)
-};
 
 //demo how to implement regular class
 class MyClass : public JSClass {
@@ -35,7 +9,7 @@ class MyClass : public JSClass {
 	}	
 
 	protected:
-	void registerFunctions(CTinyJS* tinyJS, const std::string& className) {
+	void registerFunctions(KoalaJS* tinyJS, const std::string& className) {
 		addFunction(tinyJS, className, "test()", test, (void*)&_count);
 	}
 
@@ -44,21 +18,18 @@ class MyClass : public JSClass {
 };
 
 
-static void moduleLoader(CTinyJS* tinyJS) {
+static void moduleLoader(KoalaJS* tinyJS) {
 	MyClass::instance().load(tinyJS, "MyClass");
-	MyNativeClassLoader<MyNativeClass>::instance().load(tinyJS, "MyNativeClass");
 }
-
-
 
 int main(int argc, char** argv) {
 
 	while(true) { //Don't be scared, just for memory test:P.
-		CTinyJS tinyJS;
+		KoalaJS tinyJS;
 
 		tinyJS.loadModule(moduleLoader);
 
-		tinyJS.exec("var a = new MyNativeClass(); a.test(); var b = new MyClass(); b.test();");
+		tinyJS.exec("var a = new MyClass(); a.test();");
 	}
 
 	return 0;
