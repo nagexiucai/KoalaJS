@@ -17,3 +17,5 @@ demos/demoClass.dSYM/Contents/Resources/DWARF/demoClass
 .DS_Store
 build/libKoalaJS.a
 jsh
+build/libKoalaJS-arm.a
+jsh-arm
