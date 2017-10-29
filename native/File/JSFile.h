@@ -19,16 +19,16 @@ class JSFile: public JSClass {
 	static void seek(CScriptVar* var, void* data);
 
 	protected:
-	inline void registerFunctions(KoalaJS* tinyJS, const std::string& className) {
-		JSClass::addFunction(tinyJS, className, "size()", size, NULL);
-		JSClass::addFunction(tinyJS, className, "close()", close, NULL);
-		JSClass::addFunction(tinyJS, className, "open(fname, mode)", open, NULL);
-		JSClass::addFunction(tinyJS, className, "open(fname)", open, NULL);
-		JSClass::addFunction(tinyJS, className, "constructor(fname)", open, NULL);
-		JSClass::addFunction(tinyJS, className, "read(size)", read, tinyJS);
-		JSClass::addFunction(tinyJS, className, "write(buf, size)", write, NULL);
-		JSClass::addFunction(tinyJS, className, "write(buf)", write, NULL);
-		JSClass::addFunction(tinyJS, className, "seek(pos)", seek, NULL);
+	inline void registerFunctions(KoalaJS* js, const std::string& className) {
+		JSClass::addFunction(js, className, "size()", size, NULL);
+		JSClass::addFunction(js, className, "close()", close, NULL);
+		JSClass::addFunction(js, className, "open(fname, mode)", open, NULL);
+		JSClass::addFunction(js, className, "open(fname)", open, NULL);
+		JSClass::addFunction(js, className, "constructor(fname)", open, NULL);
+		JSClass::addFunction(js, className, "read(size)", read, js);
+		JSClass::addFunction(js, className, "write(buf, size)", write, NULL);
+		JSClass::addFunction(js, className, "write(buf)", write, NULL);
+		JSClass::addFunction(js, className, "seek(pos)", seek, NULL);
 	}
 
 	public:

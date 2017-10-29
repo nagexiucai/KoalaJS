@@ -113,7 +113,7 @@ void JSTCP::recv(CScriptVar* var, void* data) {
 	if(n != NULL)
 		to = n->getInt();
 
-	KoalaJS* tinyJS = (KoalaJS*)data;
+	KoalaJS* js = (KoalaJS*)data;
 
 	SocketT* sc = getSocket(var);
 	if(sc == NULL || sc->sid < 0 || size <= 0)
@@ -137,7 +137,7 @@ void JSTCP::recv(CScriptVar* var, void* data) {
 		return;
 	}
 	
-	CScriptVar* v = tinyJS->newObject("Bytes"); 
+	CScriptVar* v = js->newObject("Bytes"); 
 	v->setPoint(buf, size, NULL, true);
 	var->setReturnVar(v);
 }
@@ -172,7 +172,7 @@ void JSTCP::bind(CScriptVar* var, void* data) {
 }
 
 void JSTCP::accept(CScriptVar* var, void* data) {
-	KoalaJS* tinyJS = (KoalaJS*)data;
+	KoalaJS* js = (KoalaJS*)data;
 	SocketT* sc = getSocket(var);
 	if(sc == NULL || sc->sid < 0)
 		return;
@@ -187,7 +187,7 @@ void JSTCP::accept(CScriptVar* var, void* data) {
 		return;
 	}
 	
-	CScriptVar* obj = tinyJS->newObject("RTCP");
+	CScriptVar* obj = js->newObject("RTCP");
 	BCVar* v = newSocketObj(cid, &in);
 	BCNode* n = obj->getChildOrCreate("socket");
 	n->replace(v);

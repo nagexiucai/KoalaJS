@@ -31,20 +31,20 @@ namespace JSM {
 		static void trim(CScriptVar *c, void *);
 
 		protected:
-		inline void registerFunctions(KoalaJS* tinyJS, const std::string& className) {
-			addFunction(tinyJS, className, "indexOf(search)", indexOf, NULL); // find the position of a string in a string, -1 if not
-			addFunction(tinyJS, className, "substring(lo,hi)", substring, NULL);
-			addFunction(tinyJS, className, "charAt(pos)", charAt, NULL);
-			addFunction(tinyJS, className, "charCodeAt(pos)", charCodeAt, NULL);
-			addFunction(tinyJS, className, "fromCharCode(char)", fromCharCode, NULL);
-			addFunction(tinyJS, className, "split(separator)", split, NULL);
-			addFunction(tinyJS, className, "indexOf(sub)", indexOf, NULL);
-			addFunction(tinyJS, className, "lastIndexOf(sub)", lastIndexOf, NULL);
-			addFunction(tinyJS, className, "replace(key, with)", replace, NULL);
-			addFunction(tinyJS, className, "length()", length, NULL);
-			addFunction(tinyJS, className, "trimR()", trimR, NULL);
-			addFunction(tinyJS, className, "trimL()", trimL, NULL);
-			addFunction(tinyJS, className, "trim()", trim, NULL);
+		inline void registerFunctions(KoalaJS* js, const std::string& className) {
+			addFunction(js, className, "indexOf(search)", indexOf, NULL); // find the position of a string in a string, -1 if not
+			addFunction(js, className, "substring(lo,hi)", substring, NULL);
+			addFunction(js, className, "charAt(pos)", charAt, NULL);
+			addFunction(js, className, "charCodeAt(pos)", charCodeAt, NULL);
+			addFunction(js, className, "fromCharCode(char)", fromCharCode, NULL);
+			addFunction(js, className, "split(separator)", split, NULL);
+			addFunction(js, className, "indexOf(sub)", indexOf, NULL);
+			addFunction(js, className, "lastIndexOf(sub)", lastIndexOf, NULL);
+			addFunction(js, className, "replace(key, with)", replace, NULL);
+			addFunction(js, className, "length()", length, NULL);
+			addFunction(js, className, "trimR()", trimR, NULL);
+			addFunction(js, className, "trimL()", trimL, NULL);
+			addFunction(js, className, "trim()", trim, NULL);
 		}
 
 		public:

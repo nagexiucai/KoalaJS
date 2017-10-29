@@ -8,7 +8,7 @@ using namespace std;
 using namespace JSM;
 
 typedef struct ThreadData {
-	KoalaJS* tinyJS;
+	KoalaJS* js;
 	std::string src;
 	bool code;
 	CScriptVar* arg;
@@ -19,7 +19,7 @@ static void* _vmThread(void* data) {
 	if(td == NULL)
 		return NULL;
 
-	KoalaJS* tinyJS = td->tinyJS;
+	KoalaJS* js = td->js;
 	std::string src = td->src;
 	bool code = td->code;
 	CScriptVar* arg = td->arg;
@@ -28,8 +28,8 @@ static void* _vmThread(void* data) {
 	pthread_detach(pthread_self());
 
 	KoalaJS *tJS = new KoalaJS();
-	tJS->loadModule(tinyJS->getModuleLoader());
-	tJS->setcwd(tinyJS->getcwd());
+	tJS->loadModule(js->getModuleLoader());
+	tJS->setcwd(js->getcwd());
 	tJS->getRoot()->addChild("_threadArg", arg);
 	arg->unref();
 
@@ -46,7 +46,7 @@ static void* _vmThread(void* data) {
 void JSThread::exec(CScriptVar *c, void *userdata) {
 	ThreadDataT *data = new ThreadDataT();
 
-	data->tinyJS = (KoalaJS *)userdata;
+	data->js = (KoalaJS *)userdata;
 	data->src = c->getParameter("src")->getString();
 	data->code = true;
 	data->arg = c->getParameter("arg")->ref();
@@ -57,7 +57,7 @@ void JSThread::exec(CScriptVar *c, void *userdata) {
 void JSThread::run(CScriptVar *c, void *userdata) {
 	ThreadDataT *data = new ThreadDataT();
 
-	data->tinyJS = (KoalaJS *)userdata;
+	data->js = (KoalaJS *)userdata;
 	data->src = c->getParameter("file")->getString();
 	data->code = false;
 	data->arg = c->getParameter("arg")->ref();

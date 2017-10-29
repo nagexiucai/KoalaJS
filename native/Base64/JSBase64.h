@@ -11,9 +11,9 @@ namespace JSM {
 		static void decode(CScriptVar *c, void *);
 
 		protected:
-		inline void registerFunctions(KoalaJS* tinyJS, const std::string& className) {
-			addFunction(tinyJS, className, "encode(src)", encode, NULL);
-			addFunction(tinyJS, className, "decode(src)", decode, tinyJS);
+		inline void registerFunctions(KoalaJS* js, const std::string& className) {
+			addFunction(js, className, "encode(src)", encode, NULL);
+			addFunction(js, className, "decode(src)", decode, js);
 		}
 
 		public:

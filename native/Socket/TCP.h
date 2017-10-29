@@ -25,17 +25,17 @@ class JSTCP: public JSClass {
 	static void accept(CScriptVar* var, void* data);
 
 	protected:
-	inline void registerFunctions(KoalaJS* tinyJS, const std::string& className) {
-		JSClass::addFunction(tinyJS, className, "close()", close, NULL);
-		JSClass::addFunction(tinyJS, className, "shutdown()", shutdown, NULL);
-		JSClass::addFunction(tinyJS, className, "connect(host, port, timeout)", connect, NULL);
-		JSClass::addFunction(tinyJS, className, "bind(ip, port)", bind, NULL);
-		JSClass::addFunction(tinyJS, className, "listen(backlog)", listen, NULL);
-		JSClass::addFunction(tinyJS, className, "accept()", accept, tinyJS);
-		JSClass::addFunction(tinyJS, className, "recv(size, timeout)", recv, tinyJS);
-		JSClass::addFunction(tinyJS, className, "send(buf, size, timeout)", send, NULL);
-		JSClass::addFunction(tinyJS, className, "read(size)", recv, tinyJS);
-		JSClass::addFunction(tinyJS, className, "write(buf, size)", send, NULL);
+	inline void registerFunctions(KoalaJS* js, const std::string& className) {
+		JSClass::addFunction(js, className, "close()", close, NULL);
+		JSClass::addFunction(js, className, "shutdown()", shutdown, NULL);
+		JSClass::addFunction(js, className, "connect(host, port, timeout)", connect, NULL);
+		JSClass::addFunction(js, className, "bind(ip, port)", bind, NULL);
+		JSClass::addFunction(js, className, "listen(backlog)", listen, NULL);
+		JSClass::addFunction(js, className, "accept()", accept, js);
+		JSClass::addFunction(js, className, "recv(size, timeout)", recv, js);
+		JSClass::addFunction(js, className, "send(buf, size, timeout)", send, NULL);
+		JSClass::addFunction(js, className, "read(size)", recv, js);
+		JSClass::addFunction(js, className, "write(buf, size)", send, NULL);
 	}
 
 	public:

@@ -9,8 +9,8 @@ class MyClass : public JSClass {
 	}	
 
 	protected:
-	void registerFunctions(KoalaJS* tinyJS, const std::string& className) {
-		addFunction(tinyJS, className, "test()", test, (void*)&_count);
+	void registerFunctions(KoalaJS* js, const std::string& className) {
+		addFunction(js, className, "test()", test, (void*)&_count);
 	}
 
 	public:
@@ -18,18 +18,18 @@ class MyClass : public JSClass {
 };
 
 
-static void moduleLoader(KoalaJS* tinyJS) {
-	MyClass::instance().load(tinyJS, "MyClass");
+static void moduleLoader(KoalaJS* js) {
+	MyClass::instance().load(js, "MyClass");
 }
 
 int main(int argc, char** argv) {
 
 	while(true) { //Don't be scared, just for memory test:P.
-		KoalaJS tinyJS;
+		KoalaJS js;
 
-		tinyJS.loadModule(moduleLoader);
+		js.loadModule(moduleLoader);
 
-		tinyJS.exec("var a = new MyClass(); a.test();");
+		js.exec("var a = new MyClass(); a.test();");
 	}
 
 	return 0;

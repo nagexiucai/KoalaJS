@@ -9,8 +9,8 @@ namespace JSM {
 		static void run(CScriptVar *c, void *);
 
 		protected:
-		inline void registerFunctions(KoalaJS* tinyJS, const std::string& className) {
-			addFunction(tinyJS, className, "run(cmd)", run, NULL);
+		inline void registerFunctions(KoalaJS* js, const std::string& className) {
+			addFunction(js, className, "run(cmd)", run, NULL);
 		}
 
 		public:

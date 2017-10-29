@@ -23,12 +23,12 @@ namespace JSM {
 		}
 
 		protected:
-		void registerFunctions(KoalaJS* tinyJS, const std::string& className) {
-			addFunction(tinyJS, "", "print(text)", print, NULL);
-			addFunction(tinyJS, "", "println(text)", println, NULL);
-			addFunction(tinyJS, className, "print(text)", print, NULL);
-			addFunction(tinyJS, className, "println(text)", println, NULL);
-			addFunction(tinyJS, className, "dump()", dump, tinyJS);
+		void registerFunctions(KoalaJS* js, const std::string& className) {
+			addFunction(js, "", "print(text)", print, NULL);
+			addFunction(js, "", "println(text)", println, NULL);
+			addFunction(js, className, "print(text)", print, NULL);
+			addFunction(js, className, "println(text)", println, NULL);
+			addFunction(js, className, "dump()", dump, js);
 		}
 
 		public:

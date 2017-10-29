@@ -9,8 +9,8 @@ namespace JSM {
 		static void resolv(CScriptVar *c, void *);
 
 		protected:
-		inline void registerFunctions(KoalaJS* tinyJS, const std::string& className) {
-			addFunction(tinyJS, className, "resolv(domain, type)", resolv, NULL);
+		inline void registerFunctions(KoalaJS* js, const std::string& className) {
+			addFunction(js, className, "resolv(domain, type)", resolv, NULL);
 		}
 
 		public:

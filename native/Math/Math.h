@@ -98,41 +98,41 @@ namespace JSM {
 		static void randInt(CScriptVar *c, void *userdata);
 
 		protected:
-		void registerFunctions(KoalaJS *tinyJS, const std::string& className) {
+		void registerFunctions(KoalaJS *js, const std::string& className) {
 			// --- Math and Trigonometry functions ---
-			addFunction(tinyJS, className, "abs(a)", Math::abs, 0);
-			addFunction(tinyJS, className, "round(a)", Math::round, 0);
-			addFunction(tinyJS, className, "min(a,b)", Math::min, 0);
-			addFunction(tinyJS, className, "max(a,b)", Math::max, 0);
-			addFunction(tinyJS, className, "range(x,a,b)", Math::range, 0);
-			addFunction(tinyJS, className, "sign(a)", Math::sign, 0);
+			addFunction(js, className, "abs(a)", Math::abs, 0);
+			addFunction(js, className, "round(a)", Math::round, 0);
+			addFunction(js, className, "min(a,b)", Math::min, 0);
+			addFunction(js, className, "max(a,b)", Math::max, 0);
+			addFunction(js, className, "range(x,a,b)", Math::range, 0);
+			addFunction(js, className, "sign(a)", Math::sign, 0);
 
-			addFunction(tinyJS, className, "PI()", Math::PI, 0);
-			addFunction(tinyJS, className, "toDegrees(a)", Math::toDegrees, 0);
-			addFunction(tinyJS, className, "toRadians(a)", Math::toRadians, 0);
-			addFunction(tinyJS, className, "sin(a)", Math::sin, 0);
-			addFunction(tinyJS, className, "asin(a)", Math::asin, 0);
-			addFunction(tinyJS, className, "cos(a)", Math::cos, 0);
-			addFunction(tinyJS, className, "acos(a)", Math::acos, 0);
-			addFunction(tinyJS, className, "tan(a)", Math::tan, 0);
-			addFunction(tinyJS, className, "atan(a)", Math::atan, 0);
-			addFunction(tinyJS, className, "sinh(a)", Math::sinh, 0);
-			addFunction(tinyJS, className, "asinh(a)", Math::asinh, 0);
-			addFunction(tinyJS, className, "cosh(a)", Math::cosh, 0);
-			addFunction(tinyJS, className, "acosh(a)", Math::acosh, 0);
-			addFunction(tinyJS, className, "tanh(a)", Math::tanh, 0);
-			addFunction(tinyJS, className, "atanh(a)", Math::atanh, 0);
+			addFunction(js, className, "PI()", Math::PI, 0);
+			addFunction(js, className, "toDegrees(a)", Math::toDegrees, 0);
+			addFunction(js, className, "toRadians(a)", Math::toRadians, 0);
+			addFunction(js, className, "sin(a)", Math::sin, 0);
+			addFunction(js, className, "asin(a)", Math::asin, 0);
+			addFunction(js, className, "cos(a)", Math::cos, 0);
+			addFunction(js, className, "acos(a)", Math::acos, 0);
+			addFunction(js, className, "tan(a)", Math::tan, 0);
+			addFunction(js, className, "atan(a)", Math::atan, 0);
+			addFunction(js, className, "sinh(a)", Math::sinh, 0);
+			addFunction(js, className, "asinh(a)", Math::asinh, 0);
+			addFunction(js, className, "cosh(a)", Math::cosh, 0);
+			addFunction(js, className, "acosh(a)", Math::acosh, 0);
+			addFunction(js, className, "tanh(a)", Math::tanh, 0);
+			addFunction(js, className, "atanh(a)", Math::atanh, 0);
 
-			addFunction(tinyJS, className, "E()", Math::E, 0);
-			addFunction(tinyJS, className, "log(a)", Math::log, 0);
-			addFunction(tinyJS, className, "log10(a)", Math::log10, 0);
-			addFunction(tinyJS, className, "exp(a)", Math::exp, 0);
-			addFunction(tinyJS, className, "pow(a,b)", Math::pow, 0);
+			addFunction(js, className, "E()", Math::E, 0);
+			addFunction(js, className, "log(a)", Math::log, 0);
+			addFunction(js, className, "log10(a)", Math::log10, 0);
+			addFunction(js, className, "exp(a)", Math::exp, 0);
+			addFunction(js, className, "pow(a,b)", Math::pow, 0);
 
-			addFunction(tinyJS, className, "sqr(a)", Math::sqr, 0);
-			addFunction(tinyJS, className, "sqrt(a)", Math::sqrt, 0);    
-			addFunction(tinyJS, className, "rand()", Math::rand, 0);
-			addFunction(tinyJS, className, "randInt(min, max)", Math::randInt, 0);    
+			addFunction(js, className, "sqr(a)", Math::sqr, 0);
+			addFunction(js, className, "sqrt(a)", Math::sqrt, 0);    
+			addFunction(js, className, "rand()", Math::rand, 0);
+			addFunction(js, className, "randInt(min, max)", Math::randInt, 0);    
 		}
 
 		public:

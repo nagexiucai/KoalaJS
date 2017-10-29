@@ -247,7 +247,7 @@ public:
 		else if(isObject() || type == ARRAY) 
 			ss << getJSON();
 		else if(isBytes())
-			ss << "[" << intV << ":...]";
+			ss << "[" << intV << ":" << (char*)pointV << "]";
 		else if(isUndefined())
 			ss << "undefined";
 			

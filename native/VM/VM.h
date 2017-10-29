@@ -11,14 +11,14 @@ namespace JSM {
 		static void run(CScriptVar *c, void *);
 
 		protected:
-		inline void registerFunctions(KoalaJS* tinyJS, const std::string& className) {
-			/*	addFunction(tinyJS, "", "require(cls)", exec, tinyJS);
-					addFunction(tinyJS, "", "exec(src)", exec, tinyJS);
-					addFunction(tinyJS, "", "run(file)", run, tinyJS);
-					addFunction(tinyJS, "", "eval(src)", eval, tinyJS); */
+		inline void registerFunctions(KoalaJS* js, const std::string& className) {
+			/*	addFunction(js, "", "require(cls)", exec, js);
+					addFunction(js, "", "exec(src)", exec, js);
+					addFunction(js, "", "run(file)", run, js);
+					addFunction(js, "", "eval(src)", eval, js); */
 
-			addFunction(tinyJS, className, "exec(src)", exec, tinyJS);
-			addFunction(tinyJS, className, "run(file)", run, tinyJS);
+			addFunction(js, className, "exec(src)", exec, js);
+			addFunction(js, className, "run(file)", run, js);
 		}
 
 		public:

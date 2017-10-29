@@ -15,9 +15,9 @@ namespace JSM {
 		static void hashHex(CScriptVar *c, void *);
 
 		protected:
-		inline void registerFunctions(KoalaJS* tinyJS, const std::string& className) {
-			addFunction(tinyJS, className, "hashString(src)", hashString, NULL);
-			addFunction(tinyJS, className, "hashHex(src)", hashHex, NULL);
+		inline void registerFunctions(KoalaJS* js, const std::string& className) {
+			addFunction(js, className, "hashString(src)", hashString, NULL);
+			addFunction(js, className, "hashHex(src)", hashHex, NULL);
 		}
 
 		public:

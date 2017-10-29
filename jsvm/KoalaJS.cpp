@@ -3,7 +3,7 @@
 #include "utils/String/StringUtil.h"
 #include "utils/File/File.h"
 #include <sstream>  
-#include <iostream>  
+#include <stdlib.h>
 
 BCVar* KoalaJS::newObject(const string& clsName) {
 	if(clsName.length() == 0)

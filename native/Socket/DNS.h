@@ -9,8 +9,8 @@ class JSDNS: public JSClass {
 	static void ip(CScriptVar* var, void* data);
 
 	protected:
-	inline void registerFunctions(KoalaJS* tinyJS, const std::string& className) {
-		JSClass::addFunction(tinyJS, className, "ip(host)", ip, NULL);
+	inline void registerFunctions(KoalaJS* js, const std::string& className) {
+		JSClass::addFunction(js, className, "ip(host)", ip, NULL);
 	}
 
 	public:

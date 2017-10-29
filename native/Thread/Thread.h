@@ -15,11 +15,11 @@ namespace JSM {
 		static void usleep(CScriptVar *c, void *);
 
 		protected:
-		inline void registerFunctions(KoalaJS* tinyJS, const std::string& className) {
-			addFunction(tinyJS, className, "exec(src, arg)", exec, tinyJS);
-			addFunction(tinyJS, className, "run(file, arg)", run, tinyJS);
-			addFunction(tinyJS, className, "sleep(sec)", sleep, NULL);
-			addFunction(tinyJS, className, "usleep(usec)", usleep, NULL);
+		inline void registerFunctions(KoalaJS* js, const std::string& className) {
+			addFunction(js, className, "exec(src, arg)", exec, js);
+			addFunction(js, className, "run(file, arg)", run, js);
+			addFunction(js, className, "sleep(sec)", sleep, NULL);
+			addFunction(js, className, "usleep(usec)", usleep, NULL);
 		}
 
 		public:

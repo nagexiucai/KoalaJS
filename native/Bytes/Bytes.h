@@ -17,13 +17,13 @@ namespace JSM {
 		static void set(CScriptVar* var, void* data);
 
 		protected:
-		inline void registerFunctions(KoalaJS* tinyJS, const std::string& className) {
-			addFunction(tinyJS, className, "constructor(src)", from, NULL);
-			addFunction(tinyJS, className, "size()", size, NULL);
-			addFunction(tinyJS, className, "from(src)", from, NULL);
-			addFunction(tinyJS, className, "append(src)", append, NULL);
-			addFunction(tinyJS, className, "toString()", toString, NULL);
-			addFunction(tinyJS, className, "set(at, ch)", set, NULL);
+		inline void registerFunctions(KoalaJS* js, const std::string& className) {
+			addFunction(js, className, "constructor(src)", from, NULL);
+			addFunction(js, className, "size()", size, NULL);
+			addFunction(js, className, "from(src)", from, NULL);
+			addFunction(js, className, "append(src)", append, NULL);
+			addFunction(js, className, "toString()", toString, NULL);
+			addFunction(js, className, "set(at, ch)", set, NULL);
 		}
 
 		public:

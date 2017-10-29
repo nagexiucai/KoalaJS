@@ -22,7 +22,7 @@ typedef struct {
 } CodeT;
 
 class KoalaJS;
-typedef void (*JSModuleLoader)(KoalaJS *tinyJS);
+typedef void (*JSModuleLoader)(KoalaJS *js);
 
 class KoalaJS {
 public:

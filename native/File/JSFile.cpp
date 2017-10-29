@@ -104,7 +104,7 @@ void JSFile::write(CScriptVar* var, void* data) {
 
 void JSFile::read(CScriptVar* var, void* data) {
 	int size = var->getParameter("size")->getInt();
-	KoalaJS* tinyJS = (KoalaJS*)data;
+	KoalaJS* js = (KoalaJS*)data;
 	int fid = getFID(var);
 
 	if(size <= 0 || fid < 0)
@@ -120,7 +120,7 @@ void JSFile::read(CScriptVar* var, void* data) {
 		return;
 	}
 	
-	CScriptVar* v = tinyJS->newObject("Bytes"); 
+	CScriptVar* v = js->newObject("Bytes");
 	v->setPoint(buf, size, NULL, true);
 	var->setReturnVar(v);
 }

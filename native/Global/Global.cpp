@@ -12,7 +12,7 @@ static map<std::string, BasicValueT> _kv;
 
 void Global::get(CScriptVar *c, void *userdata) {
 
-	KoalaJS *tinyJS = (KoalaJS *)userdata;
+	KoalaJS *js = (KoalaJS *)userdata;
 	std::string name = c->getParameter("name")->getString();
 
 	_locker.lock();
@@ -54,7 +54,7 @@ void Global::get(CScriptVar *c, void *userdata) {
 
 void Global::set(CScriptVar *c, void *userdata) {
 
-	KoalaJS *tinyJS = (KoalaJS *)userdata;
+	KoalaJS *js = (KoalaJS *)userdata;
 	std::string name = c->getParameter("name")->getString();
 	CScriptVar* v = c->getParameter("value");
 

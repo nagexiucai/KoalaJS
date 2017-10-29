@@ -11,7 +11,7 @@ void JSON::toString(CScriptVar *c, void *userdata) {
 }
 
 void JSON::parse(CScriptVar *c, void *userdata) {
-	KoalaJS *tinyJS = (KoalaJS *)userdata;
-	//c->setReturnVar(tinyJS->evaluateComplex(c->getParameter("src")->getString()).var);
+	KoalaJS *js = (KoalaJS *)userdata;
+	//c->setReturnVar(js->evaluateComplex(c->getParameter("src")->getString()).var);
 }
 
