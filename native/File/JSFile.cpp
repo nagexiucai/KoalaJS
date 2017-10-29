@@ -70,7 +70,7 @@ void JSFileNative::write(CScriptVar* var, void* data) {
 			size = v->getInt();
 	}
 	else {
-		std::string s = sv->getString();
+		std::string s = v->getString();
 		p = (unsigned char*)s.c_str();
 		if(size == 0 || size > s.length())
 			size = s.length();

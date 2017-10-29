@@ -195,7 +195,7 @@ BCVar* CTinyJS::getCurrentObj(bool create) {
 
 bool CTinyJS::construct(BCVar* obj) {
 	push(obj->ref());
-	if(!funcCall(CONSTRUCTOR)) {
+	if(!funcCall(CONSTRUCTOR, true)) {
 		obj = (BCVar*)pop2();
 		obj->unref(false);
 		return false;
@@ -203,31 +203,40 @@ bool CTinyJS::construct(BCVar* obj) {
 	return true;
 }
 
-void CTinyJS::doNew(const string& clsName) {
+void CTinyJS::doNew(const string& clsName) { //TODO: construct with arguments.
 	BCVar* ret = NULL;
+	
+	size_t pos = clsName.find("$");
+	string cname = clsName;
+	if(pos != string::npos)	{
+		cname = clsName.substr(0, pos);
+	}
 
-	if(clsName.length() == 0) {
+	if(cname.length() == 0) {
 		ret = new BCVar();	
 		ret->type = BCVar::OBJECT;
 	}	
-	else if(clsName == CLS_ARR) {
+	else if(cname == CLS_ARR) {
 		ret = new BCVar();
 		ret->type = BCVar::ARRAY;
 	}
-	else if(clsName == CLS_OBJECT) {
+	else if(cname == CLS_OBJECT) {
 		ret = new BCVar();
 		ret->type = BCVar::OBJECT;
 	}
 	else {
 		BCNode* cls = findInScopes(clsName);
+		if(cls == NULL)
+			cls = findInScopes(cname);
+
 		if(cls == NULL) {
-			ERR("Class %s not found\n", clsName.c_str());
+			ERR("Class %s not found\n", cname.c_str());
 			return;
 		}
 		if(cls->var->isFunction()) {
 			BCVar* v = getCurrentObj(true);
 			push(v->ref());	//push this
-			if(!funcCall(clsName))
+			if(!funcCall(cname))
 				pop(); //pop and drop this
 			return;
 		}
@@ -239,6 +248,26 @@ void CTinyJS::doNew(const string& clsName) {
 	if(ret != NULL)
 		push(ret->ref());
 }
+
+BCNode* CTinyJS::findFunc(BCVar* owner, const string& fname, bool member) {
+	//find function in object;
+	BCNode*	n = owner->getChild(fname);
+	if(n == NULL)
+		n = findInClass(owner, fname);
+
+	//find function in scopes;
+	if(n == NULL && !member)
+		n = findInScopes(fname);
+
+	if(n == NULL) {
+		return NULL;
+	}
+
+	if(!n->var->isFunction()) {
+		return NULL;
+	}
+	return n;
+}
 	
 bool CTinyJS::funcCall(const string& funcName, bool member) {
 	BCVar* ret = NULL;
@@ -247,12 +276,9 @@ bool CTinyJS::funcCall(const string& funcName, bool member) {
 		return false;
 	
 	size_t pos = funcName.find("$");
-	int argNum = 0;	
 	string fname = funcName;
 	if(pos != string::npos)	{
 		fname = funcName.substr(0, pos);
-		string argN = funcName.substr(pos+1);
-		argNum = atoi(argN.c_str());
 	}
 	
 	//read object
@@ -261,29 +287,17 @@ bool CTinyJS::funcCall(const string& funcName, bool member) {
 	if(si == NULL)  {
 		return false;
 	}
-
 	object = VAR(si);	
-	//find function in object;
-	BCNode*	n = object->getChild(fname);
-	if(n == NULL)
-		n = findInClass(object, fname);
 
-	//find function in scopes;
-	if(n == NULL && !member)
-		n = findInScopes(fname);
-
+	BCNode* n = findFunc(object, funcName, member);
 	if(n == NULL) {
-		if(fname != CONSTRUCTOR)
-			ERR("Function '%s' not found\n", fname.c_str());
-		push(object); //push back to stack
-		return false;
-	}
-
-	if(n->var->type != BCVar::FUNC &&
-			n->var->type != BCVar::NFUNC) {
-		ERR("%s is not a function\n", fname.c_str());
-		push(object); //push back to stack
-		return false;
+		n = findFunc(object, fname, member);
+		if(n == NULL) {
+			if(fname != CONSTRUCTOR)
+				ERR("Function '%s' not found\n", fname.c_str());
+			push(object); //push back to stack
+			return false;
+		}
 	}
 
 	FuncT* func = n->var->getFunc();
@@ -439,6 +453,7 @@ void CTinyJS::addNative(const string& clsName, const string& funcDecl, JSCallbac
 		funcVar->getFunc()->args->addChild(args[i]);	
 	}
 	
+	funcName = funcName + "$" + StringUtil::from(argNum);	
 	clsVar->addChild(funcName, funcVar);
 }
 
@@ -921,6 +936,9 @@ void CTinyJS::runCode(Bytecode* bc) {
 				StackItem* i = pop2();
 				if(i != NULL) {
 					BCVar* v = VAR(i);
+					if(v->isFunction()) {
+						str = str + "$" + StringUtil::from(v->getFunc()->argNum);
+					}
 					scope()->var->addChild(str, v);
 					v->unref();
 				}

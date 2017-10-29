@@ -149,6 +149,8 @@ private:
 
 	BCVar* funcDef(const string& funcName, bool regular = true);
 
+	BCNode* findFunc(BCVar* owner, const string& funcName, bool member);
+
 	bool funcCall(const string& funcName, bool member = false);
 
 	void doNew(const string& clsName);
