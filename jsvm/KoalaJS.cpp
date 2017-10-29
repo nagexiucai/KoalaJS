@@ -231,7 +231,7 @@ void KoalaJS::doNew(const string& clsName) { //TODO: construct with arguments.
 	}
 	else {
 		BCNode* cls = findInScopes(clsName);
-		if(cls == NULL && cn != clsName)
+		if(cls == NULL && pos != string::npos)
 			cls = findInScopes(cn);
 
 		if(cls == NULL) {
@@ -296,7 +296,9 @@ bool KoalaJS::funcCall(const string& funcName, bool member) {
 
 	BCNode* n = findFunc(object, funcName, member);
 	if(n == NULL) {
-		n = findFunc(object, fname, member);
+		if(pos != string::npos)
+			n = findFunc(object, fname, member);
+
 		if(n == NULL) {
 			if(fname != CONSTRUCTOR)
 				ERR("Function '%s' not found\n", fname.c_str());
