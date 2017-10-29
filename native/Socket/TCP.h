@@ -7,45 +7,22 @@
 
 namespace JSM {
 
-class JSTCPNative {
-	int sid;	
-	struct sockaddr_in addr; 
+class JSTCP: public JSClass {
+	static void connect(CScriptVar* var, void* data);
 
-public:
-	void connect(CScriptVar* var, void* data);
+	static void close(CScriptVar* var, void* data);
 
-	void close(CScriptVar* var, void* data);
+	static void shutdown(CScriptVar* var, void* data);
 
-	void shutdown(CScriptVar* var, void* data);
+	static void recv(CScriptVar* var, void* data);
 
-	void recv(CScriptVar* var, void* data);
+	static void send(CScriptVar* var, void* data);
 
-	void send(CScriptVar* var, void* data);
+	static void bind(CScriptVar* var, void* data);
 
-	void bind(CScriptVar* var, void* data);
+	static void listen(CScriptVar* var, void* data);
 
-	void listen(CScriptVar* var, void* data);
-
-	void accept(CScriptVar* var, void* data);
-
-	void set(int sid, const struct sockaddr_in& addr);
-	
-	~JSTCPNative();
-
-	JSTCPNative(void* data);
-};
-
-
-template<class T> 
-class JSTCP: public NativeClassLoader<T> {
-	MAP_FUNC(connect)
-	MAP_FUNC(close)
-	MAP_FUNC(recv)
-	MAP_FUNC(send)
-	MAP_FUNC(shutdown)
-	MAP_FUNC(bind)
-	MAP_FUNC(listen)
-	MAP_FUNC(accept)
+	static void accept(CScriptVar* var, void* data);
 
 	protected:
 	inline void registerFunctions(KoalaJS* tinyJS, const std::string& className) {

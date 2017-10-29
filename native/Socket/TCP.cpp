@@ -13,43 +13,62 @@
 using namespace std;
 using namespace JSM;
 
+typedef struct {
+	int sid;	
+	struct sockaddr_in addr; 
+} SocketT;
 
-JSTCPNative::~JSTCPNative() {
-	if(sid >= 0) {
-		::close(sid);
-	}
-
-	memset(&addr, 0, sizeof(addr)); 
-	sid = -1;
+static void destroySocket(void* data) {
+	SocketT* sc = (SocketT*)data;
+	if(sc != NULL && sc->sid >= 0)
+		::close(sc->sid);
+	delete sc;
 }
 
-JSTCPNative::JSTCPNative(void* data) {
-	sid = -1;
+static BCVar* newSocketObj(int sid, const struct sockaddr_in* addr) {
+	SocketT* sc = new SocketT();
+	sc->sid = sid;
+	if(addr != NULL)
+		memcpy(&sc->addr, addr, sizeof(struct sockaddr_in));
+
+	BCVar* v = new BCVar();
+	v->setPoint(sc, NO_BYTES, destroySocket, true);
+	return v;
 }
 
-void JSTCPNative::set(int sid, const struct sockaddr_in& addr) {
-	if(this->sid >= 0)
-		::close(this->sid);
+static BCVar* setSocket(CScriptVar* var, int sid, const struct sockaddr_in* addr) {
+	BCVar* thisV = var->getParameter("this");
+	if(thisV == NULL)
+		return NULL;
 
-	this->sid = sid;
-	memcpy(&this->addr, &addr, sizeof(struct sockaddr_in));
+	BCVar* v = newSocketObj(sid, addr);
+	BCNode* n = thisV->getChildOrCreate("socket");
+	n->replace(v);
+	return thisV;
 }
 
-void JSTCPNative::close(CScriptVar* var, void* data) {
-	if(sid >= 0) {
-		::close(sid);
-	}
-
-	memset(&addr, 0, sizeof(addr)); 
-	sid = -1;
+static SocketT* getSocket(CScriptVar* var) {
+	BCVar* thisV = var->getParameter("this");
+	if(thisV == NULL)
+		return NULL;
+	
+	BCNode* n = thisV->getChild("socket");
+	if(n == NULL)
+		return NULL;
+	return (SocketT*)(n->var->getPoint());
 }
 
-void JSTCPNative::shutdown(CScriptVar* var, void* data) {
-	if(sid >= 0)
-		::shutdown(sid, SHUT_RDWR);
+void JSTCP::close(CScriptVar* var, void* data) {
+	setSocket(var, -1, NULL);
 }
 
-void JSTCPNative::send(CScriptVar* var, void* data) {
+void JSTCP::shutdown(CScriptVar* var, void* data) {
+	SocketT* sc = getSocket(var);
+	if(sc != NULL && sc->sid >= 0)
+		::shutdown(sc->sid, SHUT_RDWR);
+}
+
+void JSTCP::send(CScriptVar* var, void* data) {
 	CScriptVar* v = var->getParameter("buf");
 	int size = var->getParameter("size")->getInt();
 	CScriptVar* n = var->getParameter("timeout");
@@ -57,7 +76,11 @@ void JSTCPNative::send(CScriptVar* var, void* data) {
 	if(n != NULL)
 		to = n->getInt();
 
-	if(size <= 0 || sid < 0 || !v->isBytes())
+	SocketT* sc = getSocket(var);
+	if(sc == NULL || sc->sid < 0)
+		return;
+
+	if(size <= 0 || sc->sid < 0 || !v->isBytes())
 		return;
 
 	if(size > v->getInt())
@@ -72,18 +95,18 @@ void JSTCPNative::send(CScriptVar* var, void* data) {
 	tv_timeout.tv_sec = to;
 	tv_timeout.tv_usec = 0;
 
-	if(setsockopt(sid, SOL_SOCKET, SO_SNDTIMEO, (void *) &tv_timeout, sizeof(struct timeval)) < 0) {
+	if(setsockopt(sc->sid, SOL_SOCKET, SO_SNDTIMEO, (void *) &tv_timeout, sizeof(struct timeval)) < 0) {
 		return;
 	}
 
 	if(p != NULL) {
-		size = ::write(sid, p, size);
+		size = ::write(sc->sid, p, size);
 		v->setInt(size);
 	}
 }
 
 
-void JSTCPNative::recv(CScriptVar* var, void* data) {
+void JSTCP::recv(CScriptVar* var, void* data) {
 	int size = var->getParameter("size")->getInt();
 	CScriptVar* n = var->getParameter("timeout");
 	int to = 0;
@@ -92,9 +115,10 @@ void JSTCPNative::recv(CScriptVar* var, void* data) {
 
 	KoalaJS* tinyJS = (KoalaJS*)data;
 
-	if(size <= 0 || sid < 0)
+	SocketT* sc = getSocket(var);
+	if(sc == NULL || sc->sid < 0 || size <= 0)
 		return;
-	
+
 	char* buf = new char[size];
 	if(buf == NULL)
 		return;
@@ -103,11 +127,11 @@ void JSTCPNative::recv(CScriptVar* var, void* data) {
 	tv_timeout.tv_sec = to;
 	tv_timeout.tv_usec = 0;
 
-	if(setsockopt(sid, SOL_SOCKET, SO_RCVTIMEO, (void *) &tv_timeout, sizeof(struct timeval)) < 0) {
+	if(setsockopt(sc->sid, SOL_SOCKET, SO_RCVTIMEO, (void *) &tv_timeout, sizeof(struct timeval)) < 0) {
 		return;
 	}
 
-	size = ::read(sid, buf, size);
+	size = ::read(sc->sid, buf, size);
 	if(size < 0) {
 		delete []buf;
 		return;
@@ -118,18 +142,17 @@ void JSTCPNative::recv(CScriptVar* var, void* data) {
 	var->setReturnVar(v);
 }
 
-void JSTCPNative::bind(CScriptVar* var, void* data) {
+void JSTCP::bind(CScriptVar* var, void* data) {
 	std::string ip = var->getParameter("ip")->getString();
 	int port = var->getParameter("port")->getInt();
 
 	var->getReturnVar()->setInt(0);
 
-	if(sid >=0)
-		::close(sid);
-	sid = socket(PF_INET, SOCK_STREAM, 0);
+	int sid = socket(PF_INET, SOCK_STREAM, 0);
 	if(sid < 0 || port <= 0)
 		return;
 
+	struct sockaddr_in addr;
 	memset(&addr, 0, sizeof(addr)); 
 	addr.sin_family = AF_INET; 
 	addr.sin_port=htons(port);
@@ -140,54 +163,52 @@ void JSTCPNative::bind(CScriptVar* var, void* data) {
 		addr.sin_addr.s_addr = htonl(INADDR_ANY);
 
 	if(::bind(sid,(struct sockaddr *)&addr,sizeof(struct sockaddr)) < 0) {
+		::close(sid);
 		return;
 	}
+	setSocket(var, sid, NULL);
 
 	var->getReturnVar()->setInt(1);
 }
 
-void JSTCPNative::accept(CScriptVar* var, void* data) {
+void JSTCP::accept(CScriptVar* var, void* data) {
 	KoalaJS* tinyJS = (KoalaJS*)data;
-	if(sid < 0)
+	SocketT* sc = getSocket(var);
+	if(sc == NULL || sc->sid < 0)
 		return;
 
 	struct sockaddr_in in;
-	memset(&addr, 0, sizeof(in)); 
+	memset(&in, 0, sizeof(in)); 
 	in.sin_family = AF_INET; 
 	socklen_t size = sizeof(struct sockaddr);
 
-	int cid = ::accept(sid,(struct sockaddr *)&in, &size);
+	int cid = ::accept(sc->sid,(struct sockaddr *)&in, &size);
 	if(cid < 0) {
 		return;
 	}
 	
 	CScriptVar* obj = tinyJS->newObject("RTCP");
-	JSTCPNative* nobj = (JSTCPNative*)obj->getPoint();
-	if(nobj == NULL) {
-		obj->unref();
-		return;
-	}
-
-	nobj->set(cid, in);
+	BCVar* v = newSocketObj(cid, &in);
+	BCNode* n = obj->getChildOrCreate("socket");
+	n->replace(v);
 	var->setReturnVar(obj);
 }
 
-void JSTCPNative::listen(CScriptVar* var, void* data) {
+void JSTCP::listen(CScriptVar* var, void* data) {
 	int backlog = var->getParameter("backlog")->getInt();
-
 	var->getReturnVar()->setInt(0);
 
-	if(sid < 0)
+	SocketT* sc = getSocket(var);
+	if(sc == NULL || sc->sid < 0)
 		return;
 
-	if(::listen(sid, backlog) < 0) {
+	if(::listen(sc->sid, backlog) < 0) {
 		return;
 	}
-
 	var->getReturnVar()->setInt(1);
 }
 
-void JSTCPNative::connect(CScriptVar* var, void* data) {
+void JSTCP::connect(CScriptVar* var, void* data) {
 	std::string host = var->getParameter("host")->getString();
 	int port = var->getParameter("port")->getInt();
 	int to = var->getParameter("timeout")->getInt();
@@ -200,17 +221,17 @@ void JSTCPNative::connect(CScriptVar* var, void* data) {
 	if(host.length() == 0 || port <= 0)
 		return;
 
-	if(sid >=0)
-		::close(sid);
-	sid = socket(PF_INET, SOCK_STREAM, 0);
+	int sid = socket(PF_INET, SOCK_STREAM, 0);
 	if(sid < 0)
 		return;
 
+	struct sockaddr_in addr;
 	memset(&addr, 0, sizeof(addr)); 
 	addr.sin_family = AF_INET; 
 	addr.sin_addr.s_addr = inet_addr(host.c_str());
 	addr.sin_port=htons(port);
 
+	setSocket(var, sid, NULL);
 
 	if(to <= 0) {
 		if(::connect(sid,(struct sockaddr *)&addr,sizeof(struct sockaddr)) < 0) {
@@ -218,7 +239,6 @@ void JSTCPNative::connect(CScriptVar* var, void* data) {
 		}
 	}
 	else {
-
 		unsigned long ul = 1;
 		ioctl(sid, FIONBIO, &ul);
 
