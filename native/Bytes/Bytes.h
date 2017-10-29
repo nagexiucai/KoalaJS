@@ -18,6 +18,7 @@ namespace JSM {
 
 		protected:
 		inline void registerFunctions(KoalaJS* tinyJS, const std::string& className) {
+			addFunction(tinyJS, className, "constructor(src)", from, NULL);
 			addFunction(tinyJS, className, "size()", size, NULL);
 			addFunction(tinyJS, className, "from(src)", from, NULL);
 			addFunction(tinyJS, className, "append(src)", append, NULL);

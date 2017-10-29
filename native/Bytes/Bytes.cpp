@@ -11,25 +11,23 @@ void Bytes::size(CScriptVar* var, void* data) {
 }
 
 void Bytes::from(CScriptVar* var, void* data) {
-	
 	CScriptVar* sv = var->getParameter("src");
 	CScriptVar* v = var->getParameter("this");
 
 	unsigned char* src = NULL;
 	int size = 0;
 
-	if(sv->isString()) {
+	if(sv->isBytes()) {
+		src = (unsigned char*)sv->getPoint();
+		size = sv->getInt();
+	}
+	else {
 		std::string s = sv->getString();
 		src = (unsigned char*)s.c_str();
 		size = s.length();
 	}
-	else if(sv->isBytes()) {
-		src = (unsigned char*)sv->getPoint();
-		size = sv->getInt();
-	}
-
+	
 	unsigned char* buf = NULL;
-
 	if(size > 0 && src != NULL) {
 		buf = new unsigned char[size];	
 		if(buf == NULL)
