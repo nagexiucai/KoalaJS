@@ -40,8 +40,10 @@ class JSFile: public NativeClassLoader<T> {
 		JSClass::addFunction(tinyJS, className, "size()", size, NULL);
 		JSClass::addFunction(tinyJS, className, "close()", close, NULL);
 		JSClass::addFunction(tinyJS, className, "open(fname, mode)", open, NULL);
+		JSClass::addFunction(tinyJS, className, "open(fname)", open, NULL);
 		JSClass::addFunction(tinyJS, className, "read(size)", read, tinyJS);
 		JSClass::addFunction(tinyJS, className, "write(buf, size)", write, NULL);
+		JSClass::addFunction(tinyJS, className, "write(buf)", write, NULL);
 		JSClass::addFunction(tinyJS, className, "seek(pos)", seek, NULL);
 	}
 

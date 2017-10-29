@@ -36,6 +36,11 @@ void String::trimR(CScriptVar *c, void *) {
 	c->getReturnVar()->setString(StringUtil::trimRight(str));
 }
 
+void String::trim(CScriptVar *c, void *) {
+	string str = c->getParameter("this")->getString();
+	c->getReturnVar()->setString(StringUtil::trim(str));
+}
+
 void String::trimL(CScriptVar *c, void *) {
 	string str = c->getParameter("this")->getString();
 	c->getReturnVar()->setString(StringUtil::trimLeft(str));

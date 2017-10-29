@@ -246,6 +246,15 @@ bool CTinyJS::funcCall(const string& funcName, bool member) {
 	if(funcName.length() == 0)
 		return false;
 	
+	size_t pos = funcName.find("$");
+	int argNum = 0;	
+	string fname = funcName;
+	if(pos != string::npos)	{
+		fname = funcName.substr(0, pos);
+		string argN = funcName.substr(pos+1);
+		argNum = atoi(argN.c_str());
+	}
+	
 	//read object
 	StackItem* si = pop2();
 	BCVar* object = NULL;
@@ -255,24 +264,24 @@ bool CTinyJS::funcCall(const string& funcName, bool member) {
 
 	object = VAR(si);	
 	//find function in object;
-	BCNode*	n = object->getChild(funcName);
+	BCNode*	n = object->getChild(fname);
 	if(n == NULL)
-		n = findInClass(object, funcName);
+		n = findInClass(object, fname);
 
 	//find function in scopes;
 	if(n == NULL && !member)
-		n = findInScopes(funcName);
+		n = findInScopes(fname);
 
 	if(n == NULL) {
-		if(funcName != CONSTRUCTOR)
-			ERR("Function '%s' not found\n", funcName.c_str());
+		if(fname != CONSTRUCTOR)
+			ERR("Function '%s' not found\n", fname.c_str());
 		push(object); //push back to stack
 		return false;
 	}
 
 	if(n->var->type != BCVar::FUNC &&
 			n->var->type != BCVar::NFUNC) {
-		ERR("%s is not a function\n", funcName.c_str());
+		ERR("%s is not a function\n", fname.c_str());
 		push(object); //push back to stack
 		return false;
 	}
@@ -285,13 +294,13 @@ bool CTinyJS::funcCall(const string& funcName, bool member) {
 	for(int i=func->argNum-1; i>=0; --i) {
 		BCNode* arg = func->args->getChild(i);
 		if(arg == NULL) {
-			ERR("%s argument not match\n", funcName.c_str());
+			ERR("%s argument not match\n", fname.c_str());
 			return false;
 		}
 
 		si = pop2();
 		if(si == NULL) {
-			ERR("%s argument not match\n", funcName.c_str());
+			ERR("%s argument not match\n", fname.c_str());
 			return false;
 		}
 		BCVar* v = VAR(si);

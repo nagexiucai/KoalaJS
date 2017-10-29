@@ -51,6 +51,7 @@ sh:
 lib: 
 	mkdir -p $(TARGET)/include
 	g++ $(CFLAG) -c $(TINYJS) $(NATIVE) $(LIBS)
+	rm -f $(TARGET)/libTinyJS.a
 	ar cq $(TARGET)/libTinyJS.a *.o
 	rm -f *o
 	cp $(NATIVE_DIR)/*.h $(VM_DIR)/*.h $(TARGET)/include

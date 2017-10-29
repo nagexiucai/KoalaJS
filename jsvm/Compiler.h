@@ -136,7 +136,7 @@ class Compiler {
 
 		LEX_TYPES defClass();
 
-		LEX_TYPES callFunc();
+		LEX_TYPES callFunc(int &argNum);
 
 		LEX_TYPES factor();
 

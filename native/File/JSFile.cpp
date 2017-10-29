@@ -55,14 +55,26 @@ void JSFileNative::seek(CScriptVar* var, void* data) {
 
 void JSFileNative::write(CScriptVar* var, void* data) {
 	CScriptVar* v = var->getParameter("buf");
-	int size = var->getParameter("size")->getInt();
-	if(size <= 0 || fid < 0 || !v->isBytes())
+	CScriptVar* sv = var->getParameter("size");
+	if(fid < 0)
 		return;
+	
+	int size = 0;	
+	if(sv != NULL)
+		size = sv->getInt();
 
-	if(size > v->getInt())
-		size = v->getInt();
-
-	char* p = (char*)v->getPoint();
+	unsigned char* p = NULL;
+	if(v->isBytes()) {
+		p = (unsigned char*)v->getPoint();
+		if(size == 0 || size > v->getInt())
+			size = v->getInt();
+	}
+	else {
+		std::string s = sv->getString();
+		p = (unsigned char*)s.c_str();
+		if(size == 0 || size > s.length())
+			size = s.length();
+	}
 
 	v = var->getReturnVar();
  	v->setInt(-1);	
@@ -99,15 +111,16 @@ void JSFileNative::read(CScriptVar* var, void* data) {
 
 void JSFileNative::open(CScriptVar* var, void* data) {
 	std::string fname = var->getParameter("fname")->getString();
-	std::string mode = var->getParameter("mode")->getString();
+	CScriptVar* mv = var->getParameter("mode");
+	std::string mode = "";
+
+	if(mv != NULL)
+		mv->getString();
 
 	int fd = -1;
-	if(fname.length() == 0) { //no name for stdin fd
-		if(mode.find('w') != string::npos)
-			fd = 1;
-		else
-			fd = 0;
-	}
+	if(fname == "STDIN") { fd = 0; }
+	else if(fname == "STDOUT") { fd = 1; }
+	else if(fname == "STDERR") { fd = 2; }
 	else {
 		int m = O_RDONLY;
 		if(mode.find("rw") != string::npos)

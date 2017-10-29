@@ -28,6 +28,8 @@ namespace JSM {
 
 		static void trimL(CScriptVar *c, void *);
 
+		static void trim(CScriptVar *c, void *);
+
 		protected:
 		inline void registerFunctions(CTinyJS* tinyJS, const std::string& className) {
 			addFunction(tinyJS, className, "indexOf(search)", indexOf, NULL); // find the position of a string in a string, -1 if not
@@ -42,6 +44,7 @@ namespace JSM {
 			addFunction(tinyJS, className, "length()", length, NULL);
 			addFunction(tinyJS, className, "trimR()", trimR, NULL);
 			addFunction(tinyJS, className, "trimL()", trimL, NULL);
+			addFunction(tinyJS, className, "trim()", trim, NULL);
 		}
 
 		public:

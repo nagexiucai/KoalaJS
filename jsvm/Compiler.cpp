@@ -956,12 +956,18 @@ LEX_TYPES Compiler::ternary() {
 	return ret;	
 }
 
-LEX_TYPES Compiler::callFunc() {
+LEX_TYPES Compiler::callFunc(int &argNum) {
 	LEX_TYPES ret = LEX_EOF;
 	l->chkread('(');
-
+	
+	argNum = 0;
 	while(true) {
+		PC pc1 = bytecode.getPC();
 		base();
+		PC pc2 = bytecode.getPC();
+		if(pc2 > pc1) //not empty, means valid arguemnt.
+			argNum++;
+
 		if (l->tk!=')')
 			l->chkread(',');	
 		else
@@ -1093,9 +1099,10 @@ LEX_TYPES Compiler::factor() {
 		l->chkread(LEX_ID);
 		if (l->tk == '(') {
 			//l->chkread('(');
-			callFunc();
+			int argNum;
+			callFunc(argNum);
 			//l->chkread(')');
-			bytecode.gen(INSTR_NEW, className);
+			bytecode.gen(INSTR_NEW, className + "$" + StringUtil::from(argNum));
 		}
 	}
 	if (l->tk=='{') {
@@ -1124,21 +1131,22 @@ LEX_TYPES Compiler::factor() {
 		vector<string> names;
 		while (l->tk=='(' || l->tk=='.' || l->tk=='[') {
 			if (l->tk=='(') { // ------------------------------------- Function Call
-				callFunc();
+				int argNum;
+				callFunc(argNum);
 				StringUtil::split(name, '.', names);
 				name = "";
 				int sz = names.size()-1;
 					
 				if(sz == 0 && load) {
 					bytecode.gen(INSTR_LOAD, "this");	
-					bytecode.gen(INSTR_CALL, names[sz]);	
+					bytecode.gen(INSTR_CALL, names[sz] + "$" + StringUtil::from(argNum));	
 				}
 				else {
 					for(int i=0; i<sz; i++) {
 						bytecode.gen(load ? INSTR_LOAD:INSTR_GET, names[i]);	
 						load = false;
 					}
-					bytecode.gen(INSTR_CALLO, names[sz]);	
+					bytecode.gen(INSTR_CALLO, names[sz] + "$" + StringUtil::from(argNum));	
 				}
 				load = false;
 			} 

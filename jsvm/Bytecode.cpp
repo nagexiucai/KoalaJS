@@ -58,7 +58,7 @@ PC Bytecode::bytecode(OpCode instr, const string& str) {
 
 	return INS(r, i);
 }
-	
+		
 PC Bytecode::gen(OpCode instr, const string& str) {
 	int i = 0;
 	float f = 0.0;
@@ -88,6 +88,13 @@ PC Bytecode::gen(OpCode instr, const string& str) {
 //		P("%d\t0x%08X\t(%f)\n", cindex-1, i, f);	
 	}
 
+	return cindex;
+}
+
+PC Bytecode::gen(OpCode instr, int i) {
+	PC ins = bytecode(instr, "");
+	add(ins);
+	add(i);
 	return cindex;
 }
 

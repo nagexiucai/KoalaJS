@@ -3,6 +3,7 @@
 
 #include <string>
 #include <vector>
+#include <sstream>  
 
 using namespace std;
 
@@ -55,6 +56,18 @@ public:
 			return s.substr(0, i+1);
 		}
 		return "";
+	}
+
+	inline static string from(int i) {
+		ostringstream ostr;
+		ostr << i;
+		return ostr.str();
+	}
+
+	inline static string from(double f) {
+		ostringstream ostr;
+		ostr << f;
+		return ostr.str();
 	}
 };
 

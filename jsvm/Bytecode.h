@@ -61,6 +61,8 @@ public:
 
 	PC gen(OpCode instr, const string& str = "");
 
+	PC gen(OpCode instr, int intV);
+
 	PC bytecode(OpCode instr, const string& str = "");
 
 	string getStr(int i);
