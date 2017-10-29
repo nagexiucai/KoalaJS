@@ -5,10 +5,7 @@
 	under GPL.
 
 .About
-	This TinyJS intepretor engine core was forked from https://github.com/gfwilliams/tiny-js.git, by Gordon Williams <gw@pur3.co.uk>.
-	fixed some bugs and done lots of jobs on native interface framework design.
-
-	Bytecode compiler and vm are all wrote by Misa.Z. The interpretor and bytecode runtime share the same native functions interface.	
+	Bytecode compiler and vm are all wrote by Misa.Z. 
 
 .How to do arm cross compile on mac osx:
  
@@ -26,12 +23,11 @@
 		make arm
 
 ----------------------------------------------------------------------------------------
-TinyJS source code reading guide. by Misa.Z(misa.zhu@gmail.com)
+KoalaJS source code reading guide. by Misa.Z(misa.zhu@gmail.com)
 ----------------------------------------------------------------------------------------
 Directories: 
 	|
-	+- TinyJS : Interpreter.
-	+- demos : Demos for embedded TinyJS in your c++ project.
+	+- demos : Demos for embedded KoalaJS in your c++ project.
 	+- jsvm : Bytecode compiler and virtual machine.
 	+- utils : 3rd libs.
 	+- native : native class/functions extend.
@@ -112,7 +108,7 @@ like this:
 
 3. Stack VM
 
-TinyJS virtual machine runing as a typical stack machine, that means push variables to stack before operate, pop variables from stack and operate, then push the result back to stack.
+KoalaJS virtual machine runing as a typical stack machine, that means push variables to stack before operate, pop variables from stack and operate, then push the result back to stack.
 
 For example: 
 	Script code:
