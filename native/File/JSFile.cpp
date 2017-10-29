@@ -158,6 +158,6 @@ void JSFile::open(CScriptVar* var, void* data) {
 		if(fd < 0)
 			return;
 	}
-	setFID(var, fd);
-	var->getReturnVar()->setInt(fd);
+	CScriptVar* v = setFID(var, fd);
+	var->setReturnVar(v);
 }

@@ -24,6 +24,7 @@ class JSFile: public JSClass {
 		JSClass::addFunction(tinyJS, className, "close()", close, NULL);
 		JSClass::addFunction(tinyJS, className, "open(fname, mode)", open, NULL);
 		JSClass::addFunction(tinyJS, className, "open(fname)", open, NULL);
+		JSClass::addFunction(tinyJS, className, "constructor(fname)", open, NULL);
 		JSClass::addFunction(tinyJS, className, "read(size)", read, tinyJS);
 		JSClass::addFunction(tinyJS, className, "write(buf, size)", write, NULL);
 		JSClass::addFunction(tinyJS, className, "write(buf)", write, NULL);
