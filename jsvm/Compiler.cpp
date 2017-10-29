@@ -1095,14 +1095,16 @@ LEX_TYPES Compiler::factor() {
 	else if (l->tk==LEX_R_NEW) {
 		// new -> create a new object
 		l->chkread(LEX_R_NEW);
-		const std::string className = l->tkStr;
+		std::string className = l->tkStr;
 		l->chkread(LEX_ID);
 		if (l->tk == '(') {
 			//l->chkread('(');
 			int argNum;
 			callFunc(argNum);
 			//l->chkread(')');
-			bytecode.gen(INSTR_NEW, className + "$" + StringUtil::from(argNum));
+			if(argNum > 0)
+				className = className + "$" + StringUtil::from(argNum);
+			bytecode.gen(INSTR_NEW, className);
 		}
 	}
 	if (l->tk=='{') {
@@ -1136,17 +1138,20 @@ LEX_TYPES Compiler::factor() {
 				StringUtil::split(name, '.', names);
 				name = "";
 				int sz = names.size()-1;
+				string s = names[sz];
+				if(argNum > 0)
+					s = s + "$" + StringUtil::from(argNum);
 					
 				if(sz == 0 && load) {
 					bytecode.gen(INSTR_LOAD, "this");	
-					bytecode.gen(INSTR_CALL, names[sz] + "$" + StringUtil::from(argNum));	
+					bytecode.gen(INSTR_CALL, s);	
 				}
 				else {
 					for(int i=0; i<sz; i++) {
 						bytecode.gen(load ? INSTR_LOAD:INSTR_GET, names[i]);	
 						load = false;
 					}
-					bytecode.gen(INSTR_CALLO, names[sz] + "$" + StringUtil::from(argNum));	
+					bytecode.gen(INSTR_CALLO, s);	
 				}
 				load = false;
 			} 

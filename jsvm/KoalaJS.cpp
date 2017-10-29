@@ -241,7 +241,7 @@ void KoalaJS::doNew(const string& clsName) { //TODO: construct with arguments.
 		if(cls->var->isFunction()) {
 			BCVar* v = getCurrentObj(true);
 			push(v->ref());	//push this
-			if(!funcCall(cn))
+			if(!funcCall(clsName))
 				pop(); //pop and drop this
 			return;
 		}
@@ -458,7 +458,8 @@ void KoalaJS::addNative(const string& clsName, const string& funcDecl, JSCallbac
 		funcVar->getFunc()->args->addChild(args[i]);	
 	}
 	
-	funcName = funcName + "$" + StringUtil::from(argNum);	
+	if(argNum > 0)
+		funcName = funcName + "$" + StringUtil::from(argNum);	
 	clsVar->addChild(funcName, funcVar);
 }
 
@@ -942,7 +943,9 @@ void KoalaJS::runCode(Bytecode* bc) {
 				if(i != NULL) {
 					BCVar* v = VAR(i);
 					if(v->isFunction()) {
-						str = str + "$" + StringUtil::from(v->getFunc()->argNum);
+						FuncT* func = v->getFunc();
+						if(func->argNum > 0)
+							str = str + "$" + StringUtil::from(func->argNum);
 					}
 					scope()->var->addChild(str, v);
 					v->unref();
