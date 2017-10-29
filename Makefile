@@ -54,7 +54,6 @@ lib:
 	rm -f $(TARGET)/libKoalaJS.a
 	ar cq $(TARGET)/libKoalaJS.a *.o
 	rm -f *o
-	cp $(NATIVE_DIR)/*.h $(VM_DIR)/*.h $(TARGET)/include
 
 arm: 
 	mkdir -p $(TARGET)/include
@@ -62,6 +61,9 @@ arm:
 	$(ARM)ar cq $(TARGET)/libKoalaJS-arm.a *.o
 	rm -f *o
 	$(ARM)g++ $(CFLAG)  -o $(VM)-arm jsh.cpp $(LDFLAGARM) -L./$(TARGET) -lKoalaJS-arm
+
+pkg:
+	mkdir -p $(TARGET)/include
 	cp $(NATIVE_DIR)/*.h $(VM_DIR)/*.h $(TARGET)/include
 
 clean:
