@@ -32,10 +32,10 @@ void _moduleLoader(KoalaJS* tinyJS) {
 	JSM::JSThread::instance().load(tinyJS, "RThread");
 	JSM::JSBase64::instance().load(tinyJS, "RBase64");
 	JSM::JSMD5::instance().load(tinyJS, "RMD5");
-	JSM::JSFile<JSM::JSFileNative>::instance().load(tinyJS, "RFile");
+	JSM::JSFile::instance().load(tinyJS, "RFile");
 	JSM::JSTCP<JSM::JSTCPNative>::instance().load(tinyJS, "RTCP");
 	JSM::JSDNSC::instance().load(tinyJS, "RDNSC");
-	JSM::JSDir<JSM::JSDirNative>::instance().load(tinyJS, "RDir");
+	JSM::JSDir::instance().load(tinyJS, "RDir");
 	JSM::System::instance().load(tinyJS, "RSystem");
 }
 

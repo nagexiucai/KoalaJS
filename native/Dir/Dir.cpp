@@ -1,4 +1,5 @@
 #include "Dir.h"
+#include <dirent.h>
 #include <cstdlib>
 #include <sys/stat.h>
 #include <unistd.h>
@@ -9,26 +10,42 @@ using namespace std;
 using namespace JSM;
 
 
-JSDirNative::~JSDirNative() {
+static void destroyDir(void* data) {
+	DIR* dir = (DIR*)data;
 	if(dir != NULL)
 		::closedir(dir);
-
-	dir = NULL; 
 }
 
-JSDirNative::JSDirNative(void* data) {
-	dir = NULL;
+static DIR* getDir(CScriptVar* var) {
+	BCVar* thisV = var->getParameter("this");
+	if(thisV == NULL)
+		return NULL;
+	
+	BCNode* n = thisV->getChild("dir");
+	if(n == NULL)
+		return NULL;
+	return (DIR*)(n->var->getPoint());
 }
 
-void JSDirNative::close(CScriptVar* var, void* data) {
-	if(dir != NULL)
-		::closedir(dir);
-
-	dir = NULL;
+static BCVar* setDir(CScriptVar* var, DIR* dir) {
+	BCVar* thisV = var->getParameter("this");
+	if(thisV == NULL)
+		return NULL;
+	
+	BCNode* n = thisV->getChildOrCreate("dir");
+	BCVar* v = new BCVar();
+	v->setPoint(dir, NO_BYTES, destroyDir, true);
+	n->replace(v);
+	return thisV;
 }
 
-void JSDirNative::read(CScriptVar* var, void* data) {
+void JSDir::close(CScriptVar* var, void* data) {
+	setDir(var, NULL);
+}
+
+void JSDir::read(CScriptVar* var, void* data) {
 	var->getReturnVar()->setString("");
+	DIR* dir = getDir(var);
 	if(dir == NULL)
 		return;
 
@@ -40,7 +57,7 @@ void JSDirNative::read(CScriptVar* var, void* data) {
 }
 
 
-void JSDirNative::open(CScriptVar* var, void* data) {
+void JSDir::open(CScriptVar* var, void* data) {
 	std::string name = var->getParameter("name")->getString();
 
 	var->getReturnVar()->setInt(0);
@@ -52,7 +69,7 @@ void JSDirNative::open(CScriptVar* var, void* data) {
 	if(d == NULL)
 		return;
 
-	dir = d;
+	setDir(var, d);
 	var->getReturnVar()->setInt(1);
 }
 

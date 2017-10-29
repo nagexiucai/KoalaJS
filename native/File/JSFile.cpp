@@ -9,22 +9,35 @@
 using namespace std;
 using namespace JSM;
 
-
-JSFileNative::~JSFileNative() {
-	if(fid >= 0)
-		::close(fid);
-
-	fid = -1;
+static int getFID(CScriptVar* var) {
+	BCVar* thisV = var->getParameter("this");
+	if(thisV == NULL)
+		return -1;
+	
+	BCNode* n = thisV->getChild("fid");
+	if(n == NULL)
+		return -1;
+	return n->var->getInt();
 }
 
-JSFileNative::JSFileNative(void* data) {
-	fid = -1;
+static BCVar* setFID(CScriptVar* var, int fid) {
+	BCVar* thisV = var->getParameter("this");
+	if(thisV == NULL)
+		return NULL;
+	
+	BCNode* n = thisV->getChildOrCreate("fid");
+	BCVar* v = new BCVar();
+	v->setInt(fid);
+	n->replace(v);
+	return thisV;
 }
 
-void JSFileNative::size(CScriptVar* var, void* data) {
+
+void JSFile::size(CScriptVar* var, void* data) {
 	CScriptVar * r = var->getReturnVar();
 	r->setInt(-1);
-
+	
+	int fid = getFID(var);
 	if(fid < 0)
 		return;
 
@@ -34,15 +47,17 @@ void JSFileNative::size(CScriptVar* var, void* data) {
 	r->setInt(st.st_size);
 }
 
-void JSFileNative::close(CScriptVar* var, void* data) {
+void JSFile::close(CScriptVar* var, void* data) {
+	int fid = getFID(var);
 	if(fid >= 0)
 		::close(fid);
 
-	fid = -1;
+	setFID(var, fid);
 }
 
-void JSFileNative::seek(CScriptVar* var, void* data) {
+void JSFile::seek(CScriptVar* var, void* data) {
 	int pos = var->getParameter("pos")->getInt();
+	int fid = getFID(var);
 	if(pos <= 0 || fid < 0)
 		return;
 
@@ -53,9 +68,10 @@ void JSFileNative::seek(CScriptVar* var, void* data) {
 }
 
 
-void JSFileNative::write(CScriptVar* var, void* data) {
+void JSFile::write(CScriptVar* var, void* data) {
 	CScriptVar* v = var->getParameter("buf");
 	CScriptVar* sv = var->getParameter("size");
+	int fid = getFID(var);
 	if(fid < 0)
 		return;
 	
@@ -86,9 +102,10 @@ void JSFileNative::write(CScriptVar* var, void* data) {
 }
 
 
-void JSFileNative::read(CScriptVar* var, void* data) {
+void JSFile::read(CScriptVar* var, void* data) {
 	int size = var->getParameter("size")->getInt();
 	KoalaJS* tinyJS = (KoalaJS*)data;
+	int fid = getFID(var);
 
 	if(size <= 0 || fid < 0)
 		return;
@@ -109,7 +126,7 @@ void JSFileNative::read(CScriptVar* var, void* data) {
 }
 
 
-void JSFileNative::open(CScriptVar* var, void* data) {
+void JSFile::open(CScriptVar* var, void* data) {
 	std::string fname = var->getParameter("fname")->getString();
 	CScriptVar* mv = var->getParameter("mode");
 	std::string mode = "";
@@ -141,7 +158,6 @@ void JSFileNative::open(CScriptVar* var, void* data) {
 		if(fd < 0)
 			return;
 	}
-	fid = fd;
+	setFID(var, fd);
 	var->getReturnVar()->setInt(fd);
 }
-
