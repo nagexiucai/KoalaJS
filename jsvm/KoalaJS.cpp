@@ -379,7 +379,7 @@ BCVar* KoalaJS::funcDef(const string& funcName, bool regular) {
 	return ret;
 }
 
-BCVar* KoalaJS::addClass(const string& clsName) {
+BCVar* KoalaJS::getOrAddClass(const string& clsName) {
 		BCNode* cls = root->getChildOrCreate(clsName);
 		if(cls == NULL)
 			return NULL;
@@ -393,12 +393,7 @@ void KoalaJS::addNative(const string& clsName, const string& funcDecl, JSCallbac
 		clsVar = root;
 	}
 	else {
-		BCNode* cls = root->getChildOrCreate(clsName);
-		if(cls == NULL || native == NULL)
-			return;
-
-		cls->var->type = BCVar::CLASS;
-		clsVar = cls->var;
+		clsVar = getOrAddClass(clsName);
 	}
 
 	int i = funcDecl.find('(');
@@ -944,7 +939,10 @@ void KoalaJS::runCode(Bytecode* bc) {
 					
 					bool modi = (!node->beConst || node->var->type == BCVar::UNDEF);
 					node->var->unref();
-					if(modi) node->replace(v);
+					if(modi) 
+						node->replace(v);
+					else
+						ERR("Can not change a const variable: %s!\n", node->name.c_str());
 					v->unref();
 					push(node->var->ref());
 				}
@@ -1014,7 +1012,7 @@ void KoalaJS::runCode(Bytecode* bc) {
 			}
 			case INSTR_CLASS: {
 				str = bcode->getStr(offset);
-				BCVar* v = addClass(str);
+				BCVar* v = getOrAddClass(str);
 				push(v->ref());
 				sc.var = v;
 				scopes.push_back(sc);

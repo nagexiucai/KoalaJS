@@ -417,11 +417,12 @@ public:
 	}
 
 	//add child, this function doesn't check existed or not!!
-	inline BCNode* addChild(const string& name, BCVar* v = NULL) {
+	inline BCNode* addChild(const string& name, BCVar* v = NULL, bool beConst = false) {
 		if(v == NULL)
 			v = new BCVar();
 
 		BCNode* ret = new BCNode(name, v);
+		ret->beConst = beConst;
 		children.push_back(ret);
 		return ret;
 	}

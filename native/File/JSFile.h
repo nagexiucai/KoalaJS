@@ -5,6 +5,10 @@
 
 namespace JSM {
 
+#define STDIN "_STDIN"
+#define STDOUT "_STDOUT"
+#define STDERR "_STDERR"
+
 class JSFile: public JSClass {
 	static void size(KoalaJS* js, CScriptVar* var, void* data);
 
@@ -20,6 +24,9 @@ class JSFile: public JSClass {
 
 	protected:
 	inline void registerFunctions(KoalaJS* js, const std::string& className) {
+		JSClass::addConst(js, className, "stdin", new BCVar(STDIN));
+		JSClass::addConst(js, className, "stdout", new BCVar(STDOUT));
+		JSClass::addConst(js, className, "stderr", new BCVar(STDERR));
 		JSClass::addFunction(js, className, "size()", size, NULL);
 		JSClass::addFunction(js, className, "close()", close, NULL);
 		JSClass::addFunction(js, className, "open(fname, mode)", open, NULL);

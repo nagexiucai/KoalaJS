@@ -134,9 +134,9 @@ void JSFile::open(KoalaJS* js, CScriptVar* var, void* data) {
 		mv->getString();
 
 	int fd = -1;
-	if(fname == "STDIN") { fd = 0; }
-	else if(fname == "STDOUT") { fd = 1; }
-	else if(fname == "STDERR") { fd = 2; }
+	if(fname == STDIN) { fd = 0; }
+	else if(fname == STDOUT) { fd = 1; }
+	else if(fname == STDERR) { fd = 2; }
 	else {
 		int m = O_RDONLY;
 		if(mode.find("rw") != string::npos)
