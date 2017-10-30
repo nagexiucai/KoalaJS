@@ -20,7 +20,9 @@ using namespace std;
 class BCVar;
 
 typedef void (*JSDestroy)(void *p);
-typedef void (*JSCallback)(BCVar *var, void *userdata);
+
+class KoalaJS;
+typedef void (*JSCallback)(KoalaJS* js, BCVar *var, void *userdata);
 
 class StackItem {
 public:
@@ -57,6 +59,7 @@ typedef struct STFunc {
 	BCVar* args;
 	BCNode* thisNode;
 	BCNode* returnNode;
+	void* data;
 
 	STFunc();
 	~STFunc();

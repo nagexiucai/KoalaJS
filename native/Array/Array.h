@@ -6,8 +6,8 @@
 namespace JSM {
 
 	class Array : public JSClass {
-		static void size(CScriptVar *c, void *);
-		static void clear(CScriptVar *c, void *);
+		static void size(KoalaJS* js, CScriptVar *c,  void *);
+		static void clear(KoalaJS* js, CScriptVar *c, void *);
 
 		protected:
 		inline void registerFunctions(KoalaJS* js, const std::string& className) {

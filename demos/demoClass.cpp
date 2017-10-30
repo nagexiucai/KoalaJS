@@ -4,7 +4,7 @@ static int _count = 0;
 
 //demo how to implement regular class
 class MyClass : public JSClass {
-	static void test(CScriptVar* var, void* data) {
+	static void test(KoalaJS* js, CScriptVar* var, void* data) {
 		printf("Regular class test function %d.\r\n", (*(int*)data)++);
 	}	
 

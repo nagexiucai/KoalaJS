@@ -33,7 +33,7 @@ static BCVar* setFID(CScriptVar* var, int fid) {
 }
 
 
-void JSFile::size(CScriptVar* var, void* data) {
+void JSFile::size(KoalaJS* js, CScriptVar* var, void* data) {
 	CScriptVar * r = var->getReturnVar();
 	r->setInt(-1);
 	
@@ -47,7 +47,7 @@ void JSFile::size(CScriptVar* var, void* data) {
 	r->setInt(st.st_size);
 }
 
-void JSFile::close(CScriptVar* var, void* data) {
+void JSFile::close(KoalaJS* js, CScriptVar* var, void* data) {
 	int fid = getFID(var);
 	if(fid >= 0)
 		::close(fid);
@@ -55,7 +55,7 @@ void JSFile::close(CScriptVar* var, void* data) {
 	setFID(var, fid);
 }
 
-void JSFile::seek(CScriptVar* var, void* data) {
+void JSFile::seek(KoalaJS* js, CScriptVar* var, void* data) {
 	int pos = var->getParameter("pos")->getInt();
 	int fid = getFID(var);
 	if(pos <= 0 || fid < 0)
@@ -68,7 +68,7 @@ void JSFile::seek(CScriptVar* var, void* data) {
 }
 
 
-void JSFile::write(CScriptVar* var, void* data) {
+void JSFile::write(KoalaJS* js, CScriptVar* var, void* data) {
 	CScriptVar* v = var->getParameter("buf");
 	CScriptVar* sv = var->getParameter("size");
 	int fid = getFID(var);
@@ -102,9 +102,8 @@ void JSFile::write(CScriptVar* var, void* data) {
 }
 
 
-void JSFile::read(CScriptVar* var, void* data) {
+void JSFile::read(KoalaJS* js, CScriptVar* var, void* data) {
 	int size = var->getParameter("size")->getInt();
-	KoalaJS* js = (KoalaJS*)data;
 	int fid = getFID(var);
 
 	if(size <= 0 || fid < 0)
@@ -126,7 +125,7 @@ void JSFile::read(CScriptVar* var, void* data) {
 }
 
 
-void JSFile::open(CScriptVar* var, void* data) {
+void JSFile::open(KoalaJS* js, CScriptVar* var, void* data) {
 	std::string fname = var->getParameter("fname")->getString();
 	CScriptVar* mv = var->getParameter("mode");
 	std::string mode = "";

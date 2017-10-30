@@ -5,7 +5,7 @@
 using namespace std;
 using namespace JSM;
 
-void String::indexOf(CScriptVar *c, void *) {
+void String::indexOf(KoalaJS* js, CScriptVar *c, void *) {
 	string str = c->getParameter("this")->getString();
 	string search = c->getParameter("search")->getString();
 
@@ -14,12 +14,12 @@ void String::indexOf(CScriptVar *c, void *) {
 	c->getReturnVar()->setInt(val);
 }
 
-void String::length(CScriptVar *c, void *) {
+void String::length(KoalaJS* js, CScriptVar *c, void *) {
 	string str = c->getParameter("this")->getString();
 	c->getReturnVar()->setInt(str.length());
 }
 
-void String::substring(CScriptVar *c, void *) {
+void String::substring(KoalaJS* js, CScriptVar *c, void *) {
 	string str = c->getParameter("this")->getString();
 	int lo = c->getParameter("lo")->getInt();
 	int hi = c->getParameter("hi")->getInt();
@@ -31,22 +31,22 @@ void String::substring(CScriptVar *c, void *) {
 		c->getReturnVar()->setString("");
 }
 
-void String::trimR(CScriptVar *c, void *) {
+void String::trimR(KoalaJS* js, CScriptVar *c, void *) {
 	string str = c->getParameter("this")->getString();
 	c->getReturnVar()->setString(StringUtil::trimRight(str));
 }
 
-void String::trim(CScriptVar *c, void *) {
+void String::trim(KoalaJS* js, CScriptVar *c, void *) {
 	string str = c->getParameter("this")->getString();
 	c->getReturnVar()->setString(StringUtil::trim(str));
 }
 
-void String::trimL(CScriptVar *c, void *) {
+void String::trimL(KoalaJS* js, CScriptVar *c, void *) {
 	string str = c->getParameter("this")->getString();
 	c->getReturnVar()->setString(StringUtil::trimLeft(str));
 }
 
-void String::charAt(CScriptVar *c, void *) {
+void String::charAt(KoalaJS* js, CScriptVar *c, void *) {
 	string str = c->getParameter("this")->getString();
 	int p = c->getParameter("pos")->getInt();
 	if (p>=0 && p<(int)str.length())
@@ -55,7 +55,7 @@ void String::charAt(CScriptVar *c, void *) {
 		c->getReturnVar()->setString("");
 }
 
-void String::charCodeAt(CScriptVar *c, void *) {
+void String::charCodeAt(KoalaJS* js, CScriptVar *c, void *) {
 	string str = c->getParameter("this")->getString();
 	int p = c->getParameter("pos")->getInt();
 	if (p>=0 && p<(int)str.length())
@@ -64,7 +64,7 @@ void String::charCodeAt(CScriptVar *c, void *) {
 		c->getReturnVar()->setInt(0);
 }
 
-void String::split(CScriptVar *c, void *) {
+void String::split(KoalaJS* js, CScriptVar *c, void *) {
 	string str = c->getParameter("this")->getString();
 	string sep = c->getParameter("separator")->getString();
 	CScriptVar *result = c->getReturnVar();
@@ -82,14 +82,14 @@ void String::split(CScriptVar *c, void *) {
 		result->setArrayIndex(length++, new CScriptVar(str));
 }
 
-void String::fromCharCode(CScriptVar *c, void *) {
+void String::fromCharCode(KoalaJS* js, CScriptVar *c, void *) {
 	char str[2];
 	str[0] = c->getParameter("char")->getInt();
 	str[1] = 0;
 	c->getReturnVar()->setString(str);
 }
 
-void String::lastIndexOf(CScriptVar *c, void *) {
+void String::lastIndexOf(KoalaJS* js, CScriptVar *c, void *) {
 	string str = c->getParameter("this")->getString();
 	string sub = c->getParameter("sub")->getString();
 
@@ -98,7 +98,7 @@ void String::lastIndexOf(CScriptVar *c, void *) {
 	c->getReturnVar()->setInt(r);
 }
 
-void String::replace(CScriptVar *c, void *) {
+void String::replace(KoalaJS* js, CScriptVar *c, void *) {
 	CScriptVar* v = c->getParameter("this");
 	string str = v->getString();
 	string key = c->getParameter("key")->getString();

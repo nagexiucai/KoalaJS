@@ -6,15 +6,15 @@
 namespace JSM {
 
 	class Bytes: public JSClass {
-		static void size(CScriptVar* var, void* data);
+		static void size(KoalaJS* js, CScriptVar* var, void* data);
 
-		static void from(CScriptVar* var, void* data);
+		static void from(KoalaJS* js, CScriptVar* var, void* data);
 
-		static void toString(CScriptVar* var, void* data);
+		static void toString(KoalaJS* js, CScriptVar* var, void* data);
 
-		static void append(CScriptVar* var, void* data);
+		static void append(KoalaJS* js, CScriptVar* var, void* data);
 
-		static void set(CScriptVar* var, void* data);
+		static void set(KoalaJS* js, CScriptVar* var, void* data);
 
 		protected:
 		inline void registerFunctions(KoalaJS* js, const std::string& className) {

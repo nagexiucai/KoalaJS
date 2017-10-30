@@ -10,9 +10,7 @@ static ThreadLock _locker;
 
 static map<std::string, BasicValueT> _kv;
 
-void Global::get(CScriptVar *c, void *userdata) {
-
-	KoalaJS *js = (KoalaJS *)userdata;
+void Global::get(KoalaJS* js, CScriptVar *c, void *userdata) {
 	std::string name = c->getParameter("name")->getString();
 
 	_locker.lock();
@@ -52,9 +50,7 @@ void Global::get(CScriptVar *c, void *userdata) {
 	_locker.unlock();
 }
 
-void Global::set(CScriptVar *c, void *userdata) {
-
-	KoalaJS *js = (KoalaJS *)userdata;
+void Global::set(KoalaJS* js, CScriptVar *c, void *userdata) {
 	std::string name = c->getParameter("name")->getString();
 	CScriptVar* v = c->getParameter("value");
 

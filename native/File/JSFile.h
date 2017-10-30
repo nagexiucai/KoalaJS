@@ -6,17 +6,17 @@
 namespace JSM {
 
 class JSFile: public JSClass {
-	static void size(CScriptVar* var, void* data);
+	static void size(KoalaJS* js, CScriptVar* var, void* data);
 
-	static void open(CScriptVar* var, void* data);
+	static void open(KoalaJS* js, CScriptVar* var, void* data);
 
-	static void close(CScriptVar* var, void* data);
+	static void close(KoalaJS* js, CScriptVar* var, void* data);
 
-	static void read(CScriptVar* var, void* data);
+	static void read(KoalaJS* js, CScriptVar* var, void* data);
 
-	static void write(CScriptVar* var, void* data);
+	static void write(KoalaJS* js, CScriptVar* var, void* data);
 
-	static void seek(CScriptVar* var, void* data);
+	static void seek(KoalaJS* js, CScriptVar* var, void* data);
 
 	protected:
 	inline void registerFunctions(KoalaJS* js, const std::string& className) {
@@ -25,7 +25,7 @@ class JSFile: public JSClass {
 		JSClass::addFunction(js, className, "open(fname, mode)", open, NULL);
 		JSClass::addFunction(js, className, "open(fname)", open, NULL);
 		JSClass::addFunction(js, className, "constructor(fname)", open, NULL);
-		JSClass::addFunction(js, className, "read(size)", read, js);
+		JSClass::addFunction(js, className, "read(size)", read, NULL);
 		JSClass::addFunction(js, className, "write(buf, size)", write, NULL);
 		JSClass::addFunction(js, className, "write(buf)", write, NULL);
 		JSClass::addFunction(js, className, "seek(pos)", seek, NULL);

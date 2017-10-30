@@ -6,29 +6,29 @@
 namespace JSM {
 
 	class String : public JSClass {
-		static void indexOf(CScriptVar *c, void *);
+		static void indexOf(KoalaJS* js, CScriptVar *c, void *);
 
-		static void substring(CScriptVar *c, void *);
+		static void substring(KoalaJS* js, CScriptVar *c, void *);
 
-		static void charAt(CScriptVar *c, void *);
+		static void charAt(KoalaJS* js, CScriptVar *c, void *);
 
-		static void charCodeAt(CScriptVar *c, void *);
+		static void charCodeAt(KoalaJS* js, CScriptVar *c, void *);
 
-		static void split(CScriptVar *c, void *);
+		static void split(KoalaJS* js, CScriptVar *c, void *);
 
-		static void fromCharCode(CScriptVar *c, void *);
+		static void fromCharCode(KoalaJS* js, CScriptVar *c, void *);
 
-		static void lastIndexOf(CScriptVar *c, void *);
+		static void lastIndexOf(KoalaJS* js, CScriptVar *c, void *);
 
-		static void replace(CScriptVar *c, void *);
+		static void replace(KoalaJS* js, CScriptVar *c, void *);
 
-		static void length(CScriptVar *c, void *);
+		static void length(KoalaJS* js, CScriptVar *c, void *);
 
-		static void trimR(CScriptVar *c, void *);
+		static void trimR(KoalaJS* js, CScriptVar *c, void *);
 
-		static void trimL(CScriptVar *c, void *);
+		static void trimL(KoalaJS* js, CScriptVar *c, void *);
 
-		static void trim(CScriptVar *c, void *);
+		static void trim(KoalaJS* js, CScriptVar *c, void *);
 
 		protected:
 		inline void registerFunctions(KoalaJS* js, const std::string& className) {

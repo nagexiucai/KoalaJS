@@ -39,11 +39,11 @@ static BCVar* setDir(CScriptVar* var, DIR* dir) {
 	return thisV;
 }
 
-void JSDir::close(CScriptVar* var, void* data) {
+void JSDir::close(KoalaJS* js, CScriptVar* var, void* data) {
 	setDir(var, NULL);
 }
 
-void JSDir::read(CScriptVar* var, void* data) {
+void JSDir::read(KoalaJS* js, CScriptVar* var, void* data) {
 	var->getReturnVar()->setString("");
 	DIR* dir = getDir(var);
 	if(dir == NULL)
@@ -57,7 +57,7 @@ void JSDir::read(CScriptVar* var, void* data) {
 }
 
 
-void JSDir::open(CScriptVar* var, void* data) {
+void JSDir::open(KoalaJS* js, CScriptVar* var, void* data) {
 	std::string name = var->getParameter("name")->getString();
 
 	var->getReturnVar()->setInt(0);

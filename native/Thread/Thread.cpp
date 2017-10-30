@@ -43,10 +43,10 @@ static void* _vmThread(void* data) {
 	return NULL;
 }
 
-void JSThread::exec(CScriptVar *c, void *userdata) {
+void JSThread::exec(KoalaJS* js, CScriptVar *c, void *userdata) {
 	ThreadDataT *data = new ThreadDataT();
 
-	data->js = (KoalaJS *)userdata;
+	data->js = js;
 	data->src = c->getParameter("src")->getString();
 	data->code = true;
 	data->arg = c->getParameter("arg")->ref();
@@ -54,22 +54,22 @@ void JSThread::exec(CScriptVar *c, void *userdata) {
 	Thread::run(_vmThread, data);
 }
 
-void JSThread::run(CScriptVar *c, void *userdata) {
+void JSThread::run(KoalaJS* js, CScriptVar *c, void *userdata) {
 	ThreadDataT *data = new ThreadDataT();
 
-	data->js = (KoalaJS *)userdata;
+	data->js = js;
 	data->src = c->getParameter("file")->getString();
 	data->code = false;
 	data->arg = c->getParameter("arg")->ref();
 	Thread::run(_vmThread, data);
 }
 
-void JSThread::sleep(CScriptVar *c, void *userdata) {
+void JSThread::sleep(KoalaJS* js, CScriptVar *c, void *userdata) {
 	int sec = c->getParameter("sec")->getInt();
 	::sleep(sec);
 }
 
-void JSThread::usleep(CScriptVar *c, void *userdata) {
+void JSThread::usleep(KoalaJS* js, CScriptVar *c, void *userdata) {
 	int sec = c->getParameter("usec")->getInt();
 	::usleep(sec);
 }

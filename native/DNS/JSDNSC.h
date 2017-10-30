@@ -6,7 +6,7 @@
 namespace JSM {
 
 	class JSDNSC : public JSClass {
-		static void resolv(CScriptVar *c, void *);
+		static void resolv(KoalaJS* js, CScriptVar *c, void *);
 
 		protected:
 		inline void registerFunctions(KoalaJS* js, const std::string& className) {

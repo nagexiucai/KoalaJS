@@ -34,7 +34,7 @@ std::string JSMD5::hashHex(const unsigned char* s, unsigned int size) {
 	return hex;
 }
 
-void JSMD5::hashString(CScriptVar *c, void *userdata) {
+void JSMD5::hashString(KoalaJS* js, CScriptVar *c, void *userdata) {
 	unsigned char* p = NULL;
 	int size = 0;
 
@@ -55,7 +55,7 @@ void JSMD5::hashString(CScriptVar *c, void *userdata) {
 	}
 }
 
-void JSMD5::hashHex(CScriptVar *c, void *userdata) {
+void JSMD5::hashHex(KoalaJS* js, CScriptVar *c, void *userdata) {
 	unsigned char* p = NULL;
 	int size = 0;
 

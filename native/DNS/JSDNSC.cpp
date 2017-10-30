@@ -4,7 +4,7 @@
 using namespace std;
 using namespace JSM;
 
-void JSDNSC::resolv(CScriptVar *c, void *userdata) {
+void JSDNSC::resolv(KoalaJS* js, CScriptVar *c, void *userdata) {
 	std::string domain = c->getParameter("domain")->getString();
 	std::string type = c->getParameter("type")->getString();
 	

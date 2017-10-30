@@ -6,7 +6,7 @@
 namespace JSM {
 
 	class System : public JSClass {
-		static void run(CScriptVar *c, void *);
+		static void run(KoalaJS* js, CScriptVar *c, void *);
 
 		protected:
 		inline void registerFunctions(KoalaJS* js, const std::string& className) {

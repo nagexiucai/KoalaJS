@@ -38,7 +38,7 @@ BCVar* KoalaJS::newObject(const string& clsName) {
 
 	JSCallback nc = cls->var->getNativeConstructor();
 	if(nc != NULL)
-		nc(ret, NULL);
+		nc(this, ret, NULL);
 	return ret;
 }
 
@@ -55,7 +55,7 @@ BCVar* KoalaJS::newObject(BCNode* cls) {
 
 	JSCallback nc = cls->var->getNativeConstructor();
 	if(nc != NULL)
-		nc(ret, NULL);
+		nc(this, ret, NULL);
 	return ret;
 }
 
@@ -331,7 +331,7 @@ bool KoalaJS::funcCall(const string& funcName, bool member) {
 
 	if(n->var->type == BCVar::NFUNC) { //native function
 		if(func->native != NULL) {
-			func->native(n->var, this);
+			func->native(this, n->var, func->data);
 			//read return.
 			BCVar* ret = func->returnNode->var;
 			push(ret->ref());
@@ -456,8 +456,10 @@ void KoalaJS::addNative(const string& clsName, const string& funcDecl, JSCallbac
 	BCVar* funcVar = new BCVar();
 	int argNum = args.size();
 	funcVar->setFunction(argNum, 0, native);
+	FuncT* func = funcVar->getFunc();
+	func->data = data;
 	for(i=0; i<argNum; ++i) {
-		funcVar->getFunc()->args->addChild(args[i]);	
+		func->args->addChild(args[i]);	
 	}
 	
 	if(argNum > 0)

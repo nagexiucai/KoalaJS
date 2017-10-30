@@ -58,17 +58,17 @@ static SocketT* getSocket(CScriptVar* var) {
 	return (SocketT*)(n->var->getPoint());
 }
 
-void JSTCP::close(CScriptVar* var, void* data) {
+void JSTCP::close(KoalaJS* js, CScriptVar* var, void* data) {
 	setSocket(var, -1, NULL);
 }
 
-void JSTCP::shutdown(CScriptVar* var, void* data) {
+void JSTCP::shutdown(KoalaJS* js, CScriptVar* var, void* data) {
 	SocketT* sc = getSocket(var);
 	if(sc != NULL && sc->sid >= 0)
 		::shutdown(sc->sid, SHUT_RDWR);
 }
 
-void JSTCP::send(CScriptVar* var, void* data) {
+void JSTCP::send(KoalaJS* js, CScriptVar* var, void* data) {
 	CScriptVar* v = var->getParameter("buf");
 	int size = var->getParameter("size")->getInt();
 	CScriptVar* n = var->getParameter("timeout");
@@ -106,14 +106,12 @@ void JSTCP::send(CScriptVar* var, void* data) {
 }
 
 
-void JSTCP::recv(CScriptVar* var, void* data) {
+void JSTCP::recv(KoalaJS* js, CScriptVar* var, void* data) {
 	int size = var->getParameter("size")->getInt();
 	CScriptVar* n = var->getParameter("timeout");
 	int to = 0;
 	if(n != NULL)
 		to = n->getInt();
-
-	KoalaJS* js = (KoalaJS*)data;
 
 	SocketT* sc = getSocket(var);
 	if(sc == NULL || sc->sid < 0 || size <= 0)
@@ -142,7 +140,7 @@ void JSTCP::recv(CScriptVar* var, void* data) {
 	var->setReturnVar(v);
 }
 
-void JSTCP::bind(CScriptVar* var, void* data) {
+void JSTCP::bind(KoalaJS* js, CScriptVar* var, void* data) {
 	std::string ip = var->getParameter("ip")->getString();
 	int port = var->getParameter("port")->getInt();
 
@@ -171,8 +169,7 @@ void JSTCP::bind(CScriptVar* var, void* data) {
 	var->getReturnVar()->setInt(1);
 }
 
-void JSTCP::accept(CScriptVar* var, void* data) {
-	KoalaJS* js = (KoalaJS*)data;
+void JSTCP::accept(KoalaJS* js, CScriptVar* var, void* data) {
 	SocketT* sc = getSocket(var);
 	if(sc == NULL || sc->sid < 0)
 		return;
@@ -194,7 +191,7 @@ void JSTCP::accept(CScriptVar* var, void* data) {
 	var->setReturnVar(obj);
 }
 
-void JSTCP::listen(CScriptVar* var, void* data) {
+void JSTCP::listen(KoalaJS* js, CScriptVar* var, void* data) {
 	int backlog = var->getParameter("backlog")->getInt();
 	var->getReturnVar()->setInt(0);
 
@@ -208,7 +205,7 @@ void JSTCP::listen(CScriptVar* var, void* data) {
 	var->getReturnVar()->setInt(1);
 }
 
-void JSTCP::connect(CScriptVar* var, void* data) {
+void JSTCP::connect(KoalaJS* js, CScriptVar* var, void* data) {
 	std::string host = var->getParameter("host")->getString();
 	int port = var->getParameter("port")->getInt();
 	int to = var->getParameter("timeout")->getInt();

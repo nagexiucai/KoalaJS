@@ -4,7 +4,7 @@
 using namespace std;
 using namespace JSM;
 
-void JSBase64::encode(CScriptVar *c, void *userdata) {
+void JSBase64::encode(KoalaJS* js, CScriptVar *c, void *userdata) {
 	std::string s = "";
 	CScriptVar* v = c->getParameter("src");
 	
@@ -23,9 +23,8 @@ void JSBase64::encode(CScriptVar *c, void *userdata) {
 	c->getReturnVar()->setString(s);
 }
 
-void JSBase64::decode(CScriptVar *c, void *userdata) {
+void JSBase64::decode(KoalaJS* js, CScriptVar *c, void *userdata) {
 	std::string src = c->getParameter("src")->getString();
-	KoalaJS* js = (KoalaJS*)userdata;
 
 	size_t size = 0;
 	unsigned char* p = Base64::decode(src, size);
