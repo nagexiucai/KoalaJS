@@ -37,7 +37,7 @@ LDFLAG = -lpthread
 LDFLAGARM = --static -Wl,--whole-archive -lpthread -Wl,--no-whole-archive -lc
 
 COMPILER = jsbc
-VM = jsh
+VM = koala
 
 TARGET = build
 ARM = arm-none-linux-gnueabi-
@@ -45,7 +45,7 @@ ARM = arm-none-linux-gnueabi-
 all: lib sh
 
 sh:
-	g++ $(CFLAG) -o $(VM) jsh.cpp $(LDFLAG) -L./$(TARGET) -lKoalaJS
+	g++ $(CFLAG) -o $(VM) koala.cpp $(LDFLAG) -L./$(TARGET) -lKoalaJS
 	rm -fr *.dSYM
 
 lib: 
@@ -60,7 +60,7 @@ arm:
 	$(ARM)g++ $(CFLAG) -c $(TINYJS) $(LIBS) $(NATIVE) 
 	$(ARM)ar cq $(TARGET)/libKoalaJS-arm.a *.o
 	rm -f *o
-	$(ARM)g++ $(CFLAG)  -o $(VM)-arm jsh.cpp $(LDFLAGARM) -L./$(TARGET) -lKoalaJS-arm
+	$(ARM)g++ $(CFLAG)  -o $(VM)-arm koala.cpp $(LDFLAGARM) -L./$(TARGET) -lKoalaJS-arm
 
 pkg:
 	mkdir -p $(TARGET)/include
