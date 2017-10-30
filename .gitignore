@@ -19,3 +19,5 @@ build/libKoalaJS.a
 jsh
 build/libKoalaJS-arm.a
 jsh-arm
+
+koala
