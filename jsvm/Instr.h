@@ -59,6 +59,12 @@ const static OpCode INSTR_GEQ					= 0x0033; // GEQ									: >=
 const static OpCode INSTR_GRT					= 0x0034; // GRT									: >
 const static OpCode INSTR_LES					= 0x0035; // LES									: <
 
+const static OpCode INSTR_PLUSEQ			= 0x0036; // +=
+const static OpCode INSTR_MINUSEQ			= 0x0037; // -=	
+const static OpCode INSTR_MULTIEQ			= 0x0038; // *=
+const static OpCode INSTR_DIVEQ				= 0x0039; // /=
+const static OpCode INSTR_MODEQ				= 0x003A; // %=
+
 const static OpCode INSTR_AAND				= 0x0040; // AAND									: &&
 const static OpCode INSTR_OOR					= 0x0041; // OOR									: ||
 const static OpCode INSTR_OR					= 0x0042; // OR										: |
@@ -138,6 +144,11 @@ class BCOpCode {
 			case  INSTR_GEQ					: return "geq";
 			case  INSTR_GRT					: return "grt";
 			case  INSTR_LES					: return "les";
+			case  INSTR_PLUSEQ			: return "pluseq";
+			case  INSTR_MINUSEQ			: return "minuseq";
+			case  INSTR_MULTIEQ			: return "multieq";
+			case  INSTR_DIVEQ				: return "diveq";
+			case  INSTR_MODEQ				: return "modeq";
 			case  INSTR_AAND				: return "aand";
 			case  INSTR_OOR					: return "oor";
 			case  INSTR_OR					: return "or";

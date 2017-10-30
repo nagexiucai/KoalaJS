@@ -35,10 +35,6 @@ BCVar* KoalaJS::newObject(const string& clsName) {
 	ret = new BCVar();
 	ret->type = BCVar::OBJECT;
 	ret->addChild(PROTOTYPE, cls->var);
-
-	JSCallback nc = cls->var->getNativeConstructor();
-	if(nc != NULL)
-		nc(this, ret, NULL);
 	return ret;
 }
 
@@ -52,10 +48,6 @@ BCVar* KoalaJS::newObject(BCNode* cls) {
 	ret = new BCVar();
 	ret->type = BCVar::OBJECT;
 	ret->addChild(PROTOTYPE, cls->var);
-
-	JSCallback nc = cls->var->getNativeConstructor();
-	if(nc != NULL)
-		nc(this, ret, NULL);
 	return ret;
 }
 
@@ -387,15 +379,11 @@ BCVar* KoalaJS::funcDef(const string& funcName, bool regular) {
 	return ret;
 }
 
-BCVar* KoalaJS::addClass(const string& clsName, JSCallback nc) {
+BCVar* KoalaJS::addClass(const string& clsName) {
 		BCNode* cls = root->getChildOrCreate(clsName);
 		if(cls == NULL)
 			return NULL;
-
 		cls->var->type = BCVar::CLASS;
-		if(nc != NULL)
-			cls->var->setNativeConstructor(nc);
-
 		return cls->var;
 }
 
@@ -535,33 +523,49 @@ void KoalaJS::mathOp(OpCode op, BCVar* v1, BCVar* v2) {
 
 		switch(op) {
 			case INSTR_PLUS: 
+			case INSTR_PLUSEQ: 
 				ret = (f1 + f2);
 				break; 
 			case INSTR_MINUS: 
+			case INSTR_MINUSEQ: 
 				ret = (f1 - f2);
 				break; 
 			case INSTR_DIV: 
+			case INSTR_DIVEQ: 
 				ret = (f1 / f2);
 				break; 
 			case INSTR_MULTI: 
+			case INSTR_MULTIEQ: 
 				ret = (f1 * f2);
 				break; 
 			case INSTR_MOD: 
+			case INSTR_MODEQ: 
 				ret = (((int)f1) % (int)f2);
 				break; 
 		}
 
 		BCVar* v;
-		if(floatMode)
-			v = new BCVar(ret);
+		if(op == INSTR_PLUSEQ || 
+				op == INSTR_MINUSEQ ||
+				op == INSTR_DIVEQ ||
+				op == INSTR_MULTIEQ ||
+				op == INSTR_MODEQ) 
+			v = v1;
 		else
-			v = new BCVar((int)ret);
+			v = new BCVar();
+
+		if(floatMode) {
+			v->setFloat(ret);
+		}
+		else {
+			v->setInt((int)ret);
+		}
 		push(v->ref());
 		return;
 	}
 
 	//do string + 
-	if(op == INSTR_PLUS) {
+	if(op == INSTR_PLUS || op == INSTR_PLUSEQ) {
 		string s = v1->getString();
 		ostringstream ostr;  
 		switch(v2->type) {
@@ -585,7 +589,12 @@ void KoalaJS::mathOp(OpCode op, BCVar* v1, BCVar* v2) {
 		}
 		
 		s = ostr.str();
-		BCVar* v = new BCVar(s);
+		BCVar* v;
+		if(op == INSTR_PLUSEQ || op == INSTR_MINUSEQ) 
+				v = v1;
+		else
+				v = new BCVar();
+		v->setString(s);
 		push(v->ref());
 	}
 }
@@ -763,7 +772,12 @@ void KoalaJS::runCode(Bytecode* bc) {
 				break;
 			}
 			case INSTR_PLUS: 
+			case INSTR_PLUSEQ: 
+			case INSTR_MULTIEQ: 
+			case INSTR_DIVEQ: 
+			case INSTR_MODEQ: 
 			case INSTR_MINUS: 
+			case INSTR_MINUSEQ: 
 			case INSTR_DIV: 
 			case INSTR_MULTI: 
 			case INSTR_MOD: {
@@ -1000,7 +1014,7 @@ void KoalaJS::runCode(Bytecode* bc) {
 			}
 			case INSTR_CLASS: {
 				str = bcode->getStr(offset);
-				BCVar* v = addClass(str, NULL);
+				BCVar* v = addClass(str);
 				push(v->ref());
 				sc.var = v;
 				scopes.push_back(sc);

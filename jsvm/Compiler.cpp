@@ -223,6 +223,9 @@ std::string CScriptLex::getTokenStr(int token) {
 		case LEX_RSHIFTEQUAL    : return ">>=";
 		case LEX_PLUSEQUAL      : return "+=";
 		case LEX_MINUSEQUAL     : return "-=";
+		case LEX_MULTIEQUAL     : return "*=";
+		case LEX_DIVEQUAL 	    : return "/=";
+		case LEX_MODEQUAL   	  : return "%=";
 		case LEX_PLUSPLUS       : return "++";
 		case LEX_MINUSMINUS     : return "--";
 		case LEX_ANDEQUAL       : return "&=";
@@ -454,6 +457,15 @@ void CScriptLex::getNextToken() {
 			getNextCh();
 		}  else if (tk=='-' && currCh=='=') {
 			tk = LEX_MINUSEQUAL;
+			getNextCh();
+		}  else if (tk=='*' && currCh=='=') {
+			tk = LEX_MULTIEQUAL;
+			getNextCh();
+		}  else if (tk=='/' && currCh=='=') {
+			tk = LEX_DIVEQUAL;
+			getNextCh();
+		}  else if (tk=='%' && currCh=='=') {
+			tk = LEX_MODEQUAL;
 			getNextCh();
 		}  else if (tk=='+' && currCh=='+') {
 			tk = LEX_PLUSPLUS;
@@ -769,13 +781,28 @@ LEX_TYPES Compiler::statement(bool pop) {
 LEX_TYPES Compiler::base() {
 	LEX_TYPES ret = LEX_EOF;
 	ret = ternary();
-	if (l->tk=='=' || l->tk==LEX_PLUSEQUAL || l->tk==LEX_MINUSEQUAL) {
+	if (l->tk=='=' || 
+			l->tk==LEX_PLUSEQUAL ||
+			l->tk==LEX_MULTIEQUAL ||
+			l->tk==LEX_DIVEQUAL ||
+			l->tk==LEX_MODEQUAL ||
+			l->tk==LEX_MINUSEQUAL) {
+		LEX_TYPES op = l->tk;
+		l->chkread(l->tk);
+		base();
 		// sort out initialiser
-		if (l->tk == '=') {
-			l->chkread('=');
-			base();
+		if (op == '=') 
 			bytecode.gen(INSTR_ASIGN);
-		}
+		else if(op == LEX_PLUSEQUAL)
+			bytecode.gen(INSTR_PLUSEQ);
+		else if(op == LEX_MINUSEQUAL)
+			bytecode.gen(INSTR_MINUSEQ);
+		else if(op == LEX_MULTIEQUAL)
+			bytecode.gen(INSTR_MULTIEQ);
+		else if(op == LEX_DIVEQUAL)
+			bytecode.gen(INSTR_DIVEQ);
+		else if(op == LEX_MODEQUAL)
+			bytecode.gen(INSTR_MODEQ);
 	}
 	return ret;
 }

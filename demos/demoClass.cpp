@@ -17,7 +17,6 @@ class MyClass : public JSClass {
 	DECL_INSTANCE(MyClass)
 };
 
-
 static void moduleLoader(KoalaJS* js) {
 	MyClass::instance().load(js, "MyClass");
 }
@@ -26,9 +25,7 @@ int main(int argc, char** argv) {
 
 	while(true) { //Don't be scared, just for memory test:P.
 		KoalaJS js;
-
 		js.loadModule(moduleLoader);
-
 		js.exec("var a = new MyClass(); a.test();");
 	}
 
