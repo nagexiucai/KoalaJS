@@ -916,10 +916,10 @@ LEX_TYPES Compiler::logic() {
 	ret = condition();
 
 	while (l->tk=='&' || l->tk=='|' || l->tk=='^' || l->tk==LEX_ANDAND || l->tk==LEX_OROR) {
-		ret = condition();
-
 		int op = l->tk;
 		l->chkread(l->tk);
+		ret = condition();
+
 		if (op==LEX_ANDAND) {
 			bytecode.gen(INSTR_AAND);
 		} 

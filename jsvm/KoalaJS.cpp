@@ -480,25 +480,37 @@ void KoalaJS::compare(OpCode op, BCVar* v1, BCVar* v2) {
 	
 	bool i = false;
 	if(v1->type == v2->type) {
-		switch(op) {
+		if(v1->isString()) {
+			switch(op) {
 			case INSTR_EQ: 
-				i = (f1 == f2);
+				i = (v1->getString() == v2->getString());
 				break; 
 			case INSTR_NEQ: 
-				i = (f1 != f2);
-				break; 
-			case INSTR_LES: 
-				i = (f1 < f2);
-				break; 
-			case INSTR_GRT: 
-				i = (f1 > f2);
-				break; 
-			case INSTR_LEQ: 
-				i = (f1 <= f2);
-				break; 
-			case INSTR_GEQ: 
-				i = (f1 >= f2);
-				break; 
+				i = (v1->getString() != v2->getString());
+				break;
+			}
+		}
+		else {
+			switch(op) {
+				case INSTR_EQ: 
+					i = (f1 == f2);
+					break; 
+				case INSTR_NEQ: 
+					i = (f1 != f2);
+					break; 
+				case INSTR_LES: 
+					i = (f1 < f2);
+					break; 
+				case INSTR_GRT: 
+					i = (f1 > f2);
+					break; 
+				case INSTR_LEQ: 
+					i = (f1 <= f2);
+					break; 
+				case INSTR_GEQ: 
+					i = (f1 >= f2);
+					break; 
+			}
 		}
 	}
 	else if(op == INSTR_NEQ) {
@@ -723,6 +735,27 @@ void KoalaJS::runCode(Bytecode* bc) {
 					BCVar* v1 = VAR(i1);
 					BCVar* v2 = VAR(i2);
 					compare(instr, v1, v2);
+					
+					v1->unref();
+					v2->unref();
+				}
+				break;
+			}
+			case INSTR_AAND: 
+			case INSTR_OOR: {
+				StackItem* i2 = pop2();
+				StackItem* i1 = pop2();
+				if(i1 != NULL && i2 != NULL) {
+					BCVar* v1 = VAR(i1);
+					BCVar* v2 = VAR(i2);
+					
+					int r = 0;
+					if(instr == INSTR_AAND)
+						r = (v1->getInt() != 0) && (v2->getInt() != 0);
+					else
+						r = (v1->getInt() != 0) || (v2->getInt() != 0);
+					BCVar* v = new BCVar(r);
+					push(v->ref());
 					
 					v1->unref();
 					v2->unref();
