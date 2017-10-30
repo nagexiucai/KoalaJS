@@ -2,7 +2,11 @@ var f = new RFile("STDIN");
 
 //show help message
 function help() {
-	f.write("[Help] JSM Javascript engine, you can input javascript code here.\ncommands:\n\thelp       : show this help.\n\trun        : run the new input javascript, will reset runtime first.\n\texit       : quit shell.\n");
+	f.write("[Help] JSM Javascript engine, you can input javascript code here.\n" + 
+					"commands:\n" + 
+					"\thelp       : show this help.\n" + 
+					"\trun        : run the new input javascript, will reset runtime first.\n" + 
+					"\texit       : quit shell.\n");
 }
 
 help();
