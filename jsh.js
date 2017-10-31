@@ -1,4 +1,4 @@
-var f = new RFile("STDIN");
+var f = new RFile(RFile.stdin);
 
 //show help message
 function help() {
