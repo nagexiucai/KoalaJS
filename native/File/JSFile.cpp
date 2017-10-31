@@ -44,7 +44,7 @@ void JSFile::size(KoalaJS* js, CScriptVar* var, void* data) {
 	struct stat st;
 	fstat(fid, &st);
 	
-	r->setInt(st.st_size);
+	r->setInt((int)st.st_size);
 }
 
 void JSFile::close(KoalaJS* js, CScriptVar* var, void* data) {
@@ -61,7 +61,7 @@ void JSFile::seek(KoalaJS* js, CScriptVar* var, void* data) {
 	if(pos <= 0 || fid < 0)
 		return;
 
-	pos = ::lseek(fid, pos, SEEK_SET);
+	pos = (int)::lseek(fid, pos, SEEK_SET);
 	
 	CScriptVar* v = var->getReturnVar();
   v->setInt(pos);	
@@ -89,14 +89,14 @@ void JSFile::write(KoalaJS* js, CScriptVar* var, void* data) {
 		std::string s = v->getString();
 		p = (unsigned char*)s.c_str();
 		if(size == 0 || size > s.length())
-			size = s.length();
+			size = (int)s.length();
 	}
 
 	v = var->getReturnVar();
  	v->setInt(-1);	
 
 	if(p != NULL) {
-		size = ::write(fid, p, size);
+		size = (int)::write(fid, p, size);
 		v->setInt(size);
 	}
 }
@@ -113,7 +113,7 @@ void JSFile::read(KoalaJS* js, CScriptVar* var, void* data) {
 	if(buf == NULL)
 		return;
 
-	size = ::read(fid, buf, size);
+	size = (int)::read(fid, buf, size);
 	if(size < 0) {
 		delete []buf;
 		return;

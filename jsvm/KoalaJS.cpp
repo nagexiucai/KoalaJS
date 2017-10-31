@@ -132,7 +132,7 @@ BCNode* KoalaJS::find(const string& name) {
 }
 
 BCNode* KoalaJS::findInScopes(const string& name) {
-	for(int i=scopes.size() - 1; i >= 0; --i) {
+	for(int i=(int)scopes.size() - 1; i >= 0; --i) {
 		BCNode* r = scopes[i].var->getChild(name);
 		if(r != NULL)
 			return r;
@@ -267,8 +267,6 @@ BCNode* KoalaJS::findFunc(BCVar* owner, const string& fname, bool member) {
 }
 	
 bool KoalaJS::funcCall(const string& funcName, bool member) {
-	BCVar* ret = NULL;
-
 	if(funcName.length() == 0)
 		return false;
 	
@@ -369,11 +367,11 @@ BCVar* KoalaJS::funcDef(const string& funcName, bool regular) {
 	}
 	//create function variable
 	ret = new BCVar();
-	int argNum = args.size();
+	int argNum = (int)args.size();
 	ret->setFunction(argNum, funcPC);
 	ret->getFunc()->regular = regular;
 	//set args as top children 
-	for(int i=0; i<argNum; ++i) {
+	for(size_t i=0; i<argNum; ++i) {
 		ret->getFunc()->args->addChild(args[i]);
 	}
 	return ret;
@@ -396,7 +394,7 @@ void KoalaJS::addNative(const string& clsName, const string& funcDecl, JSCallbac
 		clsVar = getOrAddClass(clsName);
 	}
 
-	int i = funcDecl.find('(');
+	size_t i = funcDecl.find('(');
 	if(i == string::npos) {
 		ERR("Register native function '(' missed\n");	
 		return;
@@ -437,7 +435,7 @@ void KoalaJS::addNative(const string& clsName, const string& funcDecl, JSCallbac
 	}
 
 	BCVar* funcVar = new BCVar();
-	int argNum = args.size();
+	int argNum = (int)args.size();
 	funcVar->setFunction(argNum, 0, native);
 	FuncT* func = funcVar->getFunc();
 	func->data = data;
@@ -645,7 +643,6 @@ void KoalaJS::runCode(Bytecode* bc) {
 	code = bcode->getCode(codeSize);
 
 	VMScope sc;
-	BCVar* currentObj = root;
 	sc.var = root;
 	sc.pc = 0;
 	scopes.push_back(sc);

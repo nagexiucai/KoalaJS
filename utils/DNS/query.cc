@@ -63,7 +63,7 @@ void *query_dns_server(void *request_buffer, int *packet_size,
   }
 
   /* Send the packet and verify that all of it was sent. */
-  bytes_sent = sendto(sd, request_buffer, *packet_size, 0,
+  bytes_sent = (int)sendto(sd, request_buffer, *packet_size, 0,
   		      (struct sockaddr *)&server_addr,
   		      sizeof(struct sockaddr_in));
   if (bytes_sent != *packet_size) {
@@ -76,7 +76,7 @@ void *query_dns_server(void *request_buffer, int *packet_size,
   /* Start the timer and wait for the response from the server. */
   alarm(timeout);
 
-  while ((bytes_received = recvfrom(sd, response_buffer, 
+  while ((bytes_received = (int)recvfrom(sd, response_buffer,
 				    RESPONSE_BUFFER_SIZE - 1, 
 				    0, 0, 0)) < 0) {
 
@@ -85,7 +85,7 @@ void *query_dns_server(void *request_buffer, int *packet_size,
       if (attempts < retries) {
 	/* If we still have more retries left, re-send the request 
 	   packet and reset the timeout alarm. */
-	bytes_sent = sendto(sd, request_buffer, *packet_size, 0,
+	bytes_sent = (int)sendto(sd, request_buffer, *packet_size, 0,
 			    (struct sockaddr *)&server_addr,
 			    sizeof(struct sockaddr_in));
 	if (bytes_sent != *packet_size) {

@@ -190,10 +190,10 @@ bool Bytecode::toFile(const std::string& fname) {
 		return false;
 
 	// write string talble 
-	uint32_t sz = strTable.size();
+	uint32_t sz = (uint32_t)strTable.size();
 	for(uint16_t i=0; i<sz; ++i) {
 		string s = strTable[i];
-		uint32_t len = s.length();
+		uint32_t len = (uint32_t)s.length();
 		write(fd, (char*)(&len), INT_SIZE);
 		write(fd, s.c_str(), len);
 	}	

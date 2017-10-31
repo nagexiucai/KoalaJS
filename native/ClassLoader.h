@@ -24,7 +24,7 @@ class JSClass {
 		void load(KoalaJS* tinyJS, const std::string& clsName) {
 			registerFunctions(tinyJS, clsName);
 		}
-
+    virtual ~JSClass() {}
 };
 
 

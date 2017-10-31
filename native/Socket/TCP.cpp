@@ -100,7 +100,7 @@ void JSTCP::send(KoalaJS* js, CScriptVar* var, void* data) {
 	}
 
 	if(p != NULL) {
-		size = ::write(sc->sid, p, size);
+		size = (int)::write(sc->sid, p, size);
 		v->setInt(size);
 	}
 }
@@ -129,7 +129,7 @@ void JSTCP::recv(KoalaJS* js, CScriptVar* var, void* data) {
 		return;
 	}
 
-	size = ::read(sc->sid, buf, size);
+	size = (int)::read(sc->sid, buf, size);
 	if(size < 0) {
 		delete []buf;
 		return;

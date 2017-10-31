@@ -155,7 +155,7 @@ CScriptLex::CScriptLex(const std::string &input) {
 	data = strdup(input.c_str());
 	dataOwned = true;
 	dataStart = 0;
-	dataEnd = strlen(data);
+	dataEnd = (int)strlen(data);
 	reset();
 }
 
@@ -1038,8 +1038,6 @@ LEX_TYPES Compiler::defFunc(string& name) {
 	}
 	l->chkread(')');
 	PC pc = bytecode.reserve();
-
-	int funcBegin = l->tokenStart;
 	block();
 	
 	OpCode op = bytecode.getOpCode(bytecode.getPC() - 1) >> 16;
@@ -1164,7 +1162,7 @@ LEX_TYPES Compiler::factor() {
 				callFunc(argNum);
 				StringUtil::split(name, '.', names);
 				name = "";
-				int sz = names.size()-1;
+				int sz = (int)(names.size()-1);
 				string s = names[sz];
 				if(argNum > 0)
 					s = s + "$" + StringUtil::from(argNum);
@@ -1193,7 +1191,7 @@ LEX_TYPES Compiler::factor() {
 			else { // ------------------------------------- Array Access
 				StringUtil::split(name, '.', names);
 				name = "";
-				int sz = names.size();
+				int sz = (int)names.size();
 				for(int i=0; i<sz; i++) {
 					bytecode.gen(load ? INSTR_LOAD:INSTR_GET, names[i]);	
 					load = false;
@@ -1208,7 +1206,7 @@ LEX_TYPES Compiler::factor() {
 		if(name.length() > 0) {
 			StringUtil::split(name, '.', names);
 			name = "";
-			int sz = names.size();
+			int sz = (int)names.size();
 			for(int i=0; i<sz; i++) {
 				bytecode.gen(load ? INSTR_LOAD:INSTR_GET, names[i]);	
 				load = false;

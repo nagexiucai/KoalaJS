@@ -115,7 +115,7 @@ string BCVar::getJSON(const string& linePrefix) {
 		std::string indentedLinePrefix = linePrefix+"  ";
 		// children - handle with bracketed list
 		destination += "{ \n";
-		int sz = children.size();
+		int sz = (int)children.size();
 		for(int i=0; i<sz; ++i) {
 			BCNode* n = children[i];
 			destination += indentedLinePrefix;

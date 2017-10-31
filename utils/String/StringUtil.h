@@ -13,7 +13,7 @@ public:
 		string str = s;	
 		res.clear();
 		while(true) {
-			int i = str.find(c);
+			int i = (int)str.find(c);
 			if(i == std::string::npos) {
 				res.push_back(str);
 				break;
@@ -45,7 +45,7 @@ public:
 	}
 
 	inline static string trimRight(const string& s) {
-		for(int i=s.length()-1; i>=0; --i) {
+		for(int i=(int)s.length()-1; i>=0; --i) {
 			char b = s.at(i);
 			if(b == ' ' ||
 					b == '\t' ||

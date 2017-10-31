@@ -48,7 +48,7 @@ bool DNSC::resolv(const char* domain, int type, std::vector<DNSRes>& res, const 
   *error_message = 0;
 
   /* Use the current time as a seed for the random number generator. */
-  srand(time(0));
+  srand((unsigned int)time(0));
 
   /* set defaults for optional arguments in case none are specified */
   port		 = DEFAULT_PORT;

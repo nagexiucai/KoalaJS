@@ -15,14 +15,14 @@ std::string File::read(const std::string& fname) {
 	
 	struct stat st;
 	fstat(fd, &st);
-	int sz = st.st_size;
+	int sz = (int)st.st_size;
 	if(sz == 0) {
 		close(fd);
 		return "";
 	}
 
 	char* p = new char[sz];
-	sz = ::read(fd, p, sz);
+	sz = (int)::read(fd, p, sz);
 	close(fd);
 
 	if(sz < 0) 

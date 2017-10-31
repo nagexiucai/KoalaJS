@@ -140,7 +140,7 @@ private:
 
 
 	inline VMScope* scope() { 
-		int i = scopes.size() - 1;
+		int i = ((int)scopes.size()) - 1;
 		return (i < 0 ? NULL : &scopes[i]);
 	}
 

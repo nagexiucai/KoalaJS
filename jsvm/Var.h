@@ -343,7 +343,7 @@ public:
 	}
 
 	inline int getChildrenNum() {
-		return children.size();
+		return (int)children.size();
 	}
 
 	//get child var by index
@@ -358,7 +358,7 @@ public:
 		if(index < 0)
 			return NULL;
 
- 		int sz = children.size();
+ 		int sz = (int)children.size();
 		if(index >= sz) {
 			for(int i=sz; i<=index; ++i) {
 				BCNode* n = new BCNode("", new BCVar());
@@ -386,7 +386,7 @@ public:
 			}
 		}
 
-		int sz = children.size();
+		int sz = (int)children.size();
 		for(int i=0; i<sz; ++i) {
 			BCNode* r = children[i];
 			if(r != NULL && r->name == name)

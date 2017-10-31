@@ -10,13 +10,13 @@ void String::indexOf(KoalaJS* js, CScriptVar *c, void *) {
 	string search = c->getParameter("search")->getString();
 
 	size_t p = str.find(search);
-	int val = (p==string::npos) ? -1 : p;
+	int val = (p==string::npos) ? -1 : (int)p;
 	c->getReturnVar()->setInt(val);
 }
 
 void String::length(KoalaJS* js, CScriptVar *c, void *) {
 	string str = c->getParameter("this")->getString();
-	c->getReturnVar()->setInt(str.length());
+	c->getReturnVar()->setInt((int)str.length());
 }
 
 void String::substring(KoalaJS* js, CScriptVar *c, void *) {
@@ -94,7 +94,7 @@ void String::lastIndexOf(KoalaJS* js, CScriptVar *c, void *) {
 	string sub = c->getParameter("sub")->getString();
 
 	size_t p = str.rfind(sub);
-	int r = (p==string::npos) ? -1 : p;
+	int r = (p==string::npos) ? -1 : (int)p;
 	c->getReturnVar()->setInt(r);
 }
 

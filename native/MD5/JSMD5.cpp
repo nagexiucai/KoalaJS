@@ -42,7 +42,7 @@ void JSMD5::hashString(KoalaJS* js, CScriptVar *c, void *userdata) {
 	if(v->isString()) {
 		std::string src = v->getString();
 		p = (unsigned char*)src.c_str();
-		size = src.length();
+		size = (int)src.length();
 	}
 	else if(v->isBytes()) {
 		p = (unsigned char*)v->getPoint();
@@ -63,7 +63,7 @@ void JSMD5::hashHex(KoalaJS* js, CScriptVar *c, void *userdata) {
 	if(v->isString()) {
 		std::string src = v->getString();
 		p = (unsigned char*)src.c_str();
-		size = src.length();
+		size = (int)src.length();
 	}
 	else if(v->isBytes()) {
 		p = (unsigned char*)v->getPoint();

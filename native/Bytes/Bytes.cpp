@@ -24,7 +24,7 @@ void Bytes::from(KoalaJS* js, CScriptVar* var, void* data) {
 	else {
 		std::string s = sv->getString();
 		src = (unsigned char*)s.c_str();
-		size = s.length();
+		size = (int)s.length();
 	}
 	
 	unsigned char* buf = NULL;
@@ -52,7 +52,7 @@ void Bytes::append(KoalaJS* js, CScriptVar* var, void* data) {
 	if(sv->isString()) {
 		std::string s = sv->getString();
 		src = (unsigned char*)s.c_str();
-		size = s.length();
+		size = (int)s.length();
 	}
 	else if(sv->isBytes()) {
 		src = (unsigned char*)sv->getPoint();

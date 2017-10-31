@@ -36,7 +36,7 @@ void *build_dns_request_packet(const char *domain_name, int *packet_size,
   question_size = domain_length + sizeof(struct dns_question_trailer) + 2;
   header_size = sizeof(struct dns_header);
   total_size = question_size + header_size;
-  *packet_size = total_size;
+  *packet_size = (int)total_size;
 
   /* Allocate memory for the DNS packet buffer. */
   buffer_start = buffer = (char *)malloc(total_size);

@@ -10,7 +10,7 @@ void JSBase64::encode(KoalaJS* js, CScriptVar *c, void *userdata) {
 	
 	if(v->isString()) {
 		s = v->getString();
-		s = Base64::encode((const unsigned char*)s.c_str(), s.length());
+		s = Base64::encode((const unsigned char*)s.c_str(), (int)s.length());
 	}
 	else if(v->isBytes()) {
 		unsigned char* p = (unsigned char*)v->getPoint();
@@ -30,7 +30,7 @@ void JSBase64::decode(KoalaJS* js, CScriptVar *c, void *userdata) {
 	unsigned char* p = Base64::decode(src, size);
 
 	CScriptVar* v = js->newObject("Bytes"); 
-	v->setPoint(p, size, NULL, true);
+	v->setPoint(p, (int)size, NULL, true);
 	c->setReturnVar(v);
 }
 
