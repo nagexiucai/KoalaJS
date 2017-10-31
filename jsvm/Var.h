@@ -269,7 +269,7 @@ public:
 	}
 	
 	inline void clean() {
-		if(pointV != NULL) {
+		if(pointV != NULL && needDestroy) {
 			if(destroyFunc != NULL)
 				destroyFunc(pointV);
 			else

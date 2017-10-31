@@ -4,6 +4,7 @@
 #include "Bytecode.h"
 #include "CodeCache.h"
 #include "Var.h"
+#include "GlobalVars.h"
 #include <stack>
 
 #define VAR(i) (i->isNode ? ((BCNode*)i)->var : (BCVar*)i)
@@ -97,6 +98,7 @@ public:
 
 	inline void setcwd(const std::string& cwd) { this->cwd = cwd; }
 
+	static GlobalVars* getGlobalVars();
 private:
 	string cwd;
 	string cname;

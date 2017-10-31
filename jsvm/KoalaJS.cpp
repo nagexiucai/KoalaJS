@@ -5,6 +5,12 @@
 #include <sstream>  
 #include <stdlib.h>
 
+static GlobalVars _globalVars;
+
+GlobalVars* KoalaJS::getGlobalVars() {
+	return &_globalVars;
+}
+
 BCVar* KoalaJS::newObject(const string& clsName) {
 	if(clsName.length() == 0)
 		return NULL;
