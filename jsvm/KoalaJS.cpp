@@ -29,15 +29,16 @@ BCVar* KoalaJS::callJSFunc(const string& funcName, vector<BCVar*>& args) {
 	if(sz > 0) {
 		fname = fname + "$" + StringUtil::from((int)sz);
 	}
-	
-	VMScope sc;
-	sc.var = root;
-	sc.pc = 0;
-	scopes.push_back(sc);
-	VMScope* scp = scope();
 
+	if(scopes.size() == 0) {
+		VMScope sc;
+		sc.var = root;
+		sc.pc = 0;
+		scopes.push_back(sc);
+	}
+	size_t scDeep = scopes.size();
 	funcCall(fname, false);
-	if(scp != scope()) //js function call.
+	if(scDeep < scopes.size()) //js function call.
 		runCode(NULL);
 	scopes.pop_back();
 
@@ -54,7 +55,7 @@ BCVar* KoalaJS::callJSFunc(const string& funcName, vector<BCVar*>& args) {
 BCVar* KoalaJS::newObject(const string& clsName) {
 	if(clsName.length() == 0)
 		return NULL;
-	
+
 	BCVar* ret = NULL;
 	if(clsName == CLS_ARR) {
 		ret = new BCVar();
@@ -117,13 +118,13 @@ void KoalaJS::run(const std::string &fname) {
 		else {
 			Compiler compiler;
 			compiler.run(cname);
-//			compiler.bytecode.dump();
+			//			compiler.bytecode.dump();
 			compiler.bytecode.clone(bc);
 			CodeCache::cache(cname, bc);
 			runCode(bc);
 		}
 	}
-		
+
 	if(oldCwd.length() > 0)
 		cwd = oldCwd;
 }
@@ -173,7 +174,7 @@ BCNode* KoalaJS::find(const string& name) {
 	VMScope* sc = scope();
 	if(sc == NULL)
 		return NULL;
-		
+
 	return sc->var->getChild(name);
 }
 
@@ -245,7 +246,7 @@ bool KoalaJS::construct(BCVar* obj, int argNum) {
 
 void KoalaJS::doNew(const string& clsName) { //TODO: construct with arguments.
 	BCVar* ret = NULL;
-	
+
 	size_t pos = clsName.find("$");
 	string cn = clsName;
 	int argNum = 0;
@@ -311,17 +312,17 @@ BCNode* KoalaJS::findFunc(BCVar* owner, const string& fname, bool member) {
 	}
 	return n;
 }
-	
+
 bool KoalaJS::funcCall(const string& funcName, bool member) {
 	if(funcName.length() == 0)
 		return false;
-	
+
 	size_t pos = funcName.find("$");
 	string fname = funcName;
 	if(pos != string::npos)	{
 		fname = funcName.substr(0, pos);
 	}
-	
+
 	//read object
 	StackItem* si = pop2();
 	BCVar* object = NULL;
@@ -424,11 +425,11 @@ BCVar* KoalaJS::funcDef(const string& funcName, bool regular) {
 }
 
 BCVar* KoalaJS::getOrAddClass(const string& clsName) {
-		BCNode* cls = root->getChildOrCreate(clsName);
-		if(cls == NULL)
-			return NULL;
-		cls->var->type = BCVar::CLASS;
-		return cls->var;
+	BCNode* cls = root->getChildOrCreate(clsName);
+	if(cls == NULL)
+		return NULL;
+	cls->var->type = BCVar::CLASS;
+	return cls->var;
 }
 
 void KoalaJS::addNative(const string& clsName, const string& funcDecl, JSCallback native, void* data) {
@@ -473,7 +474,7 @@ void KoalaJS::addNative(const string& clsName, const string& funcDecl, JSCallbac
 			arg = s;
 			s = "";
 		}
-	
+
 		arg = StringUtil::trim(arg);
 		if(arg.length() == 0) 
 			break;
@@ -488,7 +489,7 @@ void KoalaJS::addNative(const string& clsName, const string& funcDecl, JSCallbac
 	for(i=0; i<argNum; ++i) {
 		func->args->addChild(args[i]);	
 	}
-	
+
 	if(argNum > 0)
 		funcName = funcName + "$" + StringUtil::from(argNum);	
 	clsVar->addChild(funcName, funcVar);
@@ -504,17 +505,17 @@ void KoalaJS::compare(OpCode op, BCVar* v1, BCVar* v2) {
 	float f1, f2;
 	f1 = v1->getFloat();
 	f2 = v2->getFloat();
-	
+
 	bool i = false;
 	if(v1->type == v2->type) {
 		if(v1->isString()) {
 			switch(op) {
-			case INSTR_EQ: 
-				i = (v1->getString() == v2->getString());
-				break; 
-			case INSTR_NEQ: 
-				i = (v1->getString() != v2->getString());
-				break;
+				case INSTR_EQ: 
+					i = (v1->getString() == v2->getString());
+					break; 
+				case INSTR_NEQ: 
+					i = (v1->getString() != v2->getString());
+					break;
 			}
 		}
 		else {
@@ -543,7 +544,7 @@ void KoalaJS::compare(OpCode op, BCVar* v1, BCVar* v2) {
 	else if(op == INSTR_NEQ) {
 		i = true;
 	}
-	
+
 	BCVar* v = new BCVar(i ? 1 : 0);
 	push(v->ref());
 }
@@ -609,30 +610,30 @@ void KoalaJS::mathOp(OpCode op, BCVar* v1, BCVar* v2) {
 		ostringstream ostr;  
 		switch(v2->type) {
 			case BCVar::STRING: {
-				ostr << s << v2->getString();
-				break;
-			}
+														ostr << s << v2->getString();
+														break;
+													}
 			case BCVar::INT: {
-				ostr << s << v2->getInt();
-				break;
-			}
+												 ostr << s << v2->getInt();
+												 break;
+											 }
 			case BCVar::FLOAT: {
-				ostr << s << v2->getFloat();
-				break;
-			}
+													 ostr << s << v2->getFloat();
+													 break;
+												 }
 			case BCVar::ARRAY: 
 			case BCVar::OBJECT: {
-				ostr << s << v2->getJSON();
-				break;
-			}
+														ostr << s << v2->getJSON();
+														break;
+													}
 		}
-		
+
 		s = ostr.str();
 		BCVar* v;
 		if(op == INSTR_PLUSEQ || op == INSTR_MINUSEQ) 
-				v = v1;
+			v = v1;
 		else
-				v = new BCVar();
+			v = new BCVar();
 		v->setString(s);
 		push(v->ref());
 	}
@@ -688,13 +689,13 @@ void KoalaJS::runCode(Bytecode* bc) {
 		pc = 0;
 		bcode = bc;
 		code = bcode->getCode(codeSize);
-		
+
 		VMScope sc;
 		sc.var = root;
 		sc.pc = 0;
 		scopes.push_back(sc);
 	}
-	VMScope *scp = scope();
+	size_t scDeep = scopes.size();
 
 	while(pc < codeSize) {
 		PC ins = code[pc++];
@@ -704,113 +705,113 @@ void KoalaJS::runCode(Bytecode* bc) {
 
 		switch(instr) {
 			case INSTR_NIL: {
-				break;
-			}
+												break;
+											}
 			case INSTR_TRUE: {
-				BCVar* v = new BCVar(1);	
-				push(v->ref());
-				break;
-			}
+												 BCVar* v = new BCVar(1);	
+												 push(v->ref());
+												 break;
+											 }
 			case INSTR_FALSE: {
-				BCVar* v = new BCVar(0);	
-				push(v->ref());
-				break;
-			}
+													BCVar* v = new BCVar(0);	
+													push(v->ref());
+													break;
+												}
 			case INSTR_UNDEF: {
-				BCVar* v = new BCVar();	
-				push(v->ref());
-				break;
-			}
+													BCVar* v = new BCVar();	
+													push(v->ref());
+													break;
+												}
 			case INSTR_POP: {
-				pop();
-				break;
-			}
+												pop();
+												break;
+											}
 			case INSTR_JMP: {
-				pc = pc + offset - 1;
-				break;
-			}
+												pc = pc + offset - 1;
+												break;
+											}
 			case INSTR_JMPB: {
-				pc = pc - offset - 1;
-				break;
-			}
+												 pc = pc - offset - 1;
+												 break;
+											 }
 			case INSTR_NJMP: {
-				StackItem* i = pop2();
-				if(i != NULL) {
-					BCVar* v = VAR(i);
-					if(v->type == BCVar::UNDEF || v->getInt() == 0)
-						pc = pc + offset - 1;
-					v->unref();
-				}
-				break;
-			}
+												 StackItem* i = pop2();
+												 if(i != NULL) {
+													 BCVar* v = VAR(i);
+													 if(v->type == BCVar::UNDEF || v->getInt() == 0)
+														 pc = pc + offset - 1;
+													 v->unref();
+												 }
+												 break;
+											 }
 			case INSTR_NEG: {
-				StackItem* i = pop2();
-				if(i != NULL) {
-					BCVar* v = VAR(i);
-					if(v->isInt()) {
-						int n = v->getInt();
-						v->setInt(-n);
-					}
-					else if(v->isFloat()) {
-						float n = v->getFloat();
-						v->setFloat(-n);
-					}
-					push(v);
-				}
-				break;
-			}
+												StackItem* i = pop2();
+												if(i != NULL) {
+													BCVar* v = VAR(i);
+													if(v->isInt()) {
+														int n = v->getInt();
+														v->setInt(-n);
+													}
+													else if(v->isFloat()) {
+														float n = v->getFloat();
+														v->setFloat(-n);
+													}
+													push(v);
+												}
+												break;
+											}
 			case INSTR_NOT: {
-				StackItem* i = pop2();
-				if(i != NULL) {
-					BCVar* v = VAR(i);
-					int c = 0;
-					if(v->type == BCVar::UNDEF || v->getInt() == 0)
-						c = 1;
-					v->unref();
-					v = new BCVar(c);
-					push(v->ref());	
-				}
-				break;
-			}
+												StackItem* i = pop2();
+												if(i != NULL) {
+													BCVar* v = VAR(i);
+													int c = 0;
+													if(v->type == BCVar::UNDEF || v->getInt() == 0)
+														c = 1;
+													v->unref();
+													v = new BCVar(c);
+													push(v->ref());	
+												}
+												break;
+											}
 			case INSTR_EQ: 
 			case INSTR_NEQ: 
 			case INSTR_LES: 
 			case INSTR_GRT: 
 			case INSTR_LEQ: 
 			case INSTR_GEQ: {
-				StackItem* i2 = pop2();
-				StackItem* i1 = pop2();
-				if(i1 != NULL && i2 != NULL) {
-					BCVar* v1 = VAR(i1);
-					BCVar* v2 = VAR(i2);
-					compare(instr, v1, v2);
-					
-					v1->unref();
-					v2->unref();
-				}
-				break;
-			}
+												StackItem* i2 = pop2();
+												StackItem* i1 = pop2();
+												if(i1 != NULL && i2 != NULL) {
+													BCVar* v1 = VAR(i1);
+													BCVar* v2 = VAR(i2);
+													compare(instr, v1, v2);
+
+													v1->unref();
+													v2->unref();
+												}
+												break;
+											}
 			case INSTR_AAND: 
 			case INSTR_OOR: {
-				StackItem* i2 = pop2();
-				StackItem* i1 = pop2();
-				if(i1 != NULL && i2 != NULL) {
-					BCVar* v1 = VAR(i1);
-					BCVar* v2 = VAR(i2);
-					
-					int r = 0;
-					if(instr == INSTR_AAND)
-						r = (v1->getInt() != 0) && (v2->getInt() != 0);
-					else
-						r = (v1->getInt() != 0) || (v2->getInt() != 0);
-					BCVar* v = new BCVar(r);
-					push(v->ref());
-					
-					v1->unref();
-					v2->unref();
-				}
-				break;
-			}
+												StackItem* i2 = pop2();
+												StackItem* i1 = pop2();
+												if(i1 != NULL && i2 != NULL) {
+													BCVar* v1 = VAR(i1);
+													BCVar* v2 = VAR(i2);
+
+													int r = 0;
+													if(instr == INSTR_AAND)
+														r = (v1->getInt() != 0) && (v2->getInt() != 0);
+													else
+														r = (v1->getInt() != 0) || (v2->getInt() != 0);
+													BCVar* v = new BCVar(r);
+													push(v->ref());
+
+													v1->unref();
+													v2->unref();
+												}
+												break;
+											}
 			case INSTR_PLUS: 
 			case INSTR_PLUSEQ: 
 			case INSTR_MULTIEQ: 
@@ -821,269 +822,272 @@ void KoalaJS::runCode(Bytecode* bc) {
 			case INSTR_DIV: 
 			case INSTR_MULTI: 
 			case INSTR_MOD: {
-				StackItem* i2 = pop2();
-				StackItem* i1 = pop2();
-				if(i1 != NULL && i2 != NULL) {
-					BCVar* v1 = VAR(i1);
-					BCVar* v2 = VAR(i2);
-					mathOp(instr, v1, v2);
-					
-					v1->unref();
-					v2->unref();
-				}
-				break;
-			}
+												StackItem* i2 = pop2();
+												StackItem* i1 = pop2();
+												if(i1 != NULL && i2 != NULL) {
+													BCVar* v1 = VAR(i1);
+													BCVar* v2 = VAR(i2);
+													mathOp(instr, v1, v2);
+
+													v1->unref();
+													v2->unref();
+												}
+												break;
+											}
 			case INSTR_MMINUS_PRE: {
-				StackItem* it = pop2();
-				if(it != NULL) {
-					BCVar* v = VAR(it);
-					int i = v->getInt() - 1;
-					v->setInt(i);
-					push(v);
-				}
-				break;
-			}
+															 StackItem* it = pop2();
+															 if(it != NULL) {
+																 BCVar* v = VAR(it);
+																 int i = v->getInt() - 1;
+																 v->setInt(i);
+																 push(v);
+															 }
+															 break;
+														 }
 			case INSTR_MMINUS: {
-				StackItem* it = pop2();
-				if(it != NULL) {
-					BCVar* v = VAR(it);
-					int i = v->getInt();
-					v->setInt(i-1);
-					v->unref();
-					v = new BCVar(i);
-					push(v->ref());
-				}
-				break;
-			}
+													 StackItem* it = pop2();
+													 if(it != NULL) {
+														 BCVar* v = VAR(it);
+														 int i = v->getInt();
+														 v->setInt(i-1);
+														 v->unref();
+														 v = new BCVar(i);
+														 push(v->ref());
+													 }
+													 break;
+												 }
 			case INSTR_PPLUS_PRE: {
-				StackItem* it = pop2();
-				if(it != NULL) {
-					BCVar* v = VAR(it);
-					int i = v->getInt() + 1;
-					v->setInt(i);
-					push(v);
-				}
-				break;
-			}
+															StackItem* it = pop2();
+															if(it != NULL) {
+																BCVar* v = VAR(it);
+																int i = v->getInt() + 1;
+																v->setInt(i);
+																push(v);
+															}
+															break;
+														}
 			case INSTR_PPLUS: {
-				StackItem* it = pop2();
-				if(it != NULL) {
-					BCVar* v = VAR(it);
-					int i = v->getInt();
-					v->setInt(i+1);
-					v->unref();
-					v = new BCVar(i);
-					push(v->ref());
-				}
-				break;
-			}
+													StackItem* it = pop2();
+													if(it != NULL) {
+														BCVar* v = VAR(it);
+														int i = v->getInt();
+														v->setInt(i+1);
+														v->unref();
+														v = new BCVar(i);
+														push(v->ref());
+													}
+													break;
+												}
 			case INSTR_RETURN:  //return without value
 			case INSTR_RETURNV: { //return with value
-				VMScope* sc = scope();
-				if(sc != NULL) {
-					FuncT* func = sc->var->getFunc();
-					if(func != NULL) {
-						BCVar* thisVar = func->thisNode->var;
-						if(instr == INSTR_RETURN) //return without value, push "this" to stack
-							push(thisVar->ref());
-						func->resetArgs();
-					}
+														VMScope* sc = scope();
+														if(sc != NULL) {
+															FuncT* func = sc->var->getFunc();
+															if(func != NULL) {
+																BCVar* thisVar = func->thisNode->var;
+																if(instr == INSTR_RETURN) //return without value, push "this" to stack
+																	push(thisVar->ref());
+																func->resetArgs();
+															}
 
-					pc = sc->pc;
-					scopes.pop_back();
-					if(scp == sc && bc == NULL) { //usually means call js function.
-						return;
-					}
-				}
-				break;
-			}
+															pc = sc->pc;
+															if(scDeep == scopes.size() && bc == NULL) { //usually means call js function.
+																scopes.pop_back();
+																return;
+															}
+															scopes.pop_back();
+														}
+														break;
+													}
 			case INSTR_VAR:
 			case INSTR_CONST: {
-				str = bcode->getStr(offset);
-				BCNode *node = find(str);
-				if(node != NULL) { //find just in current scope
-					if(node->var->isUndefined()) // declared only before
-						ERR("%s has already existed.\n", str.c_str());
-				}
-				else {
-					VMScope* current = scope();
-					if(current != NULL) {
-						node = current->var->addChild(str);
-						if(node != NULL && instr == INSTR_CONST)
-							node->beConst = true;
-					}
-				}
-				break;
-			}
+													str = bcode->getStr(offset);
+													BCNode *node = find(str);
+													if(node != NULL) { //find just in current scope
+														if(node->var->isUndefined()) // declared only before
+															ERR("%s has already existed.\n", str.c_str());
+													}
+													else {
+														VMScope* current = scope();
+														if(current != NULL) {
+															node = current->var->addChild(str);
+															if(node != NULL && instr == INSTR_CONST)
+																node->beConst = true;
+														}
+													}
+													break;
+												}
 			case INSTR_LOAD: {
-				str = bcode->getStr(offset);
-				if(str == THIS) {
-					BCVar* v = getCurrentObj(true);
-					if(v != NULL)
-						push(v->ref());
-				}
-				else {
-					BCNode* node = NULL;
-					node = scope()->var->getChild(str);
+												 str = bcode->getStr(offset);
+												 if(str == THIS) {
+													 BCVar* v = getCurrentObj(true);
+													 if(v != NULL)
+														 push(v->ref());
+												 }
+												 else {
+													 BCNode* node = NULL;
+													 node = scope()->var->getChild(str);
 
-					if(node == NULL) {
-						BCVar* thisVar = getCurrentObj();
-						if(thisVar != NULL) {
-							node = thisVar->getChild(str);
-							if(node == NULL)
-								node = findInClass(thisVar, str);
-						}
-					}
-					if(node == NULL) {
-						node = findInScopes(str);
-						if(node == NULL) {
-							VMScope* current = scope();
-							if(current != NULL) {
-								node = current->var->addChild(str);
-							}
-						}
-					}
-					node->var->ref();
-					push(node);
-				}
-				break;
-			}
+													 if(node == NULL) {
+														 BCVar* thisVar = getCurrentObj();
+														 if(thisVar != NULL) {
+															 node = thisVar->getChild(str);
+															 if(node == NULL)
+																 node = findInClass(thisVar, str);
+														 }
+													 }
+													 if(node == NULL) {
+														 node = findInScopes(str);
+														 if(node == NULL) {
+															 VMScope* current = scope();
+															 if(current != NULL) {
+																 node = current->var->addChild(str);
+															 }
+														 }
+													 }
+													 node->var->ref();
+													 push(node);
+												 }
+												 break;
+											 }
 			case INSTR_GET: {
-				str = bcode->getStr(offset);
-				StackItem* i = pop2();
-				if(i != NULL) {
-					BCVar* v = VAR(i);
-					if(v->isString() || v->isObject() || v->isArray()) {
-						doGet(v, str);
-					}
-					v->unref();
-				}
-				break;
-			}
+												str = bcode->getStr(offset);
+												StackItem* i = pop2();
+												if(i != NULL) {
+													BCVar* v = VAR(i);
+													if(v->isString() || v->isObject() || v->isArray()) {
+														doGet(v, str);
+													}
+													v->unref();
+												}
+												break;
+											}
 			case INSTR_INT: {
-				BCVar* v = new BCVar(BCVar::INT);
-				v->setInt((int)code[pc++]);
-				push(v->ref());
-				break;
-			}
+												BCVar* v = new BCVar(BCVar::INT);
+												v->setInt((int)code[pc++]);
+												push(v->ref());
+												break;
+											}
 			case INSTR_FLOAT: {
-				BCVar* v = new BCVar(BCVar::FLOAT);
-				v->setFloat(*(float*)(&code[pc++]));
-				push(v->ref());
-				break;
-			}
+													BCVar* v = new BCVar(BCVar::FLOAT);
+													v->setFloat(*(float*)(&code[pc++]));
+													push(v->ref());
+													break;
+												}
 			case INSTR_STR: {
-				BCVar* v = new BCVar(BCVar::STRING);
-				v->setString(bcode->getStr(offset));
-				push(v->ref());
-				break;
-			}
+												BCVar* v = new BCVar(BCVar::STRING);
+												v->setString(bcode->getStr(offset));
+												push(v->ref());
+												break;
+											}
 			case INSTR_ASIGN: {
-				StackItem* i2 = pop2();
-				StackItem* i1 = pop2();
-				if(i1 != NULL && i1->isNode && i2 != NULL) {
-					BCNode* node = (BCNode*)i1;
-					BCVar* v = VAR(i2);
-					
-					bool modi = (!node->beConst || node->var->type == BCVar::UNDEF);
-					node->var->unref();
-					if(modi) 
-						node->replace(v);
-					else
-						ERR("Can not change a const variable: %s!\n", node->name.c_str());
-					v->unref();
-					push(node->var->ref());
-				}
-				break;
-			}
+													StackItem* i2 = pop2();
+													StackItem* i1 = pop2();
+													if(i1 != NULL && i1->isNode && i2 != NULL) {
+														BCNode* node = (BCNode*)i1;
+														BCVar* v = VAR(i2);
+
+														bool modi = (!node->beConst || node->var->type == BCVar::UNDEF);
+														node->var->unref();
+														if(modi) 
+															node->replace(v);
+														else
+															ERR("Can not change a const variable: %s!\n", node->name.c_str());
+														v->unref();
+														push(node->var->ref());
+													}
+													break;
+												}
 			case INSTR_ARRAY_AT: {
-				StackItem* i2 = pop2();
-				StackItem* i1 = pop2();
-				if(i1 != NULL && i1->isNode && i2 != NULL) {
-					BCNode* node = (BCNode*)i1;
+														 StackItem* i2 = pop2();
+														 StackItem* i1 = pop2();
+														 if(i1 != NULL && i1->isNode && i2 != NULL) {
+															 BCNode* node = (BCNode*)i1;
 
-					BCVar* v = VAR(i2);
-					int at = v->getInt();
-					v->unref();
+															 BCVar* v = VAR(i2);
+															 int at = v->getInt();
+															 v->unref();
 
-					BCNode* n = node->var->getChildOrCreate(at);
-					if(n != NULL) {
-						n->var->ref();
-						push(n);
-					}
-					node->var->unref();
-				}
-				break;
-			}
+															 BCNode* n = node->var->getChildOrCreate(at);
+															 if(n != NULL) {
+																 n->var->ref();
+																 push(n);
+															 }
+															 node->var->unref();
+														 }
+														 break;
+													 }
 			case INSTR_OBJ:
 			case INSTR_ARRAY: {
-				BCVar* obj = new BCVar();
-				if(instr == INSTR_OBJ)
-					obj->type = BCVar::OBJECT;
-				else
-					obj->type = BCVar::ARRAY;
-				scp->var = obj;
-				scopes.push_back(*scp);
-				break;
-			}
+													BCVar* obj = new BCVar();
+													if(instr == INSTR_OBJ)
+														obj->type = BCVar::OBJECT;
+													else
+														obj->type = BCVar::ARRAY;
+													VMScope sc;
+													sc.var = obj;
+													scopes.push_back(sc);
+													break;
+												}
 			case INSTR_ARRAY_END: 
 			case INSTR_OBJ_END: {
-				BCVar* obj = scope()->var;
-				push(obj->ref()); //that actually means currentObj->ref() for push and unref for unasign.
-				scopes.pop_back();
-				break;
-			}
+														BCVar* obj = scope()->var;
+														push(obj->ref()); //that actually means currentObj->ref() for push and unref for unasign.
+														scopes.pop_back();
+														break;
+													}
 			case INSTR_MEMBER: 
 			case INSTR_MEMBERN: {
-				str = instr == INSTR_MEMBER ? "" : bcode->getStr(offset);
-				StackItem* i = pop2();
-				if(i != NULL) {
-					BCVar* v = VAR(i);
-					if(v->isFunction()) {
-						FuncT* func = v->getFunc();
-						if(func->argNum > 0)
-							str = str + "$" + StringUtil::from(func->argNum);
-					}
-					scope()->var->addChild(str, v);
-					v->unref();
-				}
-				break;
-			}
+														str = instr == INSTR_MEMBER ? "" : bcode->getStr(offset);
+														StackItem* i = pop2();
+														if(i != NULL) {
+															BCVar* v = VAR(i);
+															if(v->isFunction()) {
+																FuncT* func = v->getFunc();
+																if(func->argNum > 0)
+																	str = str + "$" + StringUtil::from(func->argNum);
+															}
+															scope()->var->addChild(str, v);
+															v->unref();
+														}
+														break;
+													}
 			case INSTR_FUNC: 
 			case INSTR_FUNC_GET: 
 			case INSTR_FUNC_SET: {
-				str = bcode->getStr(offset);
-				BCVar* v = funcDef(str, (instr == INSTR_FUNC ? true:false));
-				if(v != NULL)
-					push(v->ref());
-				break;
-			}
+														 str = bcode->getStr(offset);
+														 BCVar* v = funcDef(str, (instr == INSTR_FUNC ? true:false));
+														 if(v != NULL)
+															 push(v->ref());
+														 break;
+													 }
 			case INSTR_CLASS: {
-				str = bcode->getStr(offset);
-				BCVar* v = getOrAddClass(str);
-				push(v->ref());
-				scp->var = v;
-				scopes.push_back(*scp);
-				break;
-			}
+													str = bcode->getStr(offset);
+													BCVar* v = getOrAddClass(str);
+													push(v->ref());
+													VMScope sc;
+													sc.var = v;
+													scopes.push_back(sc);
+													break;
+												}
 			case INSTR_CLASS_END: {
-				scopes.pop_back();
-				break;
-			}
+															scopes.pop_back();
+															break;
+														}
 			case INSTR_CALL: {
-				if(!funcCall(bcode->getStr(offset)))
-					pop();//drop this
-				break;
-			}
+												 if(!funcCall(bcode->getStr(offset)))
+													 pop();//drop this
+												 break;
+											 }
 			case INSTR_CALLO: {
-				if(!funcCall(bcode->getStr(offset), true))
-					pop(); //drop this
-				break;
-			}
+													if(!funcCall(bcode->getStr(offset), true))
+														pop(); //drop this
+													break;
+												}
 			case INSTR_NEW: {
-				doNew(bcode->getStr(offset));
-				break;
-			}
+												doNew(bcode->getStr(offset));
+												break;
+											}
 		}
 	}
 	scopes.pop_back();
