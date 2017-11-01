@@ -7,9 +7,9 @@ namespace JSM {
 
 	class Global : public JSClass {
 
-		static void set(KoalaJS* js, CScriptVar *c, void *);
+		static void set(KoalaJS* js, BCVar *c, void *);
 
-		static void get(KoalaJS* js, CScriptVar *c, void *);
+		static void get(KoalaJS* js, BCVar *c, void *);
 
 		protected:
 		inline void registerFunctions(KoalaJS* js, const std::string& className) {

@@ -6,7 +6,7 @@
 namespace JSM {
 
 class JSDNS: public JSClass {
-	static void ip(KoalaJS* js, CScriptVar* var, void* data);
+	static void ip(KoalaJS* js, BCVar* var, void* data);
 
 	protected:
 	inline void registerFunctions(KoalaJS* js, const std::string& className) {

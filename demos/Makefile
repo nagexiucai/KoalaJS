@@ -1,4 +1,4 @@
-CFLAG = -g  -I../build/include -I../
+CFLAG = -Wall -g  -I../build/include -I../
 
 LDFLAG = -lpthread -L../build -lKoalaJS
 

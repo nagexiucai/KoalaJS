@@ -6,9 +6,9 @@
 namespace JSM {
 
 	class JSON : public JSClass {
-		static void toString(KoalaJS* js, CScriptVar *c, void *);
+		static void toString(KoalaJS* js, BCVar *c, void *);
 
-		static void parse(KoalaJS* js, CScriptVar *c, void *);
+		static void parse(KoalaJS* js, BCVar *c, void *);
 
 		protected:
 		inline void registerFunctions(KoalaJS* js, const std::string& className) {

@@ -10,9 +10,9 @@ namespace JSM {
 
 		static std::string hashHex(const unsigned char* s, unsigned int size);
 
-		static void hashString(KoalaJS* js, CScriptVar *c, void *);
+		static void hashString(KoalaJS* js, BCVar *c, void *);
 
-		static void hashHex(KoalaJS* js, CScriptVar *c, void *);
+		static void hashHex(KoalaJS* js, BCVar *c, void *);
 
 		protected:
 		inline void registerFunctions(KoalaJS* js, const std::string& className) {

@@ -6,13 +6,13 @@
 namespace JSM {
 
 	class JSThread : public JSClass {
-		static void exec(KoalaJS* js, CScriptVar *c, void *);
+		static void exec(KoalaJS* js, BCVar *c, void *);
 
-		static void run(KoalaJS* js, CScriptVar *c, void *);
+		static void run(KoalaJS* js, BCVar *c, void *);
 
-		static void sleep(KoalaJS* js, CScriptVar *c, void *);
+		static void sleep(KoalaJS* js, BCVar *c, void *);
 
-		static void usleep(KoalaJS* js, CScriptVar *c, void *);
+		static void usleep(KoalaJS* js, BCVar *c, void *);
 
 		protected:
 		inline void registerFunctions(KoalaJS* js, const std::string& className) {

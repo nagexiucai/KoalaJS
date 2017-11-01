@@ -36,7 +36,7 @@ static BCVar* newSocketObj(int sid, const struct sockaddr_in* addr) {
 	return v;
 }
 
-static BCVar* setSocket(CScriptVar* var, int sid, const struct sockaddr_in* addr) {
+static BCVar* setSocket(BCVar* var, int sid, const struct sockaddr_in* addr) {
 	BCVar* thisV = var->getParameter("this");
 	if(thisV == NULL)
 		return NULL;
@@ -47,7 +47,7 @@ static BCVar* setSocket(CScriptVar* var, int sid, const struct sockaddr_in* addr
 	return thisV;
 }
 
-static SocketT* getSocket(CScriptVar* var) {
+static SocketT* getSocket(BCVar* var) {
 	BCVar* thisV = var->getParameter("this");
 	if(thisV == NULL)
 		return NULL;
@@ -58,20 +58,20 @@ static SocketT* getSocket(CScriptVar* var) {
 	return (SocketT*)(n->var->getPoint());
 }
 
-void JSTCP::close(KoalaJS* js, CScriptVar* var, void* data) {
+void JSTCP::close(KoalaJS* js, BCVar* var, void* data) {
 	setSocket(var, -1, NULL);
 }
 
-void JSTCP::shutdown(KoalaJS* js, CScriptVar* var, void* data) {
+void JSTCP::shutdown(KoalaJS* js, BCVar* var, void* data) {
 	SocketT* sc = getSocket(var);
 	if(sc != NULL && sc->sid >= 0)
 		::shutdown(sc->sid, SHUT_RDWR);
 }
 
-void JSTCP::send(KoalaJS* js, CScriptVar* var, void* data) {
-	CScriptVar* v = var->getParameter("buf");
+void JSTCP::send(KoalaJS* js, BCVar* var, void* data) {
+	BCVar* v = var->getParameter("buf");
 	int size = var->getParameter("size")->getInt();
-	CScriptVar* n = var->getParameter("timeout");
+	BCVar* n = var->getParameter("timeout");
 	int to = 0;
 	if(n != NULL)
 		to = n->getInt();
@@ -106,9 +106,9 @@ void JSTCP::send(KoalaJS* js, CScriptVar* var, void* data) {
 }
 
 
-void JSTCP::recv(KoalaJS* js, CScriptVar* var, void* data) {
+void JSTCP::recv(KoalaJS* js, BCVar* var, void* data) {
 	int size = var->getParameter("size")->getInt();
-	CScriptVar* n = var->getParameter("timeout");
+	BCVar* n = var->getParameter("timeout");
 	int to = 0;
 	if(n != NULL)
 		to = n->getInt();
@@ -135,12 +135,12 @@ void JSTCP::recv(KoalaJS* js, CScriptVar* var, void* data) {
 		return;
 	}
 	
-	CScriptVar* v = js->newObject("Bytes"); 
+	BCVar* v = js->newObject("Bytes"); 
 	v->setPoint(buf, size, NULL, true);
 	var->setReturnVar(v);
 }
 
-void JSTCP::bind(KoalaJS* js, CScriptVar* var, void* data) {
+void JSTCP::bind(KoalaJS* js, BCVar* var, void* data) {
 	std::string ip = var->getParameter("ip")->getString();
 	int port = var->getParameter("port")->getInt();
 
@@ -169,7 +169,7 @@ void JSTCP::bind(KoalaJS* js, CScriptVar* var, void* data) {
 	var->getReturnVar()->setInt(1);
 }
 
-void JSTCP::accept(KoalaJS* js, CScriptVar* var, void* data) {
+void JSTCP::accept(KoalaJS* js, BCVar* var, void* data) {
 	SocketT* sc = getSocket(var);
 	if(sc == NULL || sc->sid < 0)
 		return;
@@ -184,14 +184,14 @@ void JSTCP::accept(KoalaJS* js, CScriptVar* var, void* data) {
 		return;
 	}
 	
-	CScriptVar* obj = js->newObject("RTCP");
+	BCVar* obj = js->newObject("RTCP");
 	BCVar* v = newSocketObj(cid, &in);
 	BCNode* n = obj->getChildOrCreate("socket");
 	n->replace(v);
 	var->setReturnVar(obj);
 }
 
-void JSTCP::listen(KoalaJS* js, CScriptVar* var, void* data) {
+void JSTCP::listen(KoalaJS* js, BCVar* var, void* data) {
 	int backlog = var->getParameter("backlog")->getInt();
 	var->getReturnVar()->setInt(0);
 
@@ -205,7 +205,7 @@ void JSTCP::listen(KoalaJS* js, CScriptVar* var, void* data) {
 	var->getReturnVar()->setInt(1);
 }
 
-void JSTCP::connect(KoalaJS* js, CScriptVar* var, void* data) {
+void JSTCP::connect(KoalaJS* js, BCVar* var, void* data) {
 	std::string host = var->getParameter("host")->getString();
 	int port = var->getParameter("port")->getInt();
 	int to = var->getParameter("timeout")->getInt();

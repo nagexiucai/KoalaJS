@@ -1,4 +1,4 @@
-CFLAG = -g -I./ -I./jsvm -I./utils
+CFLAG = -Wall -g -I./ -I./jsvm -I./utils
 
 VM_DIR = jsvm
 NATIVE_DIR = native

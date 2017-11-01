@@ -6,11 +6,11 @@
 namespace JSM {
 
 class JSDir: public JSClass {
-	static void open(KoalaJS* js, CScriptVar* var, void* data);
+	static void open(KoalaJS* js, BCVar* var, void* data);
 
-	static void read(KoalaJS* js, CScriptVar* var, void* data);
+	static void read(KoalaJS* js, BCVar* var, void* data);
 
-	static void close(KoalaJS* js, CScriptVar* var, void* data);
+	static void close(KoalaJS* js, BCVar* var, void* data);
 
 	protected:
 	inline void registerFunctions(KoalaJS* js, const std::string& className) {

@@ -11,7 +11,7 @@ typedef struct ThreadData {
 	KoalaJS* js;
 	std::string src;
 	bool code;
-	CScriptVar* arg;
+	BCVar* arg;
 } ThreadDataT;
 
 static void* _vmThread(void* data) {
@@ -22,7 +22,7 @@ static void* _vmThread(void* data) {
 	KoalaJS* js = td->js;
 	std::string src = td->src;
 	bool code = td->code;
-	CScriptVar* arg = td->arg;
+	BCVar* arg = td->arg;
 
 	delete td;
 	pthread_detach(pthread_self());
@@ -43,7 +43,7 @@ static void* _vmThread(void* data) {
 	return NULL;
 }
 
-void JSThread::exec(KoalaJS* js, CScriptVar *c, void *userdata) {
+void JSThread::exec(KoalaJS* js, BCVar *c, void *userdata) {
 	ThreadDataT *data = new ThreadDataT();
 
 	data->js = js;
@@ -54,7 +54,7 @@ void JSThread::exec(KoalaJS* js, CScriptVar *c, void *userdata) {
 	Thread::run(_vmThread, data);
 }
 
-void JSThread::run(KoalaJS* js, CScriptVar *c, void *userdata) {
+void JSThread::run(KoalaJS* js, BCVar *c, void *userdata) {
 	ThreadDataT *data = new ThreadDataT();
 
 	data->js = js;
@@ -64,12 +64,12 @@ void JSThread::run(KoalaJS* js, CScriptVar *c, void *userdata) {
 	Thread::run(_vmThread, data);
 }
 
-void JSThread::sleep(KoalaJS* js, CScriptVar *c, void *userdata) {
+void JSThread::sleep(KoalaJS* js, BCVar *c, void *userdata) {
 	int sec = c->getParameter("sec")->getInt();
 	::sleep(sec);
 }
 
-void JSThread::usleep(KoalaJS* js, CScriptVar *c, void *userdata) {
+void JSThread::usleep(KoalaJS* js, BCVar *c, void *userdata) {
 	int sec = c->getParameter("usec")->getInt();
 	::usleep(sec);
 }

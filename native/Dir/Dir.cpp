@@ -16,7 +16,7 @@ static void destroyDir(void* data) {
 		::closedir(dir);
 }
 
-static DIR* getDir(CScriptVar* var) {
+static DIR* getDir(BCVar* var) {
 	BCVar* thisV = var->getParameter("this");
 	if(thisV == NULL)
 		return NULL;
@@ -27,7 +27,7 @@ static DIR* getDir(CScriptVar* var) {
 	return (DIR*)(n->var->getPoint());
 }
 
-static BCVar* setDir(CScriptVar* var, DIR* dir) {
+static BCVar* setDir(BCVar* var, DIR* dir) {
 	BCVar* thisV = var->getParameter("this");
 	if(thisV == NULL)
 		return NULL;
@@ -39,11 +39,11 @@ static BCVar* setDir(CScriptVar* var, DIR* dir) {
 	return thisV;
 }
 
-void JSDir::close(KoalaJS* js, CScriptVar* var, void* data) {
+void JSDir::close(KoalaJS* js, BCVar* var, void* data) {
 	setDir(var, NULL);
 }
 
-void JSDir::read(KoalaJS* js, CScriptVar* var, void* data) {
+void JSDir::read(KoalaJS* js, BCVar* var, void* data) {
 	var->getReturnVar()->setString("");
 	DIR* dir = getDir(var);
 	if(dir == NULL)
@@ -57,7 +57,7 @@ void JSDir::read(KoalaJS* js, CScriptVar* var, void* data) {
 }
 
 
-void JSDir::open(KoalaJS* js, CScriptVar* var, void* data) {
+void JSDir::open(KoalaJS* js, BCVar* var, void* data) {
 	std::string name = var->getParameter("name")->getString();
 
 	var->getReturnVar()->setInt(0);

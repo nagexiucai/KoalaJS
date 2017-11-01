@@ -10,17 +10,17 @@ namespace JSM {
 #define STDERR "_STDERR"
 
 class JSFile: public JSClass {
-	static void size(KoalaJS* js, CScriptVar* var, void* data);
+	static void size(KoalaJS* js, BCVar* var, void* data);
 
-	static void open(KoalaJS* js, CScriptVar* var, void* data);
+	static void open(KoalaJS* js, BCVar* var, void* data);
 
-	static void close(KoalaJS* js, CScriptVar* var, void* data);
+	static void close(KoalaJS* js, BCVar* var, void* data);
 
-	static void read(KoalaJS* js, CScriptVar* var, void* data);
+	static void read(KoalaJS* js, BCVar* var, void* data);
 
-	static void write(KoalaJS* js, CScriptVar* var, void* data);
+	static void write(KoalaJS* js, BCVar* var, void* data);
 
-	static void seek(KoalaJS* js, CScriptVar* var, void* data);
+	static void seek(KoalaJS* js, BCVar* var, void* data);
 
 	protected:
 	inline void registerFunctions(KoalaJS* js, const std::string& className) {

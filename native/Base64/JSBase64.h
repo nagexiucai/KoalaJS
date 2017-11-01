@@ -6,9 +6,9 @@
 namespace JSM {
 
 	class JSBase64 : public JSClass {
-		static void encode(KoalaJS* js, CScriptVar *c, void *);
+		static void encode(KoalaJS* js, BCVar *c, void *);
 
-		static void decode(KoalaJS* js, CScriptVar *c, void *);
+		static void decode(KoalaJS* js, BCVar *c, void *);
 
 		protected:
 		inline void registerFunctions(KoalaJS* js, const std::string& className) {

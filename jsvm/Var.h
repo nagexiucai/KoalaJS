@@ -432,7 +432,4 @@ public:
 	string getJSON(const string& linePrefix = "");
 };
 
-//define BCVar as CScriptVar for native functions compatible with Interpretor
-typedef BCVar CScriptVar;
-
 #endif

@@ -40,7 +40,7 @@ void *query_dns_server(void *request_buffer, int *packet_size,
   handler.sa_handler = handle_alarm;
   handler.sa_flags   = 0;
 
-  if (sigfillset(&handler.sa_mask) < 0) {
+	if (sigfillset(&handler.sa_mask) < /* DISABLES CODE */ (0)) {
     strncpy(error_message, "sigfillset() failed", ERROR_BUFFER);
     close(sd);
     return 0;

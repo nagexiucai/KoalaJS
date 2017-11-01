@@ -34,11 +34,11 @@ std::string JSMD5::hashHex(const unsigned char* s, unsigned int size) {
 	return hex;
 }
 
-void JSMD5::hashString(KoalaJS* js, CScriptVar *c, void *userdata) {
+void JSMD5::hashString(KoalaJS* js, BCVar *c, void *userdata) {
 	unsigned char* p = NULL;
 	int size = 0;
 
-	CScriptVar *v = c->getParameter("src");
+	BCVar *v = c->getParameter("src");
 	if(v->isString()) {
 		std::string src = v->getString();
 		p = (unsigned char*)src.c_str();
@@ -55,11 +55,11 @@ void JSMD5::hashString(KoalaJS* js, CScriptVar *c, void *userdata) {
 	}
 }
 
-void JSMD5::hashHex(KoalaJS* js, CScriptVar *c, void *userdata) {
+void JSMD5::hashHex(KoalaJS* js, BCVar *c, void *userdata) {
 	unsigned char* p = NULL;
 	int size = 0;
 
-	CScriptVar *v = c->getParameter("src");
+	BCVar *v = c->getParameter("src");
 	if(v->isString()) {
 		std::string src = v->getString();
 		p = (unsigned char*)src.c_str();

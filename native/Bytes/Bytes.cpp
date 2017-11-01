@@ -4,15 +4,15 @@
 using namespace std;
 using namespace JSM;
 
-void Bytes::size(KoalaJS* js, CScriptVar* var, void* data) {
-	CScriptVar* v = var->getParameter("this");
+void Bytes::size(KoalaJS* js, BCVar* var, void* data) {
+	BCVar* v = var->getParameter("this");
 
 	var->getReturnVar()->setInt(v->getInt());
 }
 
-void Bytes::from(KoalaJS* js, CScriptVar* var, void* data) {
-	CScriptVar* sv = var->getParameter("src");
-	CScriptVar* v = var->getParameter("this");
+void Bytes::from(KoalaJS* js, BCVar* var, void* data) {
+	BCVar* sv = var->getParameter("src");
+	BCVar* v = var->getParameter("this");
 
 	unsigned char* src = NULL;
 	int size = 0;
@@ -41,9 +41,9 @@ void Bytes::from(KoalaJS* js, CScriptVar* var, void* data) {
 }
 
 
-void Bytes::append(KoalaJS* js, CScriptVar* var, void* data) {
-	CScriptVar* sv = var->getParameter("src");
-	CScriptVar* v = var->getParameter("this");
+void Bytes::append(KoalaJS* js, BCVar* var, void* data) {
+	BCVar* sv = var->getParameter("src");
+	BCVar* v = var->getParameter("this");
 
 	unsigned char* src = NULL;
 	unsigned char c = 0;
@@ -85,8 +85,8 @@ void Bytes::append(KoalaJS* js, CScriptVar* var, void* data) {
 }
 
 
-void Bytes::toString(KoalaJS* js, CScriptVar* var, void* data) {
-	CScriptVar* v = var->getParameter("this");
+void Bytes::toString(KoalaJS* js, BCVar* var, void* data) {
+	BCVar* v = var->getParameter("this");
 	char* buf = (char*)v->getPoint();
 	int size = v->getInt();
 
@@ -98,8 +98,8 @@ void Bytes::toString(KoalaJS* js, CScriptVar* var, void* data) {
 	var->getReturnVar()->setString(s);
 }
 
-void Bytes::set(KoalaJS* js, CScriptVar* var, void* data) {
-	CScriptVar* v = var->getParameter("this");
+void Bytes::set(KoalaJS* js, BCVar* var, void* data) {
+	BCVar* v = var->getParameter("this");
 	int at = var->getParameter("at")->getInt();
 	int ch = var->getParameter("ch")->getInt();
 

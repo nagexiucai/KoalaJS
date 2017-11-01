@@ -7,17 +7,17 @@
 namespace JSM {
 
 	class Debug : public JSClass {
-		static void print(KoalaJS* js, CScriptVar *v, void *userdata) {
+		static void print(KoalaJS* js, BCVar *v, void *userdata) {
 			string s = v->getParameter("text")->getString();
 			printf("%s", s.c_str());
 		}
 
-		static void println(KoalaJS* js, CScriptVar *v, void *userdata) {
+		static void println(KoalaJS* js, BCVar *v, void *userdata) {
 			string s = v->getParameter("text")->getString() + "\n";
 			printf("%s", s.c_str());
 		}
 
-		static void dump(KoalaJS* js, CScriptVar *v, void *userdata) {
+		static void dump(KoalaJS* js, BCVar *v, void *userdata) {
 			string s = js->getRoot()->getString();
 			printf("%s", s.c_str());
 		}

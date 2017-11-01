@@ -8,21 +8,21 @@
 namespace JSM {
 
 class JSTCP: public JSClass {
-	static void connect(KoalaJS* js, CScriptVar* var, void* data);
+	static void connect(KoalaJS* js, BCVar* var, void* data);
 
-	static void close(KoalaJS* js, CScriptVar* var, void* data);
+	static void close(KoalaJS* js, BCVar* var, void* data);
 
-	static void shutdown(KoalaJS* js, CScriptVar* var, void* data);
+	static void shutdown(KoalaJS* js, BCVar* var, void* data);
 
-	static void recv(KoalaJS* js, CScriptVar* var, void* data);
+	static void recv(KoalaJS* js, BCVar* var, void* data);
 
-	static void send(KoalaJS* js, CScriptVar* var, void* data);
+	static void send(KoalaJS* js, BCVar* var, void* data);
 
-	static void bind(KoalaJS* js, CScriptVar* var, void* data);
+	static void bind(KoalaJS* js, BCVar* var, void* data);
 
-	static void listen(KoalaJS* js, CScriptVar* var, void* data);
+	static void listen(KoalaJS* js, BCVar* var, void* data);
 
-	static void accept(KoalaJS* js, CScriptVar* var, void* data);
+	static void accept(KoalaJS* js, BCVar* var, void* data);
 
 	protected:
 	inline void registerFunctions(KoalaJS* js, const std::string& className) {
