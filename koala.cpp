@@ -5,13 +5,13 @@
 #include <stdio.h>
 #include <string.h>
 
-void _moduleLoader(KoalaJS* tinyJS);
+void _basicModuleLoader(KoalaJS* tinyJS);
 
 //run js file.
 void run(int argc, char** argv) {
 	try {
 		KoalaJS tinyJS;
-		tinyJS.loadModule(_moduleLoader);
+		tinyJS.loadModule(_basicModuleLoader);
 
 		//read args 
 		BCVar* args = new BCVar();

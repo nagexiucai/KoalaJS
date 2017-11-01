@@ -1,4 +1,5 @@
 #include "Global.h"
+#include "GlobalVars.h"
 #include <cstdlib>
 #include <stdio.h>
 #include <map>
