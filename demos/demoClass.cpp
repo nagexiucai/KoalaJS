@@ -1,4 +1,5 @@
 #include "ClassLoader.h"
+#include "native/Debug/Debug.h"
 
 static int _count = 0;
 

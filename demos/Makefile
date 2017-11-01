@@ -1,14 +1,12 @@
-CFLAG = -g  -I../build/include
-
-SRCS = demoClass.cpp 
+CFLAG = -g  -I../build/include -I../
 
 LDFLAG = -lpthread -L../build -lKoalaJS
 
-TARGET = demoClass
-
 all:
-	g++ ${CFLAG} -o ${TARGET} ${SRCS} ${LDFLAG}
+	mkdir -p build
+	g++ ${CFLAG} -o build/demoClass demoClass.cpp ${LDFLAG}
+	g++ ${CFLAG} -o build/demoJSFunc demoJSFunc.cpp ${LDFLAG}
 
 clean:
-	rm -fr ${TARGET} *.o *.dSYM
+	rm -fr build *.o *.dSYM
 

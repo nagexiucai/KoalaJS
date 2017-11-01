@@ -14,7 +14,6 @@ typedef struct {
 	PC pc; //stack pc
 } VMScope;
 
-
 typedef struct {
 	PC pc;
 	PC *code;
@@ -99,6 +98,13 @@ public:
 	inline void setcwd(const std::string& cwd) { this->cwd = cwd; }
 
 	static GlobalVars* getGlobalVars();
+
+	/**Call JS Function
+	@param name, function name.
+	@param args, function arguments for js call,  will empty this vector automaticly , don't worry, the args elements will be freed.
+	@return BCVar* from JS Function return, you have to unref() it !!
+	*/
+	BCVar* callJSFunc(const string& name, vector<BCVar*>& args);
 private:
 	string cwd;
 	string cname;

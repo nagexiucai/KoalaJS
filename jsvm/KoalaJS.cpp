@@ -11,6 +11,46 @@ GlobalVars* KoalaJS::getGlobalVars() {
 	return &_globalVars;
 }
 
+BCVar* KoalaJS::callJSFunc(const string& funcName, vector<BCVar*>& args) {
+	BCVar* v = NULL;
+	size_t sz = args.size();
+	for(size_t i=0; i<sz; ++i) {
+		v = args[i];
+		push(v->ref());
+	}
+	args.clear();
+
+	v = getCurrentObj(true);
+	if(v != NULL)
+		push(v->ref());
+
+
+	string fname = funcName;
+	if(sz > 0) {
+		fname = fname + "$" + StringUtil::from((int)sz);
+	}
+	
+	VMScope sc;
+	sc.var = root;
+	sc.pc = 0;
+	scopes.push_back(sc);
+	VMScope* scp = scope();
+
+	funcCall(fname, false);
+	if(scp != scope()) //js function call.
+		runCode(NULL);
+	scopes.pop_back();
+
+	StackItem* i = pop2();
+	if(i != NULL)
+		v = VAR(i);
+	else {
+		v = new BCVar();
+		v->ref();
+	}
+	return v;
+}
+
 BCVar* KoalaJS::newObject(const string& clsName) {
 	if(clsName.length() == 0)
 		return NULL;
@@ -255,11 +295,11 @@ void KoalaJS::doNew(const string& clsName) { //TODO: construct with arguments.
 BCNode* KoalaJS::findFunc(BCVar* owner, const string& fname, bool member) {
 	//find function in object;
 	BCNode*	n = owner->getChild(fname);
-	if(n == NULL)
+	if(n == NULL && member)
 		n = findInClass(owner, fname);
 
 	//find function in scopes;
-	if(n == NULL && !member)
+	if(n == NULL)
 		n = findInScopes(fname);
 
 	if(n == NULL) {
@@ -635,24 +675,26 @@ void KoalaJS::doGet(BCVar* v, const string& str) {
 }
 
 void KoalaJS::runCode(Bytecode* bc) {
-	if(code != NULL && bcode != NULL) {
-		CodeT cs;
-		cs.pc = pc;
-		cs.code = code;
-		cs.size = codeSize;
-		cs.bcode = bcode;
-		codeStack.push(cs);	
+	if(bc != NULL) {
+		if(code != NULL && bcode != NULL) {
+			CodeT cs;
+			cs.pc = pc;
+			cs.code = code;
+			cs.size = codeSize;
+			cs.bcode = bcode;
+			codeStack.push(cs);	
+		}
+
+		pc = 0;
+		bcode = bc;
+		code = bcode->getCode(codeSize);
+		
+		VMScope sc;
+		sc.var = root;
+		sc.pc = 0;
+		scopes.push_back(sc);
 	}
-
-	pc = 0;
-	bcode = bc;
-	code = bcode->getCode(codeSize);
-
-	VMScope sc;
-	sc.var = root;
-	sc.pc = 0;
-	scopes.push_back(sc);
-
+	VMScope *scp = scope();
 
 	while(pc < codeSize) {
 		PC ins = code[pc++];
@@ -849,6 +891,9 @@ void KoalaJS::runCode(Bytecode* bc) {
 
 					pc = sc->pc;
 					scopes.pop_back();
+					if(scp == sc && bc == NULL) { //usually means call js function.
+						return;
+					}
 				}
 				break;
 			}
@@ -977,8 +1022,8 @@ void KoalaJS::runCode(Bytecode* bc) {
 					obj->type = BCVar::OBJECT;
 				else
 					obj->type = BCVar::ARRAY;
-				sc.var = obj;
-				scopes.push_back(sc);
+				scp->var = obj;
+				scopes.push_back(*scp);
 				break;
 			}
 			case INSTR_ARRAY_END: 
@@ -1017,8 +1062,8 @@ void KoalaJS::runCode(Bytecode* bc) {
 				str = bcode->getStr(offset);
 				BCVar* v = getOrAddClass(str);
 				push(v->ref());
-				sc.var = v;
-				scopes.push_back(sc);
+				scp->var = v;
+				scopes.push_back(*scp);
 				break;
 			}
 			case INSTR_CLASS_END: {
