@@ -101,10 +101,11 @@ class KoalaJS {
 
 		/**Call JS Function
 			@param name, function name.
-			@param args, function arguments for js call,  will empty this vector automaticly , don't worry, the args elements will be freed.
+			@param argNum, argument number.
+			@param ..., arguments (BCVar*) type.
 			@return BCVar* from JS Function return, you have to unref() it !!
 		 */
-		BCVar* callJSFunc(const string& name, vector<BCVar*>& args);
+		BCVar* callJSFunc(const string& name, int argNum, ...);
 	private:
 		string cwd;
 		string cname;

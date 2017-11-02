@@ -11,14 +11,12 @@ int main(int argc, char** argv) {
 	js.exec("function p(i) { println(i); } ");
 
 	while(true) { //Don't be scared, just for memory test:P.
-		vector<BCVar*> args;
-		BCVar* v;
-		args.push_back(new BCVar("Hello, world!Native"));
-		v = js.callJSFunc("println", args);
+		BCVar *v = new BCVar("Hello, world! Native");
+		v = js.callJSFunc("println", 1, v);
 		v->unref();
 
-		args.push_back(new BCVar("Hello, world!"));
-		v = js.callJSFunc("p", args);
+		v = new BCVar("Hello, world!");
+		v = js.callJSFunc("p", 1, v);
 		v->unref();
 	}
 

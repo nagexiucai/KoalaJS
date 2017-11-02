@@ -4,6 +4,7 @@
 #include "utils/File/File.h"
 #include <sstream>  
 #include <stdlib.h>
+#include <stdarg.h>
 
 static GlobalVars _globalVars;
 
@@ -11,14 +12,16 @@ GlobalVars* KoalaJS::getGlobalVars() {
 	return &_globalVars;
 }
 
-BCVar* KoalaJS::callJSFunc(const string& funcName, vector<BCVar*>& args) {
+BCVar* KoalaJS::callJSFunc(const string& funcName, int argNum, ...) {
 	BCVar* v = NULL;
-	size_t sz = args.size();
-	for(size_t i=0; i<sz; ++i) {
-		v = args[i];
+	va_list args;
+	va_start(args, argNum);
+
+	for(int i=0; i<argNum; ++i) {
+		v = va_arg(args, BCVar*);
 		push(v->ref());
 	}
-	args.clear();
+	va_end(args);
 
 	v = getCurrentObj(true);
 	if(v != NULL)
@@ -26,8 +29,8 @@ BCVar* KoalaJS::callJSFunc(const string& funcName, vector<BCVar*>& args) {
 
 
 	string fname = funcName;
-	if(sz > 0) {
-		fname = fname + "$" + StringUtil::from((int)sz);
+	if(argNum > 0) {
+		fname = fname + "$" + StringUtil::from((int)argNum);
 	}
 
 	if(scopes.size() == 0) {
