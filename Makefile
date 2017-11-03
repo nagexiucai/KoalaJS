@@ -32,12 +32,15 @@ LIBS = $(LIBS_DIR)/Base64/Base64.cpp \
 		$(LIBS_DIR)/DNS/request.cc \
 		$(LIBS_DIR)/File/File.cpp
 
-LDFLAG = -lpthread -ldl
+LDFLAG = -lpthread
+
+LDFLAGARM = --static -Wl,--whole-archive -lpthread -Wl,--no-whole-archive -lc
 
 COMPILER = jsbc
 VM = koala
 
 TARGET = build
+ARM = arm-none-linux-gnueabi-
 
 all: lib sh
 
@@ -50,7 +53,14 @@ lib:
 	g++ $(CFLAG) -c $(TINYJS) $(NATIVE) $(LIBS)
 	rm -f $(TARGET)/libKoalaJS.a
 	ar cq $(TARGET)/libKoalaJS.a *.o
-	rm -f *.o
+	rm -f *o
+
+arm: 
+	mkdir -p $(TARGET)/include
+	$(ARM)g++ $(CFLAG) -c $(TINYJS) $(LIBS) $(NATIVE) 
+	$(ARM)ar cq $(TARGET)/libKoalaJS-arm.a *.o
+	rm -f *o
+	$(ARM)g++ $(CFLAG)  -o $(VM)-arm koala.cpp $(LDFLAGARM) -L./$(TARGET) -lKoalaJS-arm
 
 pkg:
 	mkdir -p $(TARGET)/include

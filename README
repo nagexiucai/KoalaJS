@@ -16,6 +16,12 @@
 
 	add the path which has 'arm-none-linux-gnueabi-g++' to default paths. 
 
+	.to compile intel pc elf:
+		make
+
+	.to compile arm elf:
+		make arm
+
 ----------------------------------------------------------------------------------------
 KoalaJS source code reading guide. by Misa.Z(misa.zhu@gmail.com)
 ----------------------------------------------------------------------------------------
