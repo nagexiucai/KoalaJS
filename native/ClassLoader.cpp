@@ -16,7 +16,7 @@
 #include "native/Dir/Dir.h"
 #include "native/Array/Array.h"
 
-void _basicModuleLoader(KoalaJS* tinyJS) {
+extern "C" void _moduleLoader(KoalaJS* tinyJS) {
 //load basic classes
 	JSM::Bytes::instance().load(tinyJS, "Bytes");
 	JSM::String::instance().load(tinyJS, "String");
@@ -38,5 +38,3 @@ void _basicModuleLoader(KoalaJS* tinyJS) {
 	JSM::JSDir::instance().load(tinyJS, "RDir");
 	JSM::System::instance().load(tinyJS, "RSystem");
 }
-
-
