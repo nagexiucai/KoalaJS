@@ -417,8 +417,8 @@ BCVar* KoalaJS::funcDef(const string& funcName, bool regular) {
 	}
 	//create function variable
 	ret = new BCVar();
-	int argNum = (int)args.size();
-	ret->setFunction(argNum, funcPC);
+	size_t argNum = args.size();
+	ret->setFunction((int)argNum, funcPC);
 	ret->getFunc()->regular = regular;
 	//set args as top children 
 	for(size_t i=0; i<argNum; ++i) {
@@ -485,8 +485,8 @@ void KoalaJS::addNative(const string& clsName, const string& funcDecl, JSCallbac
 	}
 
 	BCVar* funcVar = new BCVar();
-	int argNum = (int)args.size();
-	funcVar->setFunction(argNum, 0, native);
+	size_t argNum = args.size();
+	funcVar->setFunction((int)argNum, 0, native);
 	FuncT* func = funcVar->getFunc();
 	func->data = data;
 	for(i=0; i<argNum; ++i) {
@@ -494,7 +494,7 @@ void KoalaJS::addNative(const string& clsName, const string& funcDecl, JSCallbac
 	}
 
 	if(argNum > 0)
-		funcName = funcName + "$" + StringUtil::from(argNum);	
+		funcName = funcName + "$" + StringUtil::from((int)argNum);	
 	clsVar->addChild(funcName, funcVar);
 }
 

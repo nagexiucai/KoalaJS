@@ -39,10 +39,10 @@ VM = koala
 
 TARGET = build
 
-all: lib sh
+all: sh
 
-sh:
-	g++ $(CFLAG) -o $(VM) koala.cpp $(LDFLAG) -L./$(TARGET) -lKoalaJS
+sh: lib
+	g++ $(CFLAG) -o $(VM) koala.cpp -L./$(TARGET) -lKoalaJS $(LDFLAG)
 	rm -fr *.dSYM
 
 lib: 
