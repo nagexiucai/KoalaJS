@@ -130,6 +130,12 @@ public:
 		setString(v);
 	}
 
+	inline BCVar(void* p, int size, JSDestroy destroy = NULL, bool needDestroy = true) {
+		refs = 0;
+		init();
+		setPoint(p, size, destroy, needDestroy);
+	}
+
 	inline void setInt(int v) {
 		if(type == INT) {
 			intV = v;
@@ -254,7 +260,6 @@ public:
 			
 		return ss.str(); 
 	}
-
 
 	inline ~BCVar() {
 		clean();
