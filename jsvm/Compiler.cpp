@@ -1247,7 +1247,7 @@ Loop* Compiler::getLoop() {
 
 void Compiler::setLoopBreaks(Loop* loop, PC pc) {
 	if(loop != NULL) {
-		for(size_t i=0; i<loop->breaks.size(); ++i) {
+		for(int i=0; i<loop->breaks.size(); ++i) {
 			bytecode.setJmp(loop->breaks[i], INSTR_JMP, pc);
 		}
 	}
@@ -1255,7 +1255,7 @@ void Compiler::setLoopBreaks(Loop* loop, PC pc) {
 
 void Compiler::setLoopContinues(Loop* loop, PC pc) {
 	if(loop != NULL) {
-		for(size_t i=0; i<loop->continues.size(); ++i) {
+		for(int i=0; i<loop->continues.size(); ++i) {
 			bytecode.setJmp(loop->continues[i], INSTR_JMPB, pc);
 		}
 	}

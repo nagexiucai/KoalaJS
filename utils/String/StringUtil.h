@@ -13,7 +13,7 @@ public:
 		string str = s;	
 		res.clear();
 		while(true) {
-			size_t i = str.find(c);
+			int i = (int)str.find(c);
 			if(i == std::string::npos) {
 				res.push_back(str);
 				break;

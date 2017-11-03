@@ -31,7 +31,7 @@ void Bytecode::add(PC ins) {
 }
 	
 string Bytecode::getStr(int i) {
-	if(i<0 || i == 0xFFFF ||  i>=(int)strTable.size())
+	if(i<0 || i == 0xFFFF ||  i>=strTable.size())
 		return "";
 	return strTable[i];
 }	

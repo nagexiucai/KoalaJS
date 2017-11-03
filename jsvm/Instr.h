@@ -9,7 +9,7 @@ using namespace std;
 typedef uint16_t OpCode;
 typedef uint32_t PC; //PC for : Program Counter
 
-#define INS(ins, off) ((((ins) << 16) & 0xFFFF0000) | ((off) & 0x0000FFFF))
+#define INS(ins, off) (((ins) << 16) & 0xFFFF0000 | ((off) & 0x0000FFFF))
 
 const static OpCode INSTR_NIL					= 0x0000; // NIL									: Do nothing.
 

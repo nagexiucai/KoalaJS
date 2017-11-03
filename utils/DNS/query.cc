@@ -82,7 +82,7 @@ void *query_dns_server(void *request_buffer, int *packet_size,
 
     /* Check if the timeout signal went off. */
     if (errno == EINTR) {
-      if (attempts < (unsigned int)retries) {
+      if (attempts < retries) {
 	/* If we still have more retries left, re-send the request 
 	   packet and reset the timeout alarm. */
 	bytes_sent = (int)sendto(sd, request_buffer, *packet_size, 0,

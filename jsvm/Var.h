@@ -267,7 +267,7 @@ public:
 	}
 
 	inline void removeAllChildren() {
-		for(size_t i=0; i<children.size(); ++i) {
+		for(int i=0; i<children.size(); ++i) {
 			delete children[i];
 		}
 		children.clear();
@@ -353,7 +353,7 @@ public:
 
 	//get child var by index
 	inline BCNode* getChild(int index) {
-		if(index < 0 || index >= (int)children.size())
+		if(index < 0 || index >= children.size())
 			return NULL;
 		return children[index];
 	}
@@ -410,7 +410,7 @@ public:
 				return r;
 		}
 
-		for(size_t i=0; i<children.size(); ++i) {
+		for(int i=0; i<children.size(); ++i) {
 			if(children[i] != NULL && children[i]->name == name)
 				return children[i];
 		}

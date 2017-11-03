@@ -130,7 +130,7 @@ struct dns_response *parse_dns_response(void *packet_buffer,
 
   /* Verify that the packet is large enough to contain the DNS header, and
      then copy it into a dns_header struct. */
-  if (packet_length < (int)header_size) {
+  if (packet_length < header_size) {
     strncpy(error_message, "response has invalid format", ERROR_BUFFER);
     return 0;
   }
