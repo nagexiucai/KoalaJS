@@ -88,7 +88,7 @@ void JSFile::write(KoalaJS* js, BCVar* var, void* data) {
 	else {
 		std::string s = v->getString();
 		p = (unsigned char*)s.c_str();
-		if(size == 0 || size > s.length())
+		if(size == 0 || size > (int)s.length())
 			size = (int)s.length();
 	}
 

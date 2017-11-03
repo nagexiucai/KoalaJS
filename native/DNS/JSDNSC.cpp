@@ -26,7 +26,7 @@ void JSDNSC::resolv(KoalaJS* js, BCVar *c, void *userdata) {
 	BCVar *ret = c->getReturnVar();
 	ret->setArray();
 	size_t sz = res.size();
-	for(int i=0; i<sz; ++i) {
+	for(size_t i=0; i<sz; ++i) {
 		ret->setArrayIndex(i, new BCVar(res[i].res));
 	}
 }
