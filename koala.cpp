@@ -4,17 +4,14 @@
 #include "utils/String/StringUtil.h"
 #include <stdio.h>
 #include <string.h>
-#include <dlfcn.h>
 
+extern "C" void _basicModuleLoader(KoalaJS* tinyJS);
 
 //run js file.
 void run(int argc, char** argv) {
 	try {
 		KoalaJS tinyJS;
-		
-		void* handle = dlopen("build/JSBasicModule.so", RTLD_LAZY);
-		JSModuleLoader moduleLoader = (JSModuleLoader)dlsym(handle, "_moduleLoader");
-		tinyJS.loadModule(moduleLoader);
+		tinyJS.loadModule(_basicModuleLoader);
 
 		//read args 
 		BCVar* args = new BCVar();
@@ -24,8 +21,6 @@ void run(int argc, char** argv) {
 		}
 		tinyJS.getRoot()->addChild("_args", args);
 		tinyJS.run(argv[1]);
-
-		dlclose(handle);
 	} 
 	catch (CScriptException *e) {
 		ERR("ERROR: %s\n", e->text.c_str());

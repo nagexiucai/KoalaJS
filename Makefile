@@ -47,10 +47,7 @@ sh:
 
 lib: 
 	mkdir -p $(TARGET)/include
-	g++ $(CFLAG) -fPIC -c $(TINYJS) $(NATIVE) $(LIBS)
-	g++ -shared *.o -o $(TARGET)/JSBasicModule.so
-	rm -f *.o
-	g++ $(CFLAG) -c $(TINYJS) $(LIBS)
+	g++ $(CFLAG) -c $(TINYJS) $(NATIVE) $(LIBS)
 	rm -f $(TARGET)/libKoalaJS.a
 	ar cq $(TARGET)/libKoalaJS.a *.o
 	rm -f *.o
