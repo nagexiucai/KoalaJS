@@ -38,5 +38,3 @@ extern "C" void _basicModuleLoader(KoalaJS* tinyJS) {
 	JSM::JSDir::instance().load(tinyJS, "RDir");
 	JSM::System::instance().load(tinyJS, "RSystem");
 }
-
-
