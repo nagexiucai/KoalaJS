@@ -80,13 +80,14 @@ void JSFile::write(KoalaJS* js, BCVar* var, void* data) {
 		size = sv->getInt();
 
 	unsigned char* p = NULL;
+	std::string s;
 	if(v->isBytes()) {
 		p = (unsigned char*)v->getPoint();
 		if(size == 0 || size > v->getInt())
 			size = v->getInt();
 	}
 	else {
-		std::string s = v->getString();
+		s = v->getString();
 		p = (unsigned char*)s.c_str();
 		if(size == 0 || size > (int)s.length())
 			size = (int)s.length();
