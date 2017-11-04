@@ -32,16 +32,15 @@ LIBS = $(LIBS_DIR)/Base64/Base64.cpp \
 		$(LIBS_DIR)/DNS/request.cc \
 		$(LIBS_DIR)/File/File.cpp
 
-LDFLAG = -lpthread -ldl
+LDFLAG = -lpthread
 
-COMPILER = jsbc
 VM = koala
 
 TARGET = build
 
-all: sh
+all: lib sh
 
-sh: lib
+sh:
 	g++ $(CFLAG) -o $(VM) koala.cpp -L./$(TARGET) -lKoalaJS $(LDFLAG)
 	rm -fr *.dSYM
 
