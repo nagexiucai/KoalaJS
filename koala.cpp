@@ -1,7 +1,6 @@
 #include "Var.h"
 #include "KoalaJS.h"
 #include "Compiler.h"
-#include "utils/String/StringUtil.h"
 #include <stdio.h>
 #include <string.h>
 

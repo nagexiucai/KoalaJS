@@ -44,7 +44,7 @@ sh:
 	g++ $(CFLAG) -o $(VM) koala.cpp -L./$(TARGET) -lKoalaJS $(LDFLAG)
 	rm -fr *.dSYM
 
-lib: 
+lib:
 	mkdir -p $(TARGET)/include
 	g++ $(CFLAG) -c $(TINYJS) $(NATIVE) $(LIBS)
 	rm -f $(TARGET)/libKoalaJS.a
