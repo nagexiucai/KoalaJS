@@ -76,7 +76,7 @@ BCVar* KoalaJS::newObject(const string& clsName) {
 		ERR("Class %s not found\n", clsName.c_str());
 		return NULL;
 	}
-	
+
 	return newObject(cls);
 }
 
@@ -900,7 +900,7 @@ void KoalaJS::runCode(Bytecode* bc) {
 													BCNode *node = find(str);
 													if(node != NULL) { //find just in current scope
 														if(node->var->isUndefined()) // declared only before
-															ERR("%s has already existed.\n", str.c_str());
+															ERR("Warning: %s has already existed.\n", str.c_str());
 													}
 													else {
 														VMScope* current = scope();
@@ -934,6 +934,7 @@ void KoalaJS::runCode(Bytecode* bc) {
 													 if(node == NULL) {
 														 node = findInScopes(str);
 														 if(node == NULL) {
+															 ERR("Warning: '%s' undefined!\n", str.c_str());
 															 VMScope* current = scope();
 															 if(current != NULL) {
 																 node = current->var->addChild(str);
