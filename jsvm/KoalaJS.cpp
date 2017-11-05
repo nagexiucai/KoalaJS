@@ -76,16 +76,8 @@ BCVar* KoalaJS::newObject(const string& clsName) {
 		ERR("Class %s not found\n", clsName.c_str());
 		return NULL;
 	}
-
-	if(cls->var->type != BCVar::CLASS) {
-		ERR("%s is not a class\n", clsName.c_str());
-		return NULL;
-	}
-
-	ret = new BCVar();
-	ret->type = BCVar::OBJECT;
-	ret->addChild(PROTOTYPE, cls->var);
-	return ret;
+	
+	return newObject(cls);
 }
 
 BCVar* KoalaJS::newObject(BCNode* cls) {
