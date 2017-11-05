@@ -65,7 +65,11 @@ PC Bytecode::gen(OpCode instr, const string& str) {
 	string s = str;
 
 	if(instr == INSTR_INT) {
-		i = atoi(str.c_str());
+		if(str.find("0x") != string::npos ||
+				str.find("0x") != string::npos) 
+			i = strtol(str.c_str(), NULL, 16);
+		else
+			i = strtol(str.c_str(), NULL, 10);
 		s = "";
 	}
 	else if(instr == INSTR_FLOAT) {
