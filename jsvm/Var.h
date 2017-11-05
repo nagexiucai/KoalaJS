@@ -199,6 +199,7 @@ public:
 
 		if(size == NO_BYTES) {
 			intV = 0;
+			type = OBJECT;
 		}
 		else {
 			type = BYTES;
