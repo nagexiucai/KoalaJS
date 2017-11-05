@@ -160,7 +160,7 @@ class KoalaJS {
 
 		BCNode* findFunc(BCVar* owner, const string& funcName, bool member);
 
-		bool funcCall(const string& funcName, bool member = false);
+		bool funcCall(const string& funcName, bool member = true);
 
 		void doNew(const string& clsName);
 
