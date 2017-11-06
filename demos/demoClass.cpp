@@ -1,5 +1,5 @@
 #include "ClassLoader.h"
-#include "native/Debug/Debug.h"
+#include <stdio.h>
 
 static int _count = 0;
 
@@ -27,7 +27,7 @@ int main(int argc, char** argv) {
 	while(true) { //Don't be scared, just for memory test:P.
 		KoalaJS js;
 		js.loadModule(moduleLoader);
-		js.exec("var a = new MyClass(); a.test();");
+		js.exec("var a = new MyClass(); var b = a.test();");
 	}
 
 	return 0;

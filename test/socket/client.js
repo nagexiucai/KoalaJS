@@ -1,8 +1,8 @@
-tcp = new RTCP();
+var tcp = new RTCP();
 while(true) {
 tcp.connect("127.0.0.1", 8000, 3);
 
-b = new Bytes();
+var b = new Bytes();
 b.from("hello, world!");
 
 print("send: " + b.toString() + "....\n");

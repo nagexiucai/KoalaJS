@@ -9,7 +9,7 @@ function Jedi(name, age) {
 	};
 }
 
-jedi = new Jedi("Misa", 25);
+var jedi = new Jedi("Misa", 25);
 jedi.say();
 
 jedi.name = "Yoda";
@@ -33,7 +33,7 @@ class Hello {
 	}
 }
 
-h = new Hello();
+var h = new Hello();
 h.name = "Misa";
 h.say(h.word);
 

@@ -1,5 +1,5 @@
 function run(port) {
-	tcp = new RTCP();
+	var tcp = new RTCP();
 
 	if(!tcp.bind("", port)) {
 		print("binded failed.\n");
@@ -12,7 +12,7 @@ function run(port) {
 	}
 
 	while(true) {
-		c = tcp.accept();
+		var c = tcp.accept();
 		if(c == undefined) {
 			print("accept failed!\n");
 			break;
