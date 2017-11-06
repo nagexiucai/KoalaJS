@@ -566,7 +566,7 @@ void Compiler::run(const std::string &fname) {
 		exec(input);
 	}
 	else {
-		ERR("Can not run file \"%s\" at \"%s\" %s.\n", fname.c_str(), cname.c_str(), l->getPosition().c_str());
+		ERR("Can not run file \"%s\"!\n", cname.c_str());
 	}
 
 	if(oldCwd.length() > 0)
