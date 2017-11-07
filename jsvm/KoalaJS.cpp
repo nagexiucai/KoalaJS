@@ -511,7 +511,17 @@ void KoalaJS::compare(OpCode op, BCVar* v1, BCVar* v2) {
 
 	bool i = false;
 	if(v1->type == v2->type) {
-		if(v1->isString()) {
+		if(v1->isUndefined()) {
+			switch(op) {
+				case INSTR_EQ: 
+					i = v2->isUndefined();
+					break; 
+				case INSTR_NEQ: 
+					i = !v2->isUndefined();
+					break;
+			}
+		}
+		else if(v1->isString()) {
 			switch(op) {
 				case INSTR_EQ: 
 					i = (v1->getString() == v2->getString());

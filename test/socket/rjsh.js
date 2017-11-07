@@ -18,6 +18,9 @@ var input = "";
 
 while(true) {
 	var ln = f.read(1000); //read line
+	if(ln == undefined)
+		break;
+
 	var sln = ln.toString().trim();
 	if(sln.length == 0) {
 		if(cmd)
