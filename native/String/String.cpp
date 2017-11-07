@@ -127,3 +127,22 @@ void String::replace(KoalaJS* js, BCVar *c, void *) {
 	c->getReturnVar()->setString(s);
 }
 
+void String::toInt(KoalaJS* js, BCVar *c, void *) {
+	string str = c->getParameter("this")->getString();
+	int i;
+
+	if(str.find("0x") != string::npos ||
+			str.find("0x") != string::npos) 
+		i = strtol(str.c_str(), NULL, 16);
+	else
+		i = strtol(str.c_str(), NULL, 10);
+	c->setReturnVar(new BCVar(i));	
+}	
+
+void String::toFloat(KoalaJS* js, BCVar *c, void *) {
+	string str = c->getParameter("this")->getString();
+	float f;
+
+	f = atof(str.c_str());
+	c->setReturnVar(new BCVar(f));	
+}	

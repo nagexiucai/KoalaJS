@@ -30,6 +30,10 @@ namespace JSM {
 
 		static void trim(KoalaJS* js, BCVar *c, void *);
 
+		static void toInt(KoalaJS* js, BCVar *c, void *);
+		
+		static void toFloat(KoalaJS* js, BCVar *c, void *);
+
 		protected:
 		inline void registerFunctions(KoalaJS* js, const std::string& className) {
 			addFunction(js, className, "indexOf(search)", indexOf, NULL); // find the position of a string in a string, -1 if not
@@ -45,6 +49,8 @@ namespace JSM {
 			addFunction(js, className, "trimR()", trimR, NULL);
 			addFunction(js, className, "trimL()", trimL, NULL);
 			addFunction(js, className, "trim()", trim, NULL);
+			addFunction(js, className, "toInt()", toInt, NULL);
+			addFunction(js, className, "toFloat()", toFloat, NULL);
 		}
 
 		public:

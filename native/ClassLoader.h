@@ -17,6 +17,11 @@ class JSClass {
 			BCVar* cls = tinyJS->getOrAddClass(clsName);
 			cls->addChild(name, v, true);
 		}
+	
+		void addVar(KoalaJS* tinyJS, const std::string& clsName, const std::string& name, BCVar* v) {
+			BCVar* cls = tinyJS->getOrAddClass(clsName);
+			cls->addChild(name, v);
+		}
 
 		virtual void registerFunctions(KoalaJS* tinyJS, const std::string& className)  = 0;
 

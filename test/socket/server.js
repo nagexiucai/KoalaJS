@@ -1,4 +1,4 @@
-function run(port) {
+function run(port, task) {
 	var tcp = new RTCP();
 
 	if(!tcp.bind("", port)) {
@@ -14,16 +14,28 @@ function run(port) {
 	while(true) {
 		var c = tcp.accept();
 		if(c == undefined) {
-			print("accept failed!\n");
 			break;
 		}
 		else {
-			print("accepted.\n");
-			RThread.run("task.js", c);
+			RThread.run(task, c);
 		}
 	}
 
 	tcp.close();
 }
 
-run(8000);
+function start() {
+	if(_args.length != 2) {
+		println("Usage: koala server.js {port} {client task file}.");
+		println("example: koala server.js 8000 echo.js");
+		return;
+	}
+
+	var port = _args[0].toInt();
+	var task = _args[1];
+
+	run(port, task);
+}
+
+start();
+

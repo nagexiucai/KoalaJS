@@ -2,24 +2,38 @@
 #define JSM_DEBUG
 
 #include "../ClassLoader.h"
-#include <stdio.h>
+#include <unistd.h>
 
 namespace JSM {
 
 	class Debug : public JSClass {
+		static int getFD(KoalaJS* js) {
+			BCNode* n = js->getRoot()->getChildOrCreate("_debugFD");
+			return n->var->getInt();
+		}
+		
+		static void setFD(KoalaJS* js, BCVar* v, void* data) {
+			int fd = v->getParameter("fd")->getInt();
+			BCNode* n = js->getRoot()->getChildOrCreate("_debugFD");
+			n->var->setInt(fd);
+		}
+
 		static void print(KoalaJS* js, BCVar *v, void *userdata) {
 			string s = v->getParameter("text")->getString();
-			printf("%s", s.c_str());
+			int fd = Debug::getFD(js);
+			::write(fd, s.c_str(), s.length());
 		}
 
 		static void println(KoalaJS* js, BCVar *v, void *userdata) {
 			string s = v->getParameter("text")->getString() + "\n";
-			printf("%s", s.c_str());
+			int fd = Debug::getFD(js);
+			::write(fd, s.c_str(), s.length());
 		}
 
 		static void dump(KoalaJS* js, BCVar *v, void *userdata) {
 			string s = js->getRoot()->getString();
-			printf("%s", s.c_str());
+			int fd = Debug::getFD(js);
+			::write(fd, s.c_str(), s.length());
 		}
 
 		protected:
@@ -28,6 +42,7 @@ namespace JSM {
 			addFunction(js, "", "println(text)", println, NULL);
 			addFunction(js, className, "print(text)", print, NULL);
 			addFunction(js, className, "println(text)", println, NULL);
+			addFunction(js, className, "setFD(fd)", setFD, NULL);
 			addFunction(js, className, "dump()", dump, js);
 		}
 

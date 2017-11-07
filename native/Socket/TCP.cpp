@@ -13,6 +13,8 @@
 using namespace std;
 using namespace JSM;
 
+#define DEF_TIMEOUT		60 //default time out 60 sec
+
 typedef struct {
 	int sid;	
 	struct sockaddr_in addr; 
@@ -62,6 +64,14 @@ void JSTCP::close(KoalaJS* js, BCVar* var, void* data) {
 	setSocket(var, -1, NULL);
 }
 
+void JSTCP::getFD(KoalaJS* js, BCVar* var, void* data) {
+	var->setReturnVar(new BCVar(-1));
+
+	SocketT* sc = getSocket(var);
+	if(sc != NULL)
+		var->setReturnVar(new BCVar(sc->sid));
+}
+
 void JSTCP::shutdown(KoalaJS* js, BCVar* var, void* data) {
 	SocketT* sc = getSocket(var);
 	if(sc != NULL && sc->sid >= 0)
@@ -69,10 +79,14 @@ void JSTCP::shutdown(KoalaJS* js, BCVar* var, void* data) {
 }
 
 void JSTCP::send(KoalaJS* js, BCVar* var, void* data) {
+	int size = -1;
 	BCVar* v = var->getParameter("buf");
-	int size = var->getParameter("size")->getInt();
-	BCVar* n = var->getParameter("timeout");
-	int to = 0;
+	BCVar* n = var->getParameter("size");
+	if(n != NULL)
+		size = var->getParameter("size")->getInt();
+
+	n = var->getParameter("timeout");
+	int to = DEF_TIMEOUT;
 	if(n != NULL)
 		to = n->getInt();
 
@@ -80,13 +94,26 @@ void JSTCP::send(KoalaJS* js, BCVar* var, void* data) {
 	if(sc == NULL || sc->sid < 0)
 		return;
 
-	if(size <= 0 || sc->sid < 0 || !v->isBytes())
+	if(sc->sid < 0)
 		return;
 
-	if(size > v->getInt())
-		size = v->getInt();
+	char* p = NULL;
+	int sz = -1;
+	string s;
+	if(v->isBytes()) {
+		p = (char*)v->getPoint();
+		sz = v->getInt();
+	}
+	else {
+		s = v->getString();
+		p = (char*)s.c_str();
+		sz = s.length();
+	}
+	if(size < 0 || size > sz)
+		size = sz;
 
-	char* p = (char*)v->getPoint();
+	if(size <= 0)
+		return;
 
 	v = var->getReturnVar();
  	v->setInt(-1);	
@@ -98,7 +125,6 @@ void JSTCP::send(KoalaJS* js, BCVar* var, void* data) {
 	if(setsockopt(sc->sid, SOL_SOCKET, SO_SNDTIMEO, (void *) &tv_timeout, sizeof(struct timeval)) < 0) {
 		return;
 	}
-
 	if(p != NULL) {
 		size = (int)::write(sc->sid, p, size);
 		v->setInt(size);
@@ -109,7 +135,7 @@ void JSTCP::send(KoalaJS* js, BCVar* var, void* data) {
 void JSTCP::recv(KoalaJS* js, BCVar* var, void* data) {
 	int size = var->getParameter("size")->getInt();
 	BCVar* n = var->getParameter("timeout");
-	int to = 0;
+	int to = DEF_TIMEOUT;
 	if(n != NULL)
 		to = n->getInt();
 
@@ -208,7 +234,10 @@ void JSTCP::listen(KoalaJS* js, BCVar* var, void* data) {
 void JSTCP::connect(KoalaJS* js, BCVar* var, void* data) {
 	std::string host = var->getParameter("host")->getString();
 	int port = var->getParameter("port")->getInt();
-	int to = var->getParameter("timeout")->getInt();
+	int to = DEF_TIMEOUT;
+	BCVar *n = var->getParameter("timeout");
+	if(n != NULL)
+		to = n->getInt();
 
 	var->getReturnVar()->setInt(0);
 

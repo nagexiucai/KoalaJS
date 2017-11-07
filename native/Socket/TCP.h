@@ -24,11 +24,14 @@ class JSTCP: public JSClass {
 
 	static void accept(KoalaJS* js, BCVar* var, void* data);
 
+	static void getFD(KoalaJS* js, BCVar* var, void* data);
+
 	protected:
 	inline void registerFunctions(KoalaJS* js, const std::string& className) {
 		JSClass::addFunction(js, className, "close()", close, NULL);
 		JSClass::addFunction(js, className, "shutdown()", shutdown, NULL);
 		JSClass::addFunction(js, className, "connect(host, port, timeout)", connect, NULL);
+		JSClass::addFunction(js, className, "connect(host, port)", connect, NULL);
 		JSClass::addFunction(js, className, "bind(ip, port)", bind, NULL);
 		JSClass::addFunction(js, className, "listen(backlog)", listen, NULL);
 		JSClass::addFunction(js, className, "accept()", accept, NULL);
@@ -36,6 +39,8 @@ class JSTCP: public JSClass {
 		JSClass::addFunction(js, className, "send(buf, size, timeout)", send, NULL);
 		JSClass::addFunction(js, className, "read(size)", recv, NULL);
 		JSClass::addFunction(js, className, "write(buf, size)", send, NULL);
+		JSClass::addFunction(js, className, "write(buf)", send, NULL);
+		JSClass::addFunction(js, className, "getFD()", getFD, NULL);
 	}
 
 	public:
