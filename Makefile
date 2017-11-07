@@ -1,3 +1,14 @@
+
+ifneq ($(CROSS_COMPILE),)
+$(info CROSS_COMPILE=$(CROSS_COMPILE))
+endif
+
+CC := $(CROSS_COMPILE)gcc
+CXX := $(CROSS_COMPILE)g++
+AR := $(CROSS_COMPILE)ar
+LD := $(CROSS_COMPILE)g++
+
+
 CFLAG = -Wall -g -I./ -I./jsvm -I./utils
 
 VM_DIR = jsvm
@@ -32,27 +43,24 @@ LIBS = $(LIBS_DIR)/Base64/Base64.cpp \
 		$(LIBS_DIR)/DNS/request.cc \
 		$(LIBS_DIR)/File/File.cpp
 
-LDFLAG = -lpthread
+LDFLAG = -lpthread -lrklumen_light
 
 VM = koala
 
 TARGET = build
 
-all: lib sh
+all: sh
 
-sh:
-	g++ $(CFLAG) -o $(VM) koala.cpp -L./$(TARGET) -lKoalaJS $(LDFLAG)
+sh: lib
+	$(CXX) $(CFLAG) -o $(VM) koala.cpp -L./$(TARGET) -lKoalaJS $(LDFLAG)
 	rm -fr *.dSYM
 
 lib:
 	mkdir -p $(TARGET)/include
-	g++ $(CFLAG) -c $(TINYJS) $(NATIVE) $(LIBS)
+	$(CXX) $(CFLAG) -c $(TINYJS) $(NATIVE) $(LIBS)
 	rm -f $(TARGET)/libKoalaJS.a
-	ar cq $(TARGET)/libKoalaJS.a *.o
+	$(AR) cq $(TARGET)/libKoalaJS.a *.o
 	rm -f *.o
-
-pkg:
-	mkdir -p $(TARGET)/include
 	cp $(NATIVE_DIR)/*.h $(VM_DIR)/*.h $(TARGET)/include
 
 clean:
