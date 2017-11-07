@@ -43,7 +43,7 @@ LIBS = $(LIBS_DIR)/Base64/Base64.cpp \
 		$(LIBS_DIR)/DNS/request.cc \
 		$(LIBS_DIR)/File/File.cpp
 
-LDFLAG = -lpthread -lrklumen_light
+LDFLAG = -lpthread
 
 VM = koala
 
