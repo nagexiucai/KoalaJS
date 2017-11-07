@@ -36,6 +36,16 @@ class KoalaJS {
 			this->root = NULL;
 			init();
 		}
+		
+		inline KoalaJS(BCVar* rt) {
+			moduleLoader = NULL;
+			pc = 0;
+			codeSize = 0;
+			code = NULL;
+			bcode = NULL;
+			stackTop = STACK_DEEP;
+			init(rt);
+		}
 
 		inline ~KoalaJS() {
 			clear();
@@ -63,7 +73,7 @@ class KoalaJS {
 			stackTop = STACK_DEEP;
 
 			if(root != NULL) {
-				delete root;
+				root->unref();
 				root = NULL;
 			}
 		}
@@ -122,7 +132,7 @@ class KoalaJS {
 
 		void runCode(Bytecode* bc);
 
-		void init();
+		void init(BCVar* rt = NULL);
 
 		const static uint16_t STACK_DEEP = 128;
 		StackItem* vStack[STACK_DEEP];
@@ -155,6 +165,12 @@ class KoalaJS {
 
 		//pop stack and release it.
 		void pop();
+
+		inline void setBytecode(Bytecode* bc) {
+			pc = 0;
+			bcode = bc;
+			code = bcode->getCode(codeSize);
+		}
 
 		BCVar* funcDef(const string& funcName, bool regular = true);
 

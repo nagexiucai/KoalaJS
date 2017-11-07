@@ -15,37 +15,38 @@ GlobalVars* KoalaJS::getGlobalVars() {
 BCVar* KoalaJS::callJSFunc(const string& funcName, int argNum, ...) {
 	BCVar* v = NULL;
 	va_list args;
-	va_start(args, argNum);
 
+	KoalaJS js(getRoot());
+	js.moduleLoader = getModuleLoader();
+	js.setBytecode(bcode);
+
+	va_start(args, argNum);
 	for(int i=0; i<argNum; ++i) {
 		v = va_arg(args, BCVar*);
-		push(v->ref());
+		js.push(v->ref());
 	}
 	va_end(args);
 
-	v = getCurrentObj(true);
-	if(v != NULL)
-		push(v->ref());
-
+	js.push(js.root->ref());
 
 	string fname = funcName;
 	if(argNum > 0) {
 		fname = fname + "$" + StringUtil::from((int)argNum);
 	}
 
-	if(scopes.size() == 0) {
-		VMScope sc;
-		sc.var = root;
-		sc.pc = 0;
-		scopes.push_back(sc);
-	}
-	size_t scDeep = scopes.size();
-	funcCall(fname, false);
-	if(scDeep < scopes.size()) //js function call.
-		runCode(NULL);
-	scopes.pop_back();
+	VMScope sc;
+	sc.var = js.root;
+	sc.pc = 0;
+	js.scopes.push_back(sc);
 
-	StackItem* i = pop2();
+	size_t scDeep = js.scopes.size();
+	js.funcCall(fname, false);
+	if(scDeep < js.scopes.size()) {
+		js.runCode(NULL);
+	}
+	js.scopes.pop_back();
+
+	StackItem* i = js.pop2();
 	if(i != NULL)
 		v = VAR(i);
 	else {
@@ -490,9 +491,14 @@ void KoalaJS::addNative(const string& clsName, const string& funcDecl, JSCallbac
 	clsVar->addChild(funcName, funcVar);
 }
 
-void KoalaJS::init() {
-	root = new BCVar();
-	root->type = BCVar::OBJECT;
+void KoalaJS::init(BCVar* rt) {
+	if(rt == NULL) {
+		root = new BCVar();
+		root->type = BCVar::OBJECT;
+	}
+	else
+		root = rt;
+
 	root->ref();
 }
 
@@ -680,10 +686,8 @@ void KoalaJS::runCode(Bytecode* bc) {
 			cs.bcode = bcode;
 			codeStack.push(cs);	
 		}
-
-		pc = 0;
-		bcode = bc;
-		code = bcode->getCode(codeSize);
+		
+		setBytecode(bc);
 
 		VMScope sc;
 		sc.var = root;
