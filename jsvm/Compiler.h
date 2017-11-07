@@ -107,9 +107,9 @@ class Compiler {
 		Compiler();
 		~Compiler();
 
-		void run(const std::string &fname);
+		bool run(const std::string &fname);
 
-		void exec(const std::string &code);
+		bool exec(const std::string &code);
 		
 		inline const std::string& getcwd() {
 			return cwd;

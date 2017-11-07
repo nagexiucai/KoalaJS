@@ -113,11 +113,12 @@ void KoalaJS::run(const std::string &fname) {
 		}
 		else {
 			Compiler compiler;
-			compiler.run(cname);
-			//			compiler.bytecode.dump();
-			compiler.bytecode.clone(bc);
-			CodeCache::cache(cname, bc);
-			runCode(bc);
+			if(compiler.run(cname)) {
+				//			compiler.bytecode.dump();
+				compiler.bytecode.clone(bc);
+				CodeCache::cache(cname, bc);
+				runCode(bc);
+			}
 		}
 	}
 
@@ -130,9 +131,10 @@ void KoalaJS::exec(const std::string &code) {
 	if(bc == NULL) {
 		bc = new Bytecode();
 		Compiler compiler;
-		compiler.exec(code);
-		compiler.bytecode.clone(bc);
-		CodeCache::cache(code, bc);
+		if(compiler.exec(code)) {
+			compiler.bytecode.clone(bc);
+			CodeCache::cache(code, bc);
+		}
 	}
 	runCode(bc);
 }

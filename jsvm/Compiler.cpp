@@ -555,7 +555,8 @@ Compiler::~Compiler() {
 
 
 //added by Misa.Z for running file
-void Compiler::run(const std::string &fname) {
+bool Compiler::run(const std::string &fname) {
+	bool res = false;
 	std::string oldCwd = cwd;
 
 	cname = File::getFullname(cwd, fname);
@@ -563,7 +564,7 @@ void Compiler::run(const std::string &fname) {
 
 	std::string input = File::read(cname);
 	if(input.length() > 0) {
-		exec(input);
+		res = exec(input);
 	}
 	else {
 		ERR("Can not run file \"%s\"!\n", cname.c_str());
@@ -571,9 +572,10 @@ void Compiler::run(const std::string &fname) {
 
 	if(oldCwd.length() > 0)
 		cwd = oldCwd;
+	return res;
 }
 
-void Compiler::exec(const std::string &code) {
+bool Compiler::exec(const std::string &code) {
 	CScriptLex* old = l;
 
 	l = new CScriptLex(code);
@@ -592,11 +594,11 @@ void Compiler::exec(const std::string &code) {
 
 		delete l;
 		delete e;
-
-		throw new CScriptException(msg.c_str());
+		return false;
 	}
 	delete l;
 	l = old;
+	return true;
 }
 
 LEX_TYPES Compiler::statement(bool pop) {
