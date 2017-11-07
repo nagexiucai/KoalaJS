@@ -3,6 +3,7 @@
 
 #include "../ClassLoader.h"
 #include <unistd.h>
+#include <stdio.h>
 
 namespace JSM {
 
@@ -21,19 +22,28 @@ namespace JSM {
 		static void print(KoalaJS* js, BCVar *v, void *userdata) {
 			string s = v->getParameter("text")->getString();
 			int fd = Debug::getFD(js);
-			::write(fd, s.c_str(), s.length());
+			if(fd == 0)
+				printf("%s", s.c_str());
+			else
+				::write(fd, s.c_str(), s.length());
 		}
 
 		static void println(KoalaJS* js, BCVar *v, void *userdata) {
 			string s = v->getParameter("text")->getString() + "\n";
 			int fd = Debug::getFD(js);
-			::write(fd, s.c_str(), s.length());
+			if(fd == 0)
+				printf("%s", s.c_str());
+			else 
+				::write(fd, s.c_str(), s.length());
 		}
 
 		static void dump(KoalaJS* js, BCVar *v, void *userdata) {
 			string s = js->getRoot()->getString();
 			int fd = Debug::getFD(js);
-			::write(fd, s.c_str(), s.length());
+			if(fd == 0)
+				printf("%s", s.c_str());
+			else
+				::write(fd, s.c_str(), s.length());
 		}
 
 		protected:

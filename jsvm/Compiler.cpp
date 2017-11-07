@@ -191,8 +191,9 @@ void CScriptLex::chkread(int expected_tk) {
 		std::stringstream ss;
 		ss << "Got " << 
 			getTokenStr(tk).c_str() << "expected " << 
-			getTokenStr(expected_tk).c_str() << " at " <<
-			getPosition(tokenStart).c_str() << "(" << oneLine(data,dataPos,dataEnd) << ")\n";
+			getTokenStr(expected_tk).c_str() << ".";
+			//getTokenStr(expected_tk).c_str() << " at " <<
+			//getPosition(tokenStart).c_str() << "(" << oneLine(data,dataPos,dataEnd) << ")\n";
 		throw new CScriptException(ss.str());
 	}
 	getNextToken();
@@ -589,8 +590,7 @@ bool Compiler::exec(const std::string &code) {
 		std::string msg;
 		std::stringstream ss;
 		ss << "Error at " << l->getPosition().c_str() << ": " << e->text.c_str();
-		//msg +=  e->text;
-		msg = ss.str();
+		ERR("%s\n", ss.str().c_str());
 
 		delete l;
 		delete e;
