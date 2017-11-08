@@ -2,9 +2,12 @@
 #include "Compiler.h"
 #include "utils/String/StringUtil.h"
 #include "utils/File/File.h"
+#include "utils/Thread/Thread.h"
 #include <sstream>  
 #include <stdlib.h>
 #include <stdarg.h>
+
+#define INTERUPT_COUNT 10240
 
 static GlobalVars _globalVars;
 
@@ -12,20 +15,58 @@ GlobalVars* KoalaJS::getGlobalVars() {
 	return &_globalVars;
 }
 
-BCVar* KoalaJS::callJSFunc(const string& funcName, int argNum, ...) {
-	BCVar* v = NULL;
-	va_list args;
+static ThreadLock _intrLock;
 
+void KoalaJS::doInterupt() {
+	_intrLock.lock();
+	Interupt* intr = NULL;
+	if(!interupts.empty()) {
+		intr = interupts.front();
+		interupts.pop();
+	}
+	size_t sz = interupts.size();
+	_intrLock.unlock();
+
+	if(intr == NULL)
+		return;
+
+	TRACE("Interupted for '%s$%d', %d in queue.\n", 
+			intr->funcName.c_str(), 
+			(int)intr->args.size(),
+			(int)sz);
+
+	BCVar* v = callJSFunc(intr->funcName, intr->args);
+	v->unref();
+	delete intr;
+}
+
+void KoalaJS::interupt(const string& funcName, int argNum, ...) {
+	Interupt *intr = new Interupt(funcName);
+
+	va_list args;
+	va_start(args, argNum);
+	for(int i=0; i<argNum; ++i) {
+		BCVar* v = va_arg(args, BCVar*);
+		intr->args.push_back(v);
+	}
+	va_end(args);
+
+	_intrLock.lock();
+	interupts.push(intr);
+	_intrLock.unlock();
+}
+
+BCVar* KoalaJS::callJSFunc(const string& funcName, const vector<BCVar*>& args) {
+	BCVar* v = NULL;
 	KoalaJS js(getRoot());
 	js.moduleLoader = getModuleLoader();
 	js.setBytecode(bcode);
 
-	va_start(args, argNum);
-	for(int i=0; i<argNum; ++i) {
-		v = va_arg(args, BCVar*);
+	size_t argNum = args.size();
+	for(size_t i=0; i<argNum; ++i) {
+		v = args[i];
 		js.push(v->ref());
 	}
-	va_end(args);
 
 	js.push(js.root->ref());
 
@@ -55,6 +96,22 @@ BCVar* KoalaJS::callJSFunc(const string& funcName, int argNum, ...) {
 	}
 	return v;
 }
+
+BCVar* KoalaJS::callJSFunc(const string& funcName, int argNum, ...) {
+	BCVar* v = NULL;
+	vector<BCVar*> params;
+
+	va_list args;
+	va_start(args, argNum);
+	for(int i=0; i<argNum; ++i) {
+		v = va_arg(args, BCVar*);
+		params.push_back(v);
+	}
+	va_end(args);
+
+	return callJSFunc(funcName, params);
+}
+
 
 BCVar* KoalaJS::newObject(const string& clsName) {
 	if(clsName.length() == 0)
@@ -701,8 +758,15 @@ void KoalaJS::runCode(Bytecode* bc) {
 		pushScope(sc);
 	}
 	size_t scDeep = scopes.size();
+	size_t interuptCount = 0;
 
 	while(pc < codeSize) {
+		interuptCount++;
+		if(interuptCount >= INTERUPT_COUNT) {
+			interuptCount = 0;
+			doInterupt();
+		}
+
 		PC ins = code[pc++];
 		OpCode instr = ins >> 16;
 		OpCode offset = ins & 0x0000FFFF;
@@ -1080,11 +1144,13 @@ void KoalaJS::runCode(Bytecode* bc) {
 			case INSTR_CALL: {
 												 if(!funcCall(bcode->getStr(offset)))
 													 pop();//drop this
+												 interuptCount = INTERUPT_COUNT;
 												 break;
 											 }
 			case INSTR_CALLO: {
 													if(!funcCall(bcode->getStr(offset), true))
 														pop(); //drop this
+												 	interuptCount = INTERUPT_COUNT;
 													break;
 												}
 			case INSTR_NEW: {

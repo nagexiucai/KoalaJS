@@ -6,6 +6,7 @@
 #include "Var.h"
 #include "GlobalVars.h"
 #include <stack>
+#include <queue>
 
 #define VAR(i) (i->isNode ? ((BCNode*)i)->var : (BCVar*)i)
 
@@ -23,6 +24,15 @@ typedef struct {
 	PC size;
 	Bytecode* bcode;
 } CodeT;
+
+typedef struct STInterupt {
+	string funcName;
+	vector<BCVar*> args;
+
+	inline STInterupt(const string& n) {
+		funcName = n;
+	}
+} Interupt;
 
 class KoalaJS;
 typedef void (*JSModuleLoader)(KoalaJS *js);
@@ -112,13 +122,15 @@ class KoalaJS {
 
 		static GlobalVars* getGlobalVars();
 
-		/**Call JS Function
+		/**Call JS Function , Warning! don't call it from diff thread.
 			@param name, function name.
 			@param argNum, argument number.
 			@param ..., arguments (BCVar*) type.
 			@return BCVar* from JS Function return, you have to unref() it !!
 		 */
 		BCVar* callJSFunc(const string& name, int argNum, ...);
+
+		void interupt(const string& name, int argNum, ...);
 	private:
 		string cwd;
 		string cname;
@@ -131,19 +143,26 @@ class KoalaJS {
 
 		BCVar* root;
 		vector<VMScope> scopes;
-		stack<CodeT> codeStack;
+		stack<CodeT> codeStack; //code stack for "run" or "exec" js in js.
+		//run stack
+		const static uint16_t STACK_DEEP = 128;
+		StackItem* vStack[STACK_DEEP];
+		uint16_t stackTop;
+
+		//interupt queue	
+		queue<Interupt*> interupts;
+
+		void doInterupt();
 
 		void runCode(Bytecode* bc);
 
 		void init(BCVar* rt = NULL);
 
-		const static uint16_t STACK_DEEP = 128;
-		StackItem* vStack[STACK_DEEP];
-		uint16_t stackTop;
-
 		void push(StackItem* v);
 
 		StackItem* pop2();
+
+		BCVar* callJSFunc(const string& name, const vector<BCVar*>& args);
 
 		/**find node by name just in current scope
 			@param name, name of variable;
