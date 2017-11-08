@@ -292,21 +292,11 @@ public:
 		init();
 	}
 
-	inline int getRefs() { return refs; }
+	int getRefs();
 
-	inline BCVar* ref() {
-		refs++;
-		return this;
-	}
-	
-	inline BCVar* unref(bool del = true) {
-		refs--;
-		if(refs == 0 && del) {
-			delete this;
-			return NULL;
-		}
-		return this;
-	}
+	BCVar* ref();
+
+	BCVar* unref(bool del = true);
 
 	//get function parameter var 
 	inline BCVar* getParameter(const string& name) {

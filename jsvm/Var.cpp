@@ -1,4 +1,5 @@
 #include "Var.h"
+#include "utils/Thread/Thread.h"
 #include <stdio.h>
 #include <string.h>
 
@@ -152,3 +153,27 @@ string BCVar::getJSON(const string& linePrefix) {
 	return destination;
 }
 
+static ThreadLock _refLock;
+
+int BCVar::getRefs() {
+	return refs;
+}
+
+BCVar* BCVar::ref() {
+	_refLock.lock();
+	refs++;
+	_refLock.unlock();
+	return this;
+}
+
+BCVar* BCVar::unref(bool del) {
+	_refLock.lock();
+	refs--;
+	_refLock.unlock();
+
+	if(refs == 0 && del) {
+		delete this;
+		return NULL;
+	}
+	return this;
+}
