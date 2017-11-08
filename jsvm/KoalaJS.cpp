@@ -34,17 +34,11 @@ BCVar* KoalaJS::callJSFunc(const string& funcName, int argNum, ...) {
 		fname = fname + "$" + StringUtil::from((int)argNum);
 	}
 
-	VMScope sc;
-	sc.var = js.root->ref();
-	sc.pc = 0;
-	js.pushScope(sc);
-
 	size_t scDeep = js.scopes.size();
 	js.funcCall(fname, false);
 	if(scDeep < js.scopes.size()) {
 		js.runCode(NULL);
 	}
-	js.popScope();
 
 	StackItem* i = js.pop2();
 	if(i != NULL)
