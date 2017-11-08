@@ -286,12 +286,6 @@ public:
 		init();
 	}
 
-	int getRefs();
-
-	BCVar* ref();
-
-	BCVar* unref(bool del = true);
-
 	//get function parameter var 
 	inline BCVar* getParameter(const string& name) {
 		BCNode* n = getChild(name);
@@ -378,7 +372,26 @@ public:
 		children.push_back(ret);
 		return ret;
 	}
-	
+
+	inline int getRefs() {
+		return refs;
+	}
+
+	inline BCVar* ref() {
+		refs++;
+		return this;
+	}
+
+	inline BCVar* unref(bool del = true) {
+		refs--;
+
+		if(refs == 0 && del) {
+			delete this;
+			return NULL;
+		}
+		return this;
+	}
+
 	string getParsableString();
 	string getJSString(const string &str);
 	string getJSON(const string& linePrefix = "");

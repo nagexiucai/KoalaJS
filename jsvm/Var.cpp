@@ -114,11 +114,9 @@ string BCVar::getJSON(const string& linePrefix) {
 		if (len>10000) len=10000; // we don't want to get stuck here!
 		for (int i=0;i<len;i++) {
 			destination += getArrayIndex(i)->getJSON(indentedLinePrefix);
-			if (i<len-1) destination  += ",\n";
+			if (i<len-1) destination  += ", ";
 		}
-
 //		destination += "\n";
-		destination += linePrefix;
 		destination += "]";
 	} else {
 		// no children or a function... just write value directly
@@ -128,21 +126,3 @@ string BCVar::getJSON(const string& linePrefix) {
 	return destination;
 }
 
-int BCVar::getRefs() {
-	return refs;
-}
-
-BCVar* BCVar::ref() {
-	refs++;
-	return this;
-}
-
-BCVar* BCVar::unref(bool del) {
-	refs--;
-
-	if(refs == 0 && del) {
-		delete this;
-		return NULL;
-	}
-	return this;
-}

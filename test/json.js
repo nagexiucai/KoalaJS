@@ -5,7 +5,8 @@ a = {
 		"book": "Bible",
 		"f": function() {
 			print("function called.\n");
-		} 
+		},
+		"numbers": [1, 3, 4, 5, 6]
 	}
 };
 
