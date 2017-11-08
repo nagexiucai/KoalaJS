@@ -35,16 +35,16 @@ BCVar* KoalaJS::callJSFunc(const string& funcName, int argNum, ...) {
 	}
 
 	VMScope sc;
-	sc.var = js.root;
+	sc.var = js.root->ref();
 	sc.pc = 0;
-	js.scopes.push_back(sc);
+	js.pushScope(sc);
 
 	size_t scDeep = js.scopes.size();
 	js.funcCall(fname, false);
 	if(scDeep < js.scopes.size()) {
 		js.runCode(NULL);
 	}
-	js.scopes.pop_back();
+	js.popScope();
 
 	StackItem* i = js.pop2();
 	if(i != NULL)
@@ -342,44 +342,44 @@ bool KoalaJS::funcCall(const string& funcName, bool member) {
 		}
 	}
 
+	BCVar* params = new BCVar(); //function parameters
 	FuncT* func = n->var->getFunc();
-	func->thisNode->replace(object);
+	params->addChild(THIS, object);
 	object->unref(); //unref after pop
 
 	//read arguments
-	for(int i=func->argNum-1; i>=0; --i) {
-		BCNode* arg = func->args->getChild(i);
-		if(arg == NULL) {
-			ERR("%s argument not match\n", fname.c_str());
-			return false;
-		}
-
+	int argNum = (int)func->args.size();
+	for(int i=argNum-1; i>=0; --i) {
+		string arg = func->args[i];
 		si = pop2();
 		if(si == NULL) {
 			ERR("%s argument not match\n", fname.c_str());
+			delete params;
 			return false;
 		}
 		BCVar* v = VAR(si);
-		arg->replace(v);
+		params->addChild(arg, v);
 		v->unref(); //unref after pop
 	}
 
+	VMScope sc;
+	sc.var = params->ref();
+
 	if(n->var->type == BCVar::NFUNC) { //native function
 		if(func->native != NULL) {
-			func->native(this, n->var, func->data);
+			pushScope(sc);
+			func->native(this, params, func->data);
 			//read return.
-			BCVar* ret = func->returnNode->var;
+			BCVar* ret = params->getReturnVar();
 			push(ret->ref());
-			func->resetArgs();
+			popScope();
 		}
 		return true;
 	}
 
-	//js function
-	VMScope sc;
 	sc.pc = pc;
-	sc.var = n->var;
-	scopes.push_back(sc);
+	pushScope(sc);
+	//js function
 	pc = func->pc;
 	return true;
 }
@@ -412,13 +412,9 @@ BCVar* KoalaJS::funcDef(const string& funcName, bool regular) {
 	}
 	//create function variable
 	ret = new BCVar();
-	size_t argNum = args.size();
-	ret->setFunction((int)argNum, funcPC);
+	ret->setFunction(funcPC);
 	ret->getFunc()->regular = regular;
-	//set args as top children 
-	for(size_t i=0; i<argNum; ++i) {
-		ret->getFunc()->args->addChild(args[i]);
-	}
+	ret->getFunc()->args = args;
 	return ret;
 }
 
@@ -481,12 +477,10 @@ void KoalaJS::addNative(const string& clsName, const string& funcDecl, JSCallbac
 
 	BCVar* funcVar = new BCVar();
 	size_t argNum = args.size();
-	funcVar->setFunction((int)argNum, 0, native);
+	funcVar->setFunction(0, native);
 	FuncT* func = funcVar->getFunc();
 	func->data = data;
-	for(i=0; i<argNum; ++i) {
-		func->args->addChild(args[i]);	
-	}
+	func->args = args;
 
 	if(argNum > 0)
 		funcName = funcName + "$" + StringUtil::from((int)argNum);	
@@ -702,9 +696,9 @@ void KoalaJS::runCode(Bytecode* bc) {
 		setBytecode(bc);
 
 		VMScope sc;
-		sc.var = root;
+		sc.var = root->ref();
 		sc.pc = 0;
-		scopes.push_back(sc);
+		pushScope(sc);
 	}
 	size_t scDeep = scopes.size();
 
@@ -893,20 +887,16 @@ void KoalaJS::runCode(Bytecode* bc) {
 			case INSTR_RETURNV: { //return with value
 														VMScope* sc = scope();
 														if(sc != NULL) {
-															FuncT* func = sc->var->getFunc();
-															if(func != NULL) {
-																BCVar* thisVar = func->thisNode->var;
-																if(instr == INSTR_RETURN) //return without value, push "this" to stack
-																	push(thisVar->ref());
-																func->resetArgs();
-															}
+															BCVar* thisVar = sc->var->getThisVar();
+															if(instr == INSTR_RETURN) //return without value, push "this" to stack
+																push(thisVar->ref());
 
 															pc = sc->pc;
 															if(scDeep == scopes.size() && bc == NULL) { //usually means call js function.
-																scopes.pop_back();
+																popScope();
 																return;
 															}
-															scopes.pop_back();
+															popScope();
 														}
 														break;
 													}
@@ -1037,15 +1027,15 @@ void KoalaJS::runCode(Bytecode* bc) {
 													else
 														obj->type = BCVar::ARRAY;
 													VMScope sc;
-													sc.var = obj;
-													scopes.push_back(sc);
+													sc.var = obj->ref();
+													pushScope(sc);
 													break;
 												}
 			case INSTR_ARRAY_END: 
 			case INSTR_OBJ_END: {
 														BCVar* obj = scope()->var;
 														push(obj->ref()); //that actually means currentObj->ref() for push and unref for unasign.
-														scopes.pop_back();
+														popScope();
 														break;
 													}
 			case INSTR_MEMBER: 
@@ -1078,12 +1068,12 @@ void KoalaJS::runCode(Bytecode* bc) {
 													BCVar* v = getOrAddClass(str);
 													push(v->ref());
 													VMScope sc;
-													sc.var = v;
-													scopes.push_back(sc);
+													sc.var = v->ref();
+													pushScope(sc);
 													break;
 												}
 			case INSTR_CLASS_END: {
-															scopes.pop_back();
+															popScope();
 															break;
 														}
 			case INSTR_CALL: {
@@ -1102,7 +1092,7 @@ void KoalaJS::runCode(Bytecode* bc) {
 											}
 		}
 	}
-	scopes.pop_back();
+	popScope();
 
 	if(!codeStack.empty()) {
 		CodeT cs = codeStack.top();

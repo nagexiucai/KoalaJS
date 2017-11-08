@@ -25,28 +25,6 @@ STFunc::STFunc() {
 	data = NULL;
 	argNum = 0;
 	regular = true;
-	args = new BCVar();
-	thisNode = new BCNode(THIS, new BCVar());
-	returnNode = new BCNode(RETURN, new BCVar());
-}
-
-STFunc::~STFunc() {
-	delete args;
-	delete thisNode;
-	delete returnNode;
-}
-
-void STFunc::resetArgs() {
-	int sz = argNum;
-	BCVar* v = new BCVar();
-	for(int i=0; i<sz; ++i) {
-		BCNode* n = args->getChild(i);
-		if(n)
-			n->replace(v);
-	}
-
-	thisNode->replace(v);
-	returnNode->replace(v);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -88,11 +66,10 @@ string BCVar::getParsableString() {
 		std::string funcStr;
 		funcStr += "function (";
 		// get list of parameters
-		int sz = func->argNum;
-
+		int sz = (int)func->args.size();
 		for(int i=0; i<sz; ++i) {
-			BCNode* n = func->args->getChild(i);
-			funcStr += n->name;
+			string n = func->args[i];
+			funcStr += n;
 			if ((i+1) < sz) {
 				funcStr += ",";
 			}

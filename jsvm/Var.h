@@ -56,14 +56,10 @@ typedef struct STFunc {
 	int argNum;
 	JSCallback native;
 	PC pc;
-	BCVar* args;
-	BCNode* thisNode;
-	BCNode* returnNode;
+	vector<string> args;
 	void* data;
 
 	STFunc();
-	~STFunc();
-	void resetArgs();
 } FuncT;
 
 const int NO_BYTES = -1;
@@ -212,10 +208,9 @@ public:
 	}
 
 
-	inline void setFunction(int argNum, PC pc, JSCallback native = NULL) {
+	inline void setFunction(PC pc, JSCallback native = NULL) {
 		clean();
 		func = new FuncT();
-		func->argNum = argNum;
 
 		if(native != NULL) {
 			func->native = native;
@@ -304,37 +299,19 @@ public:
 		return (n == NULL ? NULL : n->var);
 	}
 
+	//get function this var 
+	inline BCVar* getThisVar() {
+		return getChildOrCreate(THIS)->var;
+	}
+
 	//get function return var 
 	inline BCVar* getReturnVar() {
-		if(func == NULL) 
-			return NULL;
-
-		return func->returnNode->var;
+		return getChildOrCreate(RETURN)->var;
 	}
 
 	//set function return var 
 	inline BCVar* setReturnVar(BCVar* v) {
-		if(func == NULL) 
-			return NULL;
-
-		func->returnNode->replace(v);
-		return v;
-	}
-
-	//get function this var 
-	inline BCVar* getThisVar() {
-		if(func == NULL) 
-			return NULL;
-
-		return func->thisNode->var;
-	}
-
-	//set function this var 
-	inline BCVar* setThisVar(BCVar* v) {
-		if(func == NULL) 
-			return NULL;
-
-		func->thisNode->replace(v);
+		getChildOrCreate(RETURN)->replace(v);
 		return v;
 	}
 
@@ -368,20 +345,6 @@ public:
 	@name , child name;
 	*/
 	inline BCNode* getChild(const string& name) {
-		if(func != NULL) {
-			if(name == THIS) {
-				return func->thisNode;
-			}
-			else if(name == RETURN) {
-				return func->returnNode;
-			}
-			else {
-				BCNode* r = func->args->getChild(name);
-				if(r != NULL)
-					return r;
-			}
-		}
-
 		int sz = (int)children.size();
 		for(int i=0; i<sz; ++i) {
 			BCNode* r = children[i];
@@ -395,12 +358,6 @@ public:
 	@name , child name;
 	*/
 	inline BCNode* getChildOrCreate(const string& name) {
-		if(func != NULL) {
-			BCNode* r = func->args->getChild(name);
-			if(r != NULL)
-				return r;
-		}
-
 		for(size_t i=0; i<children.size(); ++i) {
 			if(children[i] != NULL && children[i]->name == name)
 				return children[i];

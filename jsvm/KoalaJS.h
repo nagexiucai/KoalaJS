@@ -9,9 +9,12 @@
 
 #define VAR(i) (i->isNode ? ((BCNode*)i)->var : (BCVar*)i)
 
-typedef struct {
+typedef struct STScope {
 	BCVar* var;
 	PC pc; //stack pc
+	inline STScope() {
+		var = NULL;
+	}
 } VMScope;
 
 typedef struct {
@@ -189,6 +192,18 @@ class KoalaJS {
 		void compare(OpCode op, BCVar* v1, BCVar* v2);
 
 		void mathOp(OpCode op, BCVar* v1, BCVar* v2);
+
+		inline void pushScope(const VMScope& sc) {
+			scopes.push_back(sc);
+		}
+
+		inline void popScope() {
+			VMScope* sc = scope();
+			if(sc != NULL && sc->var != NULL)
+				sc->var->unref();
+			scopes.pop_back();
+		}
+
 };
 
 #endif
