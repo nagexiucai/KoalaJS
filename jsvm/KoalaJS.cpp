@@ -1046,8 +1046,9 @@ void KoalaJS::runCode(Bytecode* bc) {
 															BCVar* v = VAR(i);
 															if(v->isFunction()) {
 																FuncT* func = v->getFunc();
-																if(func->argNum > 0)
-																	str = str + "$" + StringUtil::from(func->argNum);
+																size_t argNum = func->args.size();
+																if(argNum > 0)
+																	str = str + "$" + StringUtil::from((int)argNum);
 															}
 															scope()->var->addChild(str, v);
 															v->unref();
