@@ -1,4 +1,5 @@
 #include "Bytecode.h"
+#include "utils/String/StringUtil.h"
 #include "Compiler.h"
 #include <unistd.h>  
 #include <vector>  
@@ -14,6 +15,52 @@
 #define INS_SIZE sizeof(uint16_t)
 
 #define P(...) fprintf (stdout, __VA_ARGS__)
+
+void DebugInfo::loadLines(const string& fname, vector<string>& lines) {
+	lines.clear();
+
+	int fd = open(fname.c_str(), O_RDONLY);
+	if(fd < 0)
+		return;
+
+	char c;
+	string line;
+	while(true) {
+		int sz = read(fd, (char*)(&c), 1);
+		if(sz <= 0)
+			break;
+		if(c == '\n') {
+			lines.push_back(line);
+			line = "";
+		}
+		else {
+			line = line + c;
+		}
+	}
+	close(fd);
+}
+
+void DebugInfo::loadFiles() {
+	fileLines.clear();
+	size_t num = fileTable.size();
+	for(size_t i=0; i<num; ++i) {
+		string fname = fileTable[i];
+		vector<string> lines;
+		loadLines(fname, lines);
+		fileLines.push_back(lines);
+	}
+}
+
+uint32_t DebugInfo::getLine(uint32_t index, string& line, string& fname) {
+	POS pos = posBuf[index];
+	uint16_t fileIndex = pos >> 16;
+	uint16_t l = pos & 0xFFFF;
+
+	fname = fileTable[fileIndex];
+	string ln = fileLines[fileIndex][l-1];
+	line = ln;
+	return l;
+}
 
 uint16_t DebugInfo::getFileIndex(const string& n) {
 	if(n.length() == 0)
@@ -49,8 +96,8 @@ void DebugInfo::genDebug(Compiler* compiler) {
 		return;
 
 	string fname = compiler->getFName();
-	uint16_t findex = getFileIndex(fname);
 	int line, col;
+	uint16_t findex = getFileIndex(fname);
 	compiler->getPosition(&line, &col);
 	POS pos = (findex << 16) | (line & 0xFFFF);
 	add(pos);
@@ -233,6 +280,9 @@ string Bytecode::strs() {
 }
 
 string Bytecode::dump() {
+	if(debug)
+		debugInfo.loadFiles();
+
 	string ret;
 	char s[32];
 	PC i = 0;
@@ -242,10 +292,33 @@ string Bytecode::dump() {
 	ret += strs();
 	ret += "---------------------------------------\n";
 
+	int line = -1;
+	string fname = "";
 	while(i < cindex) {
 		ins = codeBuf[i];
 		OpCode instr = (ins >> 16) & 0xFFFF;
 		OpCode strIndex = ins & 0xFFFF;
+
+		string dbg = "";
+		string fn = "";
+		if(debug && instr != INSTR_POP) {
+			string ln = "";
+			int l = debugInfo.getLine(i, ln, fn);
+			if(fn != fname) {
+				dbg = dbg + "(" + fn + ")\n" + StringUtil::from(l) + " " + ln;
+			}
+			else if(line != l) {
+				dbg = StringUtil::from(l) + " " + ln;
+			}
+			else {
+				dbg = "";
+			}
+			fname = fn;
+			line = l;
+		}
+
+		if(dbg.length() > 0)
+			ret = ret + "\n" + dbg + "\n\n";
 
 		if(strIndex == 0xFFFF) {
 			sprintf(s, "%04d 0x%08X ; %s\n", i, ins, BCOpCode::instr(instr).c_str());	
@@ -261,11 +334,14 @@ string Bytecode::dump() {
 			}
 			else if(instr == INSTR_STR) {
 				sprintf(s, "%04d 0x%08X ; %s \"", i, ins, BCOpCode::instr(instr).c_str());	
-				ret = ret + s + getStr(strIndex) + "\"\n";	
+				string dsp = StringUtil::replace(getStr(strIndex), "\n", "\\n");
+				dsp = StringUtil::replace(dsp, "\r", "\\r");
+				dsp = StringUtil::replace(dsp, "\t", "\\t");
+				ret = ret + s + dsp + "\"\n";	
 			}
 			else {
 				sprintf(s, "%04d 0x%08X ; %s ", i, ins, BCOpCode::instr(instr).c_str());	
-				ret = ret + s + getStr(strIndex) + "\n";	
+				ret = ret + s + getStr(strIndex) + "\n";
 			}
 		}
 		
@@ -284,7 +360,7 @@ string Bytecode::dump() {
 			sprintf(s, "%04d 0x%08X ; (%f)\n", i, ins, f);	
 			ret += s;
 			i++;
-		}
+		}	
 	}
 	return ret;
 }
@@ -297,7 +373,7 @@ bool Bytecode::toFile(const std::string& fname) {
 	uint8_t db = 0;
 	if(debug)
 		db = 1;
-	write(fd, (char*)(&db), 8);
+	write(fd, (char*)(&db), 1);
 
 	// write string talble 
 	uint32_t sz = (uint32_t)strTable.size();
@@ -331,7 +407,7 @@ bool Bytecode::fromFile(const std::string& fname) {
 	//debug or not
 	debug = false;
 	uint8_t db = 0;
-	read(fd, (char*)(&db), 8);
+	read(fd, (char*)(&db), 1);
 	if(db != 0)
 		debug = true;
 
@@ -364,6 +440,7 @@ bool Bytecode::fromFile(const std::string& fname) {
 
 	if(debug) {
 		debugInfo.fromFile(fd);
+		debugInfo.loadFiles();
 	}
 	close(fd);
 	return true;

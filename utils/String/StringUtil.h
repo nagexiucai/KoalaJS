@@ -69,6 +69,24 @@ public:
 		ostr << f;
 		return ostr.str();
 	}
+
+	inline static string replace(const string& src, const string& key, const string& with) {
+		string s = "";
+		string str = src;
+
+		while(true) {
+			size_t i = str.find(key);
+			if(i == string::npos) {
+				s += str;
+				break;
+			}
+			else {
+				s += str.substr(0, i) + with;
+				str = str.substr(i+key.length());
+			}
+		}
+		return s;
+	}
 };
 
 

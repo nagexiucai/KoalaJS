@@ -32,6 +32,10 @@ void compile(const string& fname, bool tofile = false, bool debug = false) {
 		Compiler compiler;
 		if(fname.find(".bcode") != string::npos) {
 			compiler.bytecode.fromFile(fname);
+			if(!tofile) {
+				string s = compiler.bytecode.dump();
+				printf("%s\n", s.c_str());
+			}
 		}
 		else {
 			compiler.run(fname, debug);
@@ -50,7 +54,7 @@ void compile(const string& fname, bool tofile = false, bool debug = false) {
 
 int main(int argc, char** argv) {
 	if(argc <= 1) {
-		ERR("Usage: jsh [-v] [-c] [-d] [filename.js/.bcode]\n");
+		ERR("Usage: koala [-v] [-c] [-d] [filename.js/.bcode]\n");
 		return 1;
 	}
 	else if(argc >= 2) {

@@ -568,6 +568,7 @@ Compiler::~Compiler() {
 bool Compiler::run(const std::string &fname, bool debug) {
 	bool res = false;
 	std::string oldCwd = cwd;
+	std::string oldCName = cname;
 
 	cname = File::getFullname(cwd, fname);
 	cwd = File::getPath(cname);
@@ -584,12 +585,13 @@ bool Compiler::run(const std::string &fname, bool debug) {
 
 	if(oldCwd.length() > 0)
 		cwd = oldCwd;
+	if(oldCName.length() > 0)
+		cname = oldCName;
 	return res;
 }
 
 bool Compiler::exec(const std::string &code) {
 	CScriptLex* old = l;
-
 	l = new CScriptLex(code);
 
 	try {
@@ -618,7 +620,7 @@ LEX_TYPES Compiler::statement(bool pop) {
 	if (l->tk==LEX_R_INCLUDE) {
 		l->chkread(LEX_R_INCLUDE);
 
-		run(l->tkStr);
+		run(l->tkStr, bytecode.isDebug());
 
 		l->chkread(LEX_STR);
 		l->chkread(';');

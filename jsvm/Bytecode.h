@@ -27,6 +27,7 @@ class Compiler;
 typedef uint32_t POS;
 typedef struct STDBInfo {
 	vector<string> fileTable;
+	vector<vector<string> > fileLines;
 	uint32_t bufSize;
 	uint32_t *posBuf;
 	uint32_t index;
@@ -50,6 +51,8 @@ typedef struct STDBInfo {
 
 	bool fromFile(int fd);
 
+	uint32_t getLine(uint32_t index, string& line, string& fname);
+
 	inline void reset() {
 		fileTable.clear();
 
@@ -70,6 +73,9 @@ typedef struct STDBInfo {
 		dbg->posBuf = new POS[index];
 		memcpy(dbg->posBuf, posBuf, index*sizeof(POS));
 	}
+
+	void loadLines(const string& fname, vector<string>& lines);
+	void loadFiles();
 } DebugInfo;
 
 class Bytecode {
@@ -90,6 +96,14 @@ public:
 		cindex = 0;
 		codeBuf = NULL;
 		bufSize = 0;
+	}
+
+	inline DebugInfo* getDebug() {
+		return &debugInfo;
+	}
+
+	inline bool isDebug() {
+		return debug;
 	}
 
 	inline void setCompiler(Compiler* cp) {//for debug
