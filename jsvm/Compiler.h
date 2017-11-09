@@ -80,6 +80,7 @@ class CScriptLex
 		std::string getSubString(int pos);           ///< Return a sub-string from the given position up until right now
 		CScriptLex *getSubLex(int lastPosition); ///< Return a sub-lexer from the given position up until right now
 
+		void getPosition(int *line, int *col, int pos=-1);         ///< Return the position in lines and columns of the character pos given
 		std::string getPosition(int pos=-1);         ///< Return a string representing the position in lines and columns of the character pos given
 		int  dataPos;                            ///< Position in data (we CAN go past the end of the std::string here)
 
@@ -107,7 +108,7 @@ class Compiler {
 		Compiler();
 		~Compiler();
 
-		bool run(const std::string &fname);
+		bool run(const std::string &fname, bool debug = false);
 
 		bool exec(const std::string &code);
 		
@@ -121,6 +122,12 @@ class Compiler {
 		
 		inline string getFName() {
 			return cname;
+		}
+
+		inline void getPosition(int *line, int *col, int pos = -1) {
+			if(l == NULL)
+				return;
+			l->getPosition(line, col, pos);
 		}
 
 		Bytecode bytecode;

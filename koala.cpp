@@ -27,14 +27,14 @@ void run(int argc, char** argv) {
 }
 
 //run js file.
-void compile(const string& fname, bool tofile = false) {
+void compile(const string& fname, bool tofile = false, bool debug = false) {
 	try {
 		Compiler compiler;
 		if(fname.find(".bcode") != string::npos) {
 			compiler.bytecode.fromFile(fname);
 		}
 		else {
-			compiler.run(fname);
+			compiler.run(fname, debug);
 			if(tofile)
 				compiler.bytecode.toFile(fname + ".bcode");
 			else {
@@ -50,15 +50,18 @@ void compile(const string& fname, bool tofile = false) {
 
 int main(int argc, char** argv) {
 	if(argc <= 1) {
-		ERR("Usage: jsh [-v] [-c] [filename.js/.bcode]\n");
+		ERR("Usage: jsh [-v] [-c] [-d] [filename.js/.bcode]\n");
 		return 1;
 	}
 	else if(argc >= 2) {
 		if(strcmp(argv[1], "-v") == 0) {
-			compile(argv[2]);
+			compile(argv[2], false, true);
 		}
 		else if(strcmp(argv[1], "-c") == 0) {
 			compile(argv[2], true);
+		}
+		else if(strcmp(argv[1], "-d") == 0) {
+			compile(argv[2], true, true);
 		}
 		else {
 		//while(true) {

@@ -519,10 +519,10 @@ CScriptLex *CScriptLex::getSubLex(int lastPosition) {
 		return new CScriptLex(this, lastPosition, dataEnd );
 }
 
-std::string CScriptLex::getPosition(int pos) {
+void CScriptLex::getPosition(int* line, int *col, int pos) {
 	if (pos<0) pos=tokenLastEnd;
-	int line = 1;
-	int col  = 1;
+	int l = 1;
+	int c  = 1;
 	for (int i=0;i<pos;i++) {
 		char ch;
 		if (i < dataEnd){
@@ -530,12 +530,21 @@ std::string CScriptLex::getPosition(int pos) {
 		}else{
 			ch = 0;
 		}
-		col++;
+		c++;
 		if (ch=='\n') {
-			line++;
-			col = 1;
+			l++;
+			c = 1;
 		}
 	}
+	*line = l;
+	*col = c;
+}
+
+std::string CScriptLex::getPosition(int pos) {
+	int line = 1;
+	int col;
+
+	getPosition(&line, &col, pos);
 	std::stringstream ss;
 	ss << "(line: " << line << ", col: " << col << ")";
 	return ss.str();
@@ -556,7 +565,7 @@ Compiler::~Compiler() {
 
 
 //added by Misa.Z for running file
-bool Compiler::run(const std::string &fname) {
+bool Compiler::run(const std::string &fname, bool debug) {
 	bool res = false;
 	std::string oldCwd = cwd;
 
@@ -565,6 +574,8 @@ bool Compiler::run(const std::string &fname) {
 
 	std::string input = File::read(cname);
 	if(input.length() > 0) {
+		if(debug)
+			bytecode.setCompiler(this);
 		res = exec(input);
 	}
 	else {

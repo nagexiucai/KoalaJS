@@ -26,7 +26,7 @@ class Compiler;
 
 typedef uint32_t POS;
 typedef struct STDBInfo {
-	vector<string> strTable;
+	vector<string> fileTable;
 	uint32_t bufSize;
 	uint32_t *posBuf;
 	uint32_t index;
@@ -38,7 +38,38 @@ typedef struct STDBInfo {
 		index = 0;
 	}
 
+	inline ~STDBInfo() {
+		reset();
+	}
+
+	uint16_t getFileIndex(const string& n);
 	void add(POS pos);
+	void genDebug(Compiler* compiler);
+
+	bool toFile(int fd);
+
+	bool fromFile(int fd);
+
+	inline void reset() {
+		fileTable.clear();
+
+		if(posBuf != NULL) {
+			delete []posBuf;
+			posBuf = NULL;
+		}
+		bufSize = 0;
+		index = 0;
+	}
+
+	inline void clone(STDBInfo* dbg) {
+		if(dbg == NULL || index == 0)
+			return;
+		dbg->reset();
+		dbg->index = index;
+		dbg->fileTable = fileTable;
+		dbg->posBuf = new POS[index];
+		memcpy(dbg->posBuf, posBuf, index*sizeof(POS));
+	}
 } DebugInfo;
 
 class Bytecode {
@@ -47,7 +78,9 @@ class Bytecode {
 	PC *codeBuf;
 	uint32_t bufSize;
 	Compiler* compiler;
+
 	bool debug;
+	DebugInfo debugInfo;
 
 public:
 	const static uint32_t BUF_SIZE = 1024;
@@ -141,9 +174,9 @@ public:
 	bool fromFile(const std::string& fname);
 
 	inline void clone(Bytecode* bc) {
-		bc->reset();
 		if(bc == NULL || cindex == 0)
 			return;
+		bc->reset();
 		bc->cindex = cindex;
 		bc->strTable = strTable;
 		bc->codeBuf = new PC[cindex];

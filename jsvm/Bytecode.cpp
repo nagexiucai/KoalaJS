@@ -15,6 +15,19 @@
 
 #define P(...) fprintf (stdout, __VA_ARGS__)
 
+uint16_t DebugInfo::getFileIndex(const string& n) {
+	if(n.length() == 0)
+		return 0xFFFF;
+
+	uint16_t sz = fileTable.size();
+	for(uint16_t i=0; i<sz; ++i) {
+		if(fileTable[i] == n)
+			return i;
+	}
+	fileTable.push_back(n);
+	return sz;
+}	
+
 void DebugInfo::add(POS pos) {
 	if(index >= bufSize) {
 		bufSize = index + BUF_SIZE;
@@ -31,6 +44,75 @@ void DebugInfo::add(POS pos) {
 	index++;
 }
 
+void DebugInfo::genDebug(Compiler* compiler) {
+	if(compiler == NULL)
+		return;
+
+	string fname = compiler->getFName();
+	uint16_t findex = getFileIndex(fname);
+	int line, col;
+	compiler->getPosition(&line, &col);
+	POS pos = (findex << 16) | (line & 0xFFFF);
+	add(pos);
+}
+
+bool DebugInfo::toFile(int fd) {
+	if(fd < 0)
+		return false;
+
+	// write file talble 
+	uint32_t sz = (uint32_t)fileTable.size();
+	for(uint16_t i=0; i<sz; ++i) {
+		string s = fileTable[i];
+		uint32_t len = (uint32_t)s.length();
+		write(fd, (char*)(&len), INT_SIZE);
+		write(fd, s.c_str(), len);
+	}	
+	sz = 0;	
+	write(fd, (char*)(&sz), INT_SIZE);
+
+	// write instruction
+	write(fd, (char*)(&index), INS_SIZE);
+	write(fd, (char*)posBuf, sizeof(POS) * index);
+	return true;
+}
+
+bool DebugInfo::fromFile(int fd) {
+	if(fd < 0)
+		return false;
+	//read file table
+
+	uint32_t sz;
+	char* buf = NULL;
+
+	while(true) {
+		read(fd, &sz, INT_SIZE);
+		if(sz == 0)
+			break;
+
+		buf = new char[sz+1];
+		if(buf == NULL)
+			return false;
+		read(fd, buf, sz);
+		buf[sz] = 0;
+		
+		fileTable.push_back(buf);
+		delete []buf;
+	}	
+
+	read(fd, &index, INS_SIZE);
+	if(index == 0)
+		return false;
+
+	sz = index * sizeof(POS);
+	posBuf = new POS[sz];
+	read(fd, posBuf, sz);
+
+	return true;	
+}
+
+//===================================================
+
 void Bytecode::add(PC ins) {
 	if(cindex >= bufSize) {
 		bufSize = cindex + BUF_SIZE;
@@ -44,6 +126,8 @@ void Bytecode::add(PC ins) {
 	}
 
 	codeBuf[cindex] = ins;
+	if(debug && compiler != NULL)
+		debugInfo.genDebug(compiler);
 	cindex++;
 }
 	
@@ -209,6 +293,11 @@ bool Bytecode::toFile(const std::string& fname) {
 	int fd = open(fname.c_str(), O_WRONLY | O_CREAT | O_TRUNC, S_IRUSR | S_IWUSR | S_IRGRP);
 	if(fd < 0)
 		return false;
+	//debug or not
+	uint8_t db = 0;
+	if(debug)
+		db = 1;
+	write(fd, (char*)(&db), 8);
 
 	// write string talble 
 	uint32_t sz = (uint32_t)strTable.size();
@@ -225,6 +314,9 @@ bool Bytecode::toFile(const std::string& fname) {
 	write(fd, (char*)(&cindex), INS_SIZE);
 	write(fd, (char*)codeBuf, sizeof(PC) * cindex);
 
+	if(debug) {
+		debugInfo.toFile(fd);
+	}
 	close(fd);
 	return true;
 }
@@ -235,8 +327,15 @@ bool Bytecode::fromFile(const std::string& fname) {
 	int fd = open(fname.c_str(), O_RDONLY);
 	if(fd < 0)
 		return false;
-	//read string table
 
+	//debug or not
+	debug = false;
+	uint8_t db = 0;
+	read(fd, (char*)(&db), 8);
+	if(db != 0)
+		debug = true;
+
+	//read string table
 	uint32_t sz;
 	char* buf = NULL;
 
@@ -262,7 +361,10 @@ bool Bytecode::fromFile(const std::string& fname) {
 	sz = cindex * sizeof(PC);
 	codeBuf = new PC[sz];
 	read(fd, codeBuf, sz);
-	
+
+	if(debug) {
+		debugInfo.fromFile(fd);
+	}
 	close(fd);
 	return true;
 }
