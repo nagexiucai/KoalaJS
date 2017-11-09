@@ -1,5 +1,6 @@
 #include "KoalaJS.h"
 #include "Compiler.h"
+#include "Debug.h"
 #include "utils/String/StringUtil.h"
 #include "utils/File/File.h"
 #include "utils/Thread/Thread.h"
@@ -163,7 +164,7 @@ BCVar* KoalaJS::newObject(BCNode* cls) {
 	return ret;
 }
 
-void KoalaJS::run(const std::string &fname) {
+void KoalaJS::run(const std::string &fname, bool debug) {
 	std::string oldCwd = cwd;
 	cname = File::getFullname(cwd, fname);
 	cwd = File::getPath(cname);
@@ -182,9 +183,7 @@ void KoalaJS::run(const std::string &fname) {
 		}
 		else {
 			Compiler compiler;
-			if(compiler.run(cname)) {
-				//			compiler.bytecode.dump();
-				compiler.bytecode.clone(bc);
+			if(compiler.run(cname, bc, debug)) {
 				CodeCache::cache(cname, bc);
 				runCode(bc);
 			}
@@ -200,8 +199,7 @@ void KoalaJS::exec(const std::string &code) {
 	if(bc == NULL) {
 		bc = new Bytecode();
 		Compiler compiler;
-		if(compiler.exec(code)) {
-			compiler.bytecode.clone(bc);
+		if(compiler.exec(code, bc)) {
 			CodeCache::cache(code, bc);
 		}
 	}
@@ -751,6 +749,33 @@ void KoalaJS::doGet(BCVar* v, const string& str) {
 	push(n);
 }
 
+BCNode* KoalaJS::load(const string& name, bool create) {
+	BCNode* node = NULL;
+	VMScope* current = scope();
+	node = current->var->getChild(name);
+
+	if(node == NULL) {
+		BCVar* thisVar = getCurrentObj();
+		if(thisVar != NULL) {
+			node = thisVar->getChild(name);
+			if(node == NULL)
+				node = findInClass(thisVar, name);
+		}
+	}
+	if(node == NULL) {
+		node = findInScopes(name);
+		if(node == NULL) {
+			if(!create)
+				return NULL;
+
+			if(name != THIS)
+				ERR("Warning: '%s' undefined!\n", name.c_str());
+			node = current->var->addChild(name);
+		}
+	}
+	return node;
+}
+
 void KoalaJS::runCode(Bytecode* bc) {
 	if(bc != NULL) {
 		if(code != NULL && bcode != NULL) {
@@ -773,6 +798,10 @@ void KoalaJS::runCode(Bytecode* bc) {
 	size_t interuptCount = 0;
 
 	while(pc < codeSize) {
+		if(bcode->isDebug()) {
+			debug.debug(this, pc);
+		}
+
 		interuptCount++;
 		if(interuptCount >= INTERUPT_COUNT) {
 			interuptCount = 0;
@@ -996,36 +1025,9 @@ void KoalaJS::runCode(Bytecode* bc) {
 												}
 			case INSTR_LOAD: {
 												 str = bcode->getStr(offset);
-												 if(str == THIS) {
-													 BCVar* v = getCurrentObj(true);
-													 if(v != NULL)
-														 push(v->ref());
-												 }
-												 else {
-													 BCNode* node = NULL;
-													 node = scope()->var->getChild(str);
-
-													 if(node == NULL) {
-														 BCVar* thisVar = getCurrentObj();
-														 if(thisVar != NULL) {
-															 node = thisVar->getChild(str);
-															 if(node == NULL)
-																 node = findInClass(thisVar, str);
-														 }
-													 }
-													 if(node == NULL) {
-														 node = findInScopes(str);
-														 if(node == NULL) {
-															 ERR("Warning: '%s' undefined!\n", str.c_str());
-															 VMScope* current = scope();
-															 if(current != NULL) {
-																 node = current->var->addChild(str);
-															 }
-														 }
-													 }
-													 node->var->ref();
-													 push(node);
-												 }
+												 BCNode* node = load(str, true); //load variable, create if not exist.
+												 node->var->ref();
+												 push(node);
 												 break;
 											 }
 			case INSTR_GET: {

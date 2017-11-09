@@ -5,6 +5,7 @@
 #include "CodeCache.h"
 #include "Var.h"
 #include "GlobalVars.h"
+#include "Debug.h"
 #include <stack>
 #include <queue>
 
@@ -91,7 +92,7 @@ class KoalaJS {
 			}
 		}
 
-		void run(const string& fname);
+		void run(const string& fname, bool debug = false);
 
 		void exec(const string& code);
 
@@ -122,6 +123,8 @@ class KoalaJS {
 
 		static GlobalVars* getGlobalVars();
 
+		BCNode* load(const string& name, bool create = false);
+
 		/**Call JS Function , Warning! don't call it from diff thread.
 			@param name, function name.
 			@param argNum, argument number.
@@ -131,6 +134,14 @@ class KoalaJS {
 		BCVar* callJSFunc(const string& name, int argNum, ...);
 
 		void interupt(const string& name, int argNum, ...);
+
+		inline void stop() {
+			pc = codeSize + 1;
+		}
+
+		inline Bytecode* getBytecode() {
+			return bcode;
+		}
 	private:
 		string cwd;
 		string cname;
@@ -148,9 +159,9 @@ class KoalaJS {
 		const static uint16_t STACK_DEEP = 128;
 		StackItem* vStack[STACK_DEEP];
 		uint16_t stackTop;
-
 		//interupt queue	
 		queue<Interupt*> interupts;
+		Debug debug;
 
 		void doInterupt();
 

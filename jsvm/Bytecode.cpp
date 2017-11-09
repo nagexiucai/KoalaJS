@@ -318,10 +318,10 @@ string Bytecode::dump() {
 		}
 
 		if(dbg.length() > 0)
-			ret = ret + "\n" + dbg + "\n\n";
+			ret = ret + "\n" + dbg + "\n  |-----------------\n";
 
 		if(strIndex == 0xFFFF) {
-			sprintf(s, "%04d 0x%08X ; %s\n", i, ins, BCOpCode::instr(instr).c_str());	
+			sprintf(s, "  |%04d 0x%08X ; %s\n", i, ins, BCOpCode::instr(instr).c_str());	
 			ret += s;
 		}
 		else {
@@ -329,18 +329,18 @@ string Bytecode::dump() {
 					instr == INSTR_NJMP || 
 					instr == INSTR_NJMPB ||
 					instr == INSTR_JMPB) {
-				sprintf(s, "%04d 0x%08X ; %s %d\n", i, ins, BCOpCode::instr(instr).c_str(), strIndex);	
+				sprintf(s, "  |%04d 0x%08X ; %s %d\n", i, ins, BCOpCode::instr(instr).c_str(), strIndex);	
 				ret += s;
 			}
 			else if(instr == INSTR_STR) {
-				sprintf(s, "%04d 0x%08X ; %s \"", i, ins, BCOpCode::instr(instr).c_str());	
+				sprintf(s, "  |%04d 0x%08X ; %s \"", i, ins, BCOpCode::instr(instr).c_str());	
 				string dsp = StringUtil::replace(getStr(strIndex), "\n", "\\n");
 				dsp = StringUtil::replace(dsp, "\r", "\\r");
 				dsp = StringUtil::replace(dsp, "\t", "\\t");
 				ret = ret + s + dsp + "\"\n";	
 			}
 			else {
-				sprintf(s, "%04d 0x%08X ; %s ", i, ins, BCOpCode::instr(instr).c_str());	
+				sprintf(s, "  |%04d 0x%08X ; %s ", i, ins, BCOpCode::instr(instr).c_str());	
 				ret = ret + s + getStr(strIndex) + "\n";
 			}
 		}
@@ -349,7 +349,7 @@ string Bytecode::dump() {
 	
 		if(instr == INSTR_INT) {
 			ins = codeBuf[i];
-			sprintf(s, "%04d 0x%08X ; (%d)\n", i, ins, ins);	
+			sprintf(s, "  |%04d 0x%08X ; (%d)\n", i, ins, ins);	
 			ret += s;
 			i++;
 		}
@@ -357,7 +357,7 @@ string Bytecode::dump() {
 			ins = codeBuf[i];
 			float f;
 			memcpy(&f, &ins, sizeof(PC));
-			sprintf(s, "%04d 0x%08X ; (%f)\n", i, ins, f);	
+			sprintf(s, "  |%04d 0x%08X ; (%f)\n", i, ins, f);	
 			ret += s;
 			i++;
 		}	

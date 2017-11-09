@@ -565,7 +565,7 @@ Compiler::~Compiler() {
 
 
 //added by Misa.Z for running file
-bool Compiler::run(const std::string &fname, bool debug) {
+bool Compiler::run(const std::string &fname, Bytecode* bc, bool debug) {
 	bool res = false;
 	std::string oldCwd = cwd;
 	std::string oldCName = cname;
@@ -575,9 +575,14 @@ bool Compiler::run(const std::string &fname, bool debug) {
 
 	std::string input = File::read(cname);
 	if(input.length() > 0) {
+		bytecode = bc;
 		if(debug)
-			bytecode.setCompiler(this);
-		res = exec(input);
+			bytecode->setCompiler(this);
+
+		res = exec(input, bc);
+
+		if(debug)
+			bc->getDebug()->loadFiles();
 	}
 	else {
 		ERR("Can not run file \"%s\"!\n", cname.c_str());
@@ -590,7 +595,8 @@ bool Compiler::run(const std::string &fname, bool debug) {
 	return res;
 }
 
-bool Compiler::exec(const std::string &code) {
+bool Compiler::exec(const std::string &code, Bytecode* bc) {
+	bytecode = bc;
 	CScriptLex* old = l;
 	l = new CScriptLex(code);
 
@@ -598,7 +604,7 @@ bool Compiler::exec(const std::string &code) {
 		while (l->tk) {
 			statement();
 		}
-		bytecode.reserve(); //add a nil instruction at the end of bytecode.
+		bytecode->reserve(); //add a nil instruction at the end of bytecode->
 	} catch (CScriptException *e) {
 		std::string msg;
 		std::stringstream ss;
@@ -620,7 +626,7 @@ LEX_TYPES Compiler::statement(bool pop) {
 	if (l->tk==LEX_R_INCLUDE) {
 		l->chkread(LEX_R_INCLUDE);
 
-		run(l->tkStr, bytecode.isDebug());
+		run(l->tkStr, bytecode, bytecode->isDebug());
 
 		l->chkread(LEX_STR);
 		l->chkread(';');
@@ -648,7 +654,7 @@ LEX_TYPES Compiler::statement(bool pop) {
 		l->chkread(LEX_R_BREAK);
 		l->chkread(';');
 		//reserve for jump to end of loop.
-		PC pc = bytecode.reserve();
+		PC pc = bytecode->reserve();
 		Loop* l = getLoop();
 		if(l != NULL)
 			l->breaks.push_back(pc);
@@ -657,7 +663,7 @@ LEX_TYPES Compiler::statement(bool pop) {
 		l->chkread(LEX_R_CONTINUE);
 		l->chkread(';');
 		//reserve for jump to begin of loop condition.
-		PC pc = bytecode.reserve();
+		PC pc = bytecode->reserve();
 		Loop* l = getLoop();
 		if(l != NULL)
 			l->continues.push_back(pc);
@@ -683,14 +689,14 @@ LEX_TYPES Compiler::statement(bool pop) {
 				vname = vname + "." + l->tkStr;
 				l->chkread(LEX_ID);
 			}*/
-			bytecode.gen(beConst ? INSTR_CONST : INSTR_VAR, vname);
+			bytecode->gen(beConst ? INSTR_CONST : INSTR_VAR, vname);
 			// sort out initialiser
 			if (l->tk == '=') {
 				l->chkread('=');
-				bytecode.gen(INSTR_LOAD, vname);
+				bytecode->gen(INSTR_LOAD, vname);
 				base();
-				bytecode.gen(INSTR_ASIGN);
-				bytecode.gen(INSTR_POP);
+				bytecode->gen(INSTR_ASIGN);
+				bytecode->gen(INSTR_POP);
 			}
 
 			if (l->tk != ';')
@@ -702,7 +708,7 @@ LEX_TYPES Compiler::statement(bool pop) {
 		l->chkread(LEX_R_FUNCTION);
 		string name;
 		defFunc(name);
-		bytecode.gen(INSTR_MEMBERN, name);
+		bytecode->gen(INSTR_MEMBERN, name);
 		pop = false;
 	}
 	else if(l->tk==LEX_R_CLASS) {
@@ -713,10 +719,10 @@ LEX_TYPES Compiler::statement(bool pop) {
 		pop = false;
 		if (l->tk != ';') {
 			base();
-			bytecode.gen(INSTR_RETURNV);
+			bytecode->gen(INSTR_RETURNV);
 		}
 		else {
-			bytecode.gen(INSTR_RETURN);
+			bytecode->gen(INSTR_RETURN);
 		}
 		l->chkread(';');
 	} 
@@ -726,15 +732,15 @@ LEX_TYPES Compiler::statement(bool pop) {
 
 		l->chkread(LEX_R_WHILE);
 		l->chkread('(');
-		PC cpc = bytecode.getPC();
+		PC cpc = bytecode->getPC();
 		base(); //condition
 		l->chkread(')');
-		PC pc = bytecode.reserve();
+		PC pc = bytecode->reserve();
 		statement(false);
-		bytecode.addJmp(cpc, INSTR_JMPB); //coninue anchor;
-		bytecode.setJmp(pc, INSTR_NJMP); // end anchor;
+		bytecode->addJmp(cpc, INSTR_JMPB); //coninue anchor;
+		bytecode->setJmp(pc, INSTR_NJMP); // end anchor;
 
-		setLoopBreaks(getLoop(), bytecode.getPC());
+		setLoopBreaks(getLoop(), bytecode->getPC());
 		setLoopContinues(getLoop(), cpc);
 		loopStack.pop();
 	}
@@ -743,18 +749,18 @@ LEX_TYPES Compiler::statement(bool pop) {
 		l->chkread('(');
 		base(); //condition
 		l->chkread(')');
-		PC pc = bytecode.reserve();
+		PC pc = bytecode->reserve();
 		statement(false);
 
 		if (l->tk==LEX_R_ELSE) {
 			l->chkread(LEX_R_ELSE);
-			PC pc2 = bytecode.reserve();
-			bytecode.setJmp(pc, INSTR_NJMP);
+			PC pc2 = bytecode->reserve();
+			bytecode->setJmp(pc, INSTR_NJMP);
 			statement(false);
-			bytecode.setJmp(pc2, INSTR_JMP);
+			bytecode->setJmp(pc2, INSTR_JMP);
 		}
 		else {
-			bytecode.setJmp(pc, INSTR_NJMP);
+			bytecode->setJmp(pc, INSTR_NJMP);
 		}
 	}
 	else if (l->tk==LEX_R_FOR) {
@@ -765,22 +771,22 @@ LEX_TYPES Compiler::statement(bool pop) {
 		l->chkread('(');
 		statement(); //init
 		//l->chkread(';');
-		PC cpc = bytecode.getPC();
+		PC cpc = bytecode->getPC();
 		base(); //continue
-		PC breakPC = bytecode.reserve();
-		PC loopPC = bytecode.reserve();
+		PC breakPC = bytecode->reserve();
+		PC loopPC = bytecode->reserve();
 		l->chkread(';');
-		PC ipc = bytecode.getPC();
+		PC ipc = bytecode->getPC();
 		base(); //iterator
-		bytecode.gen(INSTR_POP);
+		bytecode->gen(INSTR_POP);
 		l->chkread(')');
-		bytecode.addJmp(cpc, INSTR_JMPB); //continue anchor
-		bytecode.setJmp(loopPC, INSTR_JMP);
+		bytecode->addJmp(cpc, INSTR_JMPB); //continue anchor
+		bytecode->setJmp(loopPC, INSTR_JMP);
 		statement(false);
-		bytecode.addJmp(ipc, INSTR_JMPB); //iterator anchor
-		bytecode.setJmp(breakPC, INSTR_NJMP); //end anchor
+		bytecode->addJmp(ipc, INSTR_JMPB); //iterator anchor
+		bytecode->setJmp(breakPC, INSTR_NJMP); //end anchor
 		
-		setLoopBreaks(getLoop(), bytecode.getPC());
+		setLoopBreaks(getLoop(), bytecode->getPC());
 		setLoopContinues(getLoop(), cpc);
 		loopStack.pop();
 	}
@@ -789,7 +795,7 @@ LEX_TYPES Compiler::statement(bool pop) {
 	}
 
 	if(pop)
-		bytecode.gen(INSTR_POP);
+		bytecode->gen(INSTR_POP);
 	return ret;
 }
 
@@ -807,17 +813,17 @@ LEX_TYPES Compiler::base() {
 		base();
 		// sort out initialiser
 		if (op == '=') 
-			bytecode.gen(INSTR_ASIGN);
+			bytecode->gen(INSTR_ASIGN);
 		else if(op == LEX_PLUSEQUAL)
-			bytecode.gen(INSTR_PLUSEQ);
+			bytecode->gen(INSTR_PLUSEQ);
 		else if(op == LEX_MINUSEQUAL)
-			bytecode.gen(INSTR_MINUSEQ);
+			bytecode->gen(INSTR_MINUSEQ);
 		else if(op == LEX_MULTIEQUAL)
-			bytecode.gen(INSTR_MULTIEQ);
+			bytecode->gen(INSTR_MULTIEQ);
 		else if(op == LEX_DIVEQUAL)
-			bytecode.gen(INSTR_DIVEQ);
+			bytecode->gen(INSTR_DIVEQ);
 		else if(op == LEX_MODEQUAL)
-			bytecode.gen(INSTR_MODEQ);
+			bytecode->gen(INSTR_MODEQ);
 	}
 	return ret;
 }
@@ -833,7 +839,7 @@ LEX_TYPES Compiler::unary() {
 	ret = factor();
 
 	if(no)
-		bytecode.gen(INSTR_NOT);
+		bytecode->gen(INSTR_NOT);
 	return ret;	
 }
 
@@ -847,11 +853,11 @@ LEX_TYPES Compiler::term() {
 		unary();
 
 		if(op == '*')
-			bytecode.gen(INSTR_MULTI);
+			bytecode->gen(INSTR_MULTI);
 		else if(op == '/')
-			bytecode.gen(INSTR_DIV);
+			bytecode->gen(INSTR_DIV);
 		else
-			bytecode.gen(INSTR_MOD);
+			bytecode->gen(INSTR_MOD);
 	}
 
 	return ret;	
@@ -873,13 +879,13 @@ LEX_TYPES Compiler::expr() {
 
 	ret = term();
 	if (pre == '-') {
-		bytecode.gen(INSTR_NEG);
+		bytecode->gen(INSTR_NEG);
 	}
 	else if(pre==LEX_PLUSPLUS) {
-		bytecode.gen(INSTR_PPLUS_PRE);
+		bytecode->gen(INSTR_PPLUS_PRE);
 	}
 	else if(pre==LEX_MINUSMINUS) {
-		bytecode.gen(INSTR_MMINUS_PRE);
+		bytecode->gen(INSTR_MMINUS_PRE);
 	}
 
 	while (l->tk=='+' || l->tk=='-' ||
@@ -887,18 +893,18 @@ LEX_TYPES Compiler::expr() {
 		int op = l->tk;
 		l->chkread(l->tk);
 		if (op==LEX_PLUSPLUS) {
-			bytecode.gen(INSTR_PPLUS);
+			bytecode->gen(INSTR_PPLUS);
 		}
 		else if(op==LEX_MINUSMINUS) {
-			bytecode.gen(INSTR_MMINUS);
+			bytecode->gen(INSTR_MMINUS);
 		}
 		else {
 			ret = term();
 			if(op== '+') {
-				bytecode.gen(INSTR_PLUS);
+				bytecode->gen(INSTR_PLUS);
 			}
 			else if(op=='-') {
-				bytecode.gen(INSTR_MINUS);
+				bytecode->gen(INSTR_MINUS);
 			}
 		}
 	}
@@ -916,11 +922,11 @@ LEX_TYPES Compiler::shift() {
 		ret = base();
 
 		if (op==LEX_LSHIFT) 
-			bytecode.gen(INSTR_LSHIFT);
+			bytecode->gen(INSTR_LSHIFT);
 		else if (op==LEX_RSHIFT)
-			bytecode.gen(INSTR_RSHIFT);
+			bytecode->gen(INSTR_RSHIFT);
 		else
-			bytecode.gen(INSTR_URSHIFT);
+			bytecode->gen(INSTR_URSHIFT);
 	}
 	return ret;	
 }
@@ -937,17 +943,17 @@ LEX_TYPES Compiler::condition() {
 		ret = shift();
 
 		if(op == LEX_EQUAL)
-			bytecode.gen(INSTR_EQ);
+			bytecode->gen(INSTR_EQ);
 		else if(op == LEX_NEQUAL)
-			bytecode.gen(INSTR_NEQ);
+			bytecode->gen(INSTR_NEQ);
 		else if(op == LEX_LEQUAL)
-			bytecode.gen(INSTR_LEQ);
+			bytecode->gen(INSTR_LEQ);
 		else if(op == LEX_GEQUAL)
-			bytecode.gen(INSTR_GEQ);
+			bytecode->gen(INSTR_GEQ);
 		else if(op == '>')
-			bytecode.gen(INSTR_GRT);
+			bytecode->gen(INSTR_GRT);
 		else if(op == '<')
-			bytecode.gen(INSTR_LES);
+			bytecode->gen(INSTR_LES);
 	}
 
 	return ret;	
@@ -963,19 +969,19 @@ LEX_TYPES Compiler::logic() {
 		ret = condition();
 
 		if (op==LEX_ANDAND) {
-			bytecode.gen(INSTR_AAND);
+			bytecode->gen(INSTR_AAND);
 		} 
 		else if (op==LEX_OROR) {
-			bytecode.gen(INSTR_OOR);
+			bytecode->gen(INSTR_OOR);
 		}
 		else if (op=='|') {
-			bytecode.gen(INSTR_OR);
+			bytecode->gen(INSTR_OR);
 		}
 		else if (op=='&') {
-			bytecode.gen(INSTR_AND);
+			bytecode->gen(INSTR_AND);
 		}
 		else if (op=='^') {
-			bytecode.gen(INSTR_XOR);
+			bytecode->gen(INSTR_XOR);
 		}
 	}
 	return ret;	
@@ -986,14 +992,14 @@ LEX_TYPES Compiler::ternary() {
 	ret = logic();
 	
 	if (l->tk=='?') {
-		PC pc1 = bytecode.reserve(); //keep for jump
+		PC pc1 = bytecode->reserve(); //keep for jump
 		l->chkread('?');
 		base(); //first choice
-		PC pc2 = bytecode.reserve(); //keep for jump
+		PC pc2 = bytecode->reserve(); //keep for jump
 		l->chkread(':');
-		bytecode.setJmp(pc1, INSTR_NJMP);
+		bytecode->setJmp(pc1, INSTR_NJMP);
 		base(); //second choice
-		bytecode.setJmp(pc2, INSTR_JMP);
+		bytecode->setJmp(pc2, INSTR_JMP);
 	} 
 	return ret;	
 }
@@ -1004,9 +1010,9 @@ LEX_TYPES Compiler::callFunc(int &argNum) {
 	
 	argNum = 0;
 	while(true) {
-		PC pc1 = bytecode.getPC();
+		PC pc1 = bytecode->getPC();
 		base();
-		PC pc2 = bytecode.getPC();
+		PC pc2 = bytecode->getPC();
 		if(pc2 > pc1) //not empty, means valid arguemnt.
 			argNum++;
 
@@ -1033,33 +1039,33 @@ LEX_TYPES Compiler::defFunc(string& name) {
 		if(name == "get") {
 			name = l->tkStr;
 			l->chkread(LEX_ID);
-			bytecode.gen(INSTR_FUNC_GET);
+			bytecode->gen(INSTR_FUNC_GET);
 		}
 		else if(name == "set") {
 			name = l->tkStr;
 			l->chkread(LEX_ID);
-			bytecode.gen(INSTR_FUNC_SET);
+			bytecode->gen(INSTR_FUNC_SET);
 		}
 	}
 	else {
-		bytecode.gen(INSTR_FUNC);
+		bytecode->gen(INSTR_FUNC);
 	}
 	//do arguments
 	l->chkread('(');
 	while (l->tk!=')') {
-		bytecode.gen(INSTR_VAR, l->tkStr);
+		bytecode->gen(INSTR_VAR, l->tkStr);
 		l->chkread(LEX_ID);
 		if (l->tk!=')') l->chkread(',');
 	}
 	l->chkread(')');
-	PC pc = bytecode.reserve();
+	PC pc = bytecode->reserve();
 	block();
 	
-	OpCode op = bytecode.getOpCode(bytecode.getPC() - 1) >> 16;
+	OpCode op = bytecode->getOpCode(bytecode->getPC() - 1) >> 16;
 
 	if(op != INSTR_RETURN && op != INSTR_RETURNV)
-		bytecode.gen(INSTR_RETURN);
-	bytecode.setJmp(pc, INSTR_JMP);
+		bytecode->gen(INSTR_RETURN);
+	bytecode->setJmp(pc, INSTR_JMP);
 	return ret;
 }
 
@@ -1074,15 +1080,15 @@ LEX_TYPES Compiler::defClass() {
 		l->chkread(LEX_ID);
 	}
 
-	bytecode.gen(INSTR_CLASS, name);
+	bytecode->gen(INSTR_CLASS, name);
 	//do arguments
 	l->chkread('{');
 	while (l->tk!='}') {
 		defFunc(name);
-		bytecode.gen(INSTR_MEMBERN, name);
+		bytecode->gen(INSTR_MEMBERN, name);
 	}
 	l->chkread('}');
-	bytecode.gen(INSTR_CLASS_END);
+	bytecode->gen(INSTR_CLASS_END);
 
 	return ret;
 }
@@ -1098,30 +1104,30 @@ LEX_TYPES Compiler::factor() {
 	}
 	else if (l->tk==LEX_R_TRUE) {
 		l->chkread(LEX_R_TRUE);
-		bytecode.gen(INSTR_TRUE);
+		bytecode->gen(INSTR_TRUE);
 	}
 	else if (l->tk==LEX_R_FALSE) {
 		l->chkread(LEX_R_FALSE);
-		bytecode.gen(INSTR_FALSE);
+		bytecode->gen(INSTR_FALSE);
 	}
 	else if (l->tk==LEX_R_NULL) {
 		l->chkread(LEX_R_NULL);
-		bytecode.gen(INSTR_NULL);
+		bytecode->gen(INSTR_NULL);
 	}
 	else if (l->tk==LEX_R_UNDEFINED) {
 		l->chkread(LEX_R_UNDEFINED);
-		bytecode.gen(INSTR_UNDEF);
+		bytecode->gen(INSTR_UNDEF);
 	}
 	else if (l->tk==LEX_INT) {
-		bytecode.gen(INSTR_INT, l->tkStr);
+		bytecode->gen(INSTR_INT, l->tkStr);
 		l->chkread(LEX_INT);
 	}
 	else if (l->tk==LEX_FLOAT) {
-		bytecode.gen(INSTR_FLOAT, l->tkStr);
+		bytecode->gen(INSTR_FLOAT, l->tkStr);
 		l->chkread(LEX_FLOAT);
 	}
 	else if (l->tk==LEX_STR) {
-		bytecode.gen(INSTR_STR, l->tkStr);
+		bytecode->gen(INSTR_STR, l->tkStr);
 		l->chkread(LEX_STR);
 	}
 	else if(l->tk==LEX_R_FUNCTION) {
@@ -1144,13 +1150,13 @@ LEX_TYPES Compiler::factor() {
 			//l->chkread(')');
 			if(argNum > 0)
 				className = className + "$" + StringUtil::from(argNum);
-			bytecode.gen(INSTR_NEW, className);
+			bytecode->gen(INSTR_NEW, className);
 		}
 	}
 	if (l->tk=='{') {
 		/* JSON-style object definition */
 		l->chkread('{');
-		bytecode.gen(INSTR_OBJ);
+		bytecode->gen(INSTR_OBJ);
 		while (l->tk != '}') {
 			string id = l->tkStr;
 			// we only allow strings or IDs on the left hand side of an initialisation
@@ -1158,11 +1164,11 @@ LEX_TYPES Compiler::factor() {
 			else l->chkread(LEX_ID);
 			l->chkread(':');
 			base();
-			bytecode.gen(INSTR_MEMBERN, id);
+			bytecode->gen(INSTR_MEMBERN, id);
 			// no need to clean here, as it will definitely be used
 			if (l->tk != '}') l->chkread(',');
 		}
-		bytecode.gen(INSTR_OBJ_END);
+		bytecode->gen(INSTR_OBJ_END);
 		l->chkread('}');
 	}
 	else if(l->tk==LEX_ID) {
@@ -1183,15 +1189,15 @@ LEX_TYPES Compiler::factor() {
 					s = s + "$" + StringUtil::from(argNum);
 					
 				if(sz == 0 && load) {
-					bytecode.gen(INSTR_LOAD, "this");	
-					bytecode.gen(INSTR_CALL, s);	
+					bytecode->gen(INSTR_LOAD, "this");	
+					bytecode->gen(INSTR_CALL, s);	
 				}
 				else {
 					for(int i=0; i<sz; i++) {
-						bytecode.gen(load ? INSTR_LOAD:INSTR_GET, names[i]);	
+						bytecode->gen(load ? INSTR_LOAD:INSTR_GET, names[i]);	
 						load = false;
 					}
-					bytecode.gen(INSTR_CALLO, s);	
+					bytecode->gen(INSTR_CALLO, s);	
 				}
 				load = false;
 			} 
@@ -1208,14 +1214,14 @@ LEX_TYPES Compiler::factor() {
 				name = "";
 				int sz = (int)names.size();
 				for(int i=0; i<sz; i++) {
-					bytecode.gen(load ? INSTR_LOAD:INSTR_GET, names[i]);	
+					bytecode->gen(load ? INSTR_LOAD:INSTR_GET, names[i]);	
 					load = false;
 				}
 
 				l->chkread('[');
 				base();
 				l->chkread(']');
-				bytecode.gen(INSTR_ARRAY_AT);
+				bytecode->gen(INSTR_ARRAY_AT);
 			} 
 		}
 		if(name.length() > 0) {
@@ -1223,7 +1229,7 @@ LEX_TYPES Compiler::factor() {
 			name = "";
 			int sz = (int)names.size();
 			for(int i=0; i<sz; i++) {
-				bytecode.gen(load ? INSTR_LOAD:INSTR_GET, names[i]);	
+				bytecode->gen(load ? INSTR_LOAD:INSTR_GET, names[i]);	
 				load = false;
 			}
 		}
@@ -1231,14 +1237,14 @@ LEX_TYPES Compiler::factor() {
 	else if (l->tk=='[') {
 		/* JSON-style array */
 		l->chkread('[');
-		bytecode.gen(INSTR_ARRAY);
+		bytecode->gen(INSTR_ARRAY);
 		while (l->tk != ']') {
 			base();
-			bytecode.gen(INSTR_MEMBER);
+			bytecode->gen(INSTR_MEMBER);
 			if (l->tk != ']') l->chkread(',');
 		}
 		l->chkread(']');
-		bytecode.gen(INSTR_ARRAY_END);
+		bytecode->gen(INSTR_ARRAY_END);
 	}
 
 	return ret;
@@ -1263,7 +1269,7 @@ Loop* Compiler::getLoop() {
 void Compiler::setLoopBreaks(Loop* loop, PC pc) {
 	if(loop != NULL) {
 		for(size_t i=0; i<loop->breaks.size(); ++i) {
-			bytecode.setJmp(loop->breaks[i], INSTR_JMP, pc);
+			bytecode->setJmp(loop->breaks[i], INSTR_JMP, pc);
 		}
 	}
 }
@@ -1271,7 +1277,7 @@ void Compiler::setLoopBreaks(Loop* loop, PC pc) {
 void Compiler::setLoopContinues(Loop* loop, PC pc) {
 	if(loop != NULL) {
 		for(size_t i=0; i<loop->continues.size(); ++i) {
-			bytecode.setJmp(loop->continues[i], INSTR_JMPB, pc);
+			bytecode->setJmp(loop->continues[i], INSTR_JMPB, pc);
 		}
 	}
 }

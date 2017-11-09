@@ -7,7 +7,7 @@
 extern "C" void _basicModuleLoader(KoalaJS* tinyJS);
 
 //run js file.
-void run(int argc, char** argv) {
+void run(int argc, char** argv, bool debug) {
 	try {
 		KoalaJS tinyJS;
 		tinyJS.loadModule(_basicModuleLoader);
@@ -15,11 +15,16 @@ void run(int argc, char** argv) {
 		//read args 
 		BCVar* args = new BCVar();
 		args->setArray();
-		for(int i=2; i<argc; ++i) {
-			args->setArrayIndex(i-2, new BCVar(argv[i]));
+
+		int i=2;
+		if(debug)
+			i++;
+		argc -= i;
+		for(int j=0; j<argc; ++j) {
+			args->setArrayIndex(j, new BCVar(argv[i+j]));
 		}
 		tinyJS.getRoot()->addChild("_args", args);
-		tinyJS.run(argv[1]);
+		tinyJS.run(argv[i-1], debug);
 	} 
 	catch (CScriptException *e) {
 		ERR("ERROR: %s\n", e->text.c_str());
@@ -30,19 +35,20 @@ void run(int argc, char** argv) {
 void compile(const string& fname, bool tofile = false, bool debug = false) {
 	try {
 		Compiler compiler;
+		Bytecode bytecode;
 		if(fname.find(".bcode") != string::npos) {
-			compiler.bytecode.fromFile(fname);
+			bytecode.fromFile(fname);
 			if(!tofile) {
-				string s = compiler.bytecode.dump();
+				string s = bytecode.dump();
 				printf("%s\n", s.c_str());
 			}
 		}
 		else {
-			compiler.run(fname, debug);
+			compiler.run(fname, &bytecode, debug);
 			if(tofile)
-				compiler.bytecode.toFile(fname + ".bcode");
+				bytecode.toFile(fname + ".bcode");
 			else {
-				string s = compiler.bytecode.dump();
+				string s = bytecode.dump();
 				printf("%s\n", s.c_str());
 			}
 		}
@@ -65,11 +71,11 @@ int main(int argc, char** argv) {
 			compile(argv[2], true);
 		}
 		else if(strcmp(argv[1], "-d") == 0) {
-			compile(argv[2], true, true);
+			run(argc, argv, true);
 		}
 		else {
 		//while(true) {
-		run(argc, argv);
+			run(argc, argv, false);
 		//}	
 		}
 	}

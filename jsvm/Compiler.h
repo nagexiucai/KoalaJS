@@ -108,9 +108,9 @@ class Compiler {
 		Compiler();
 		~Compiler();
 
-		bool run(const std::string &fname, bool debug = false);
+		bool run(const std::string &fname, Bytecode* bc, bool debug = false);
 
-		bool exec(const std::string &code);
+		bool exec(const std::string &code, Bytecode* bc);
 		
 		inline const std::string& getcwd() {
 			return cwd;
@@ -130,7 +130,7 @@ class Compiler {
 			l->getPosition(line, col, pos);
 		}
 
-		Bytecode bytecode;
+		Bytecode *bytecode;
 	private:
 		int cindex;
 		std::string cwd;

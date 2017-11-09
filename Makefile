@@ -15,7 +15,7 @@ VM_DIR = jsvm
 NATIVE_DIR = native
 LIBS_DIR = utils
 
-TINYJS = $(VM_DIR)/Bytecode.cpp $(VM_DIR)/KoalaJS.cpp $(VM_DIR)/Var.cpp $(VM_DIR)/Compiler.cpp $(VM_DIR)/CodeCache.cpp $(VM_DIR)/GlobalVars.cpp
+TINYJS = $(VM_DIR)/*.cpp
 
 NATIVE = $(NATIVE_DIR)/ClassLoader.cpp \
 	  $(NATIVE_DIR)/Math/Math.cpp \
