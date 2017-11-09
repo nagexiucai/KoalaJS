@@ -118,6 +118,10 @@ class Compiler {
 		inline void setcwd(const std::string& cwd) {
 			this->cwd = cwd;
 		}
+		
+		inline string getFName() {
+			return cname;
+		}
 
 		Bytecode bytecode;
 	private:

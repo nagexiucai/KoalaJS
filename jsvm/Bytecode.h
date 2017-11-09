@@ -22,18 +22,46 @@ class CScriptException {
 		CScriptException(const std::string &exceptionText);
 };
 
+class Compiler;
+
+typedef uint32_t POS;
+typedef struct STDBInfo {
+	vector<string> strTable;
+	uint32_t bufSize;
+	uint32_t *posBuf;
+	uint32_t index;
+	const static uint32_t BUF_SIZE = 1024;
+
+	inline STDBInfo() {
+		bufSize = 0;
+		posBuf = NULL;
+		index = 0;
+	}
+
+	void add(POS pos);
+} DebugInfo;
+
 class Bytecode {
 	PC cindex;
 	vector<string> strTable;
 	PC *codeBuf;
 	uint32_t bufSize;
+	Compiler* compiler;
+	bool debug;
 
 public:
 	const static uint32_t BUF_SIZE = 1024;
 	Bytecode() {
+		debug = false;
+		compiler = NULL;
 		cindex = 0;
 		codeBuf = NULL;
 		bufSize = 0;
+	}
+
+	inline void setCompiler(Compiler* cp) {//for debug
+		debug = true;
+		compiler = cp;
 	}
 
 	inline void reset() {

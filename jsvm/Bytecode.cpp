@@ -1,4 +1,5 @@
 #include "Bytecode.h"
+#include "Compiler.h"
 #include <unistd.h>  
 #include <vector>  
 #include <cstdlib>
@@ -13,6 +14,22 @@
 #define INS_SIZE sizeof(uint16_t)
 
 #define P(...) fprintf (stdout, __VA_ARGS__)
+
+void DebugInfo::add(POS pos) {
+	if(index >= bufSize) {
+		bufSize = index + BUF_SIZE;
+		POS *newBuf = new POS[bufSize];
+
+		if(index > 0 && posBuf != NULL) {
+			memcpy(newBuf, posBuf, index*sizeof(POS));
+			delete []posBuf;
+		}
+		posBuf = newBuf;
+	}
+
+	posBuf[index] = pos;
+	index++;
+}
 
 void Bytecode::add(PC ins) {
 	if(cindex >= bufSize) {
