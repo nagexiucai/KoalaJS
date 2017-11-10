@@ -142,6 +142,10 @@ class KoalaJS {
 		inline Bytecode* getBytecode() {
 			return bcode;
 		}
+
+		inline int scopeDeep() {
+			return (int)scopes.size();
+		}
 	private:
 		string cwd;
 		string cname;
@@ -189,7 +193,6 @@ class KoalaJS {
 			@param name, name of variable;
 		 */
 		BCNode* findInClass(BCVar* obj, const string& name);
-
 
 		inline VMScope* scope() { 
 			int i = ((int)scopes.size()) - 1;

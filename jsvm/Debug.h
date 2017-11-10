@@ -18,6 +18,7 @@ typedef struct {
 class Debug {
 	int fd;
 	int lastStop;
+	int lastScopeDeep;
 	bool next;
 	string oldCmd;
 	string oldfile;
@@ -35,6 +36,7 @@ public:
 	inline Debug() {
 		fd = 0;
 		lastStop = -1;
+		lastScopeDeep = -1;
 		next = true;
 	}
 
