@@ -182,6 +182,11 @@ void Debug::debug(KoalaJS* js, PC pc) {
 			next = true;
 			break;
 		}
+		else if(s == "step" || s == "s") {
+			next = true;
+			lastScopeDeep = -1;
+			break;
+		}
 		else if(s.substr(0, 5) == "break" || s == "b" || s.substr(0, 2) == "b ") {
 			setBreak(bc, s, ln, fname);
 		}
