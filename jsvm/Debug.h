@@ -17,7 +17,8 @@ typedef struct {
 
 class Debug {
 	int fd;
-	int oldLine;
+	int lastStop;
+	bool next;
 	string oldCmd;
 	string oldfile;
 	vector<Break> breaks;
@@ -26,11 +27,15 @@ class Debug {
 	void output(const string& s);
 	string input();
 	bool isBreak(int ln, const string& fname, size_t& index);
-	size_t setBreak(const string& s, int ln, const string& fname);
+	size_t setBreak(Bytecode* bc, const string& cmd, int ln, const string& fname);
+	void rmBreak(const string& cmd);
+	int list(Bytecode* bc, const string& s, int ln, const string& fname);
+	bool getLine(Bytecode* bc, int ln, const string& fname, string& line);
 public:
 	inline Debug() {
 		fd = 0;
-		oldLine = -1;
+		lastStop = -1;
+		next = true;
 	}
 
 	void debug(KoalaJS* js, PC pc);

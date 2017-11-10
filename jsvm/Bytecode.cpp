@@ -51,6 +51,14 @@ void DebugInfo::loadFiles() {
 	}
 }
 
+const vector<string>* DebugInfo::getLines(const string& name) {
+	size_t num = fileTable.size();
+	for(size_t i=0; i<num; ++i) {
+		if(name == fileTable[i])
+			return &fileLines[i];
+	}
+	return NULL;
+}
 uint32_t DebugInfo::getLine(uint32_t index, string& line, string& fname) {
 	POS pos = posBuf[index];
 	uint16_t fileIndex = pos >> 16;

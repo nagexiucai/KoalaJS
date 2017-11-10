@@ -76,6 +76,7 @@ typedef struct STDBInfo {
 
 	void loadLines(const string& fname, vector<string>& lines);
 	void loadFiles();
+	const vector<string>* getLines(const string& fname);
 } DebugInfo;
 
 class Bytecode {
