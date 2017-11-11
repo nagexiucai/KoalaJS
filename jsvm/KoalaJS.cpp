@@ -25,16 +25,16 @@ void KoalaJS::doInterupt() {
 		intr = interupts.front();
 		interupts.pop();
 	}
-	size_t sz = interupts.size();
 	_intrLock.unlock();
 
 	if(intr == NULL)
 		return;
 
-	TRACE("Interupted for '%s$%d', %d in queue.\n", 
+	/*TRACE("Interupted for '%s$%d', %d in queue.\n", 
 			intr->funcName.c_str(), 
 			(int)intr->args.size(),
 			(int)sz);
+	*/
 
 	BCVar* v = callJSFunc(intr->funcName, intr->args);
 	v->unref();
