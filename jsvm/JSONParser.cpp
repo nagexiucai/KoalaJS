@@ -1,8 +1,7 @@
 #include "JSONParser.h"
 #include <stdlib.h>
 
-void JSONParser::block(CScriptLex* lex) {
-	//do arguments
+void JSONParser::block(CScriptLex* lex) { //TODO: statements parsing
 	lex->chkread('{');
 	while (lex->tk!='}') {
 		if(lex->tk == '{')
@@ -26,8 +25,9 @@ BCVar* JSONParser::funcDef(CScriptLex* lex) {
 		if (lex->tk!=')') lex->chkread(',');
 	}
 	lex->chkread(')');
-
+	//function  body
 	block(lex);
+
 	ret->setFunction(0);
 	ret->getFunc()->args = args;
 	return ret;
@@ -65,7 +65,7 @@ BCVar* JSONParser::factor(CScriptLex* lex) {
 		lex->chkread(LEX_STR);
 		return new BCVar(s);
 	}
-	else if(lex->tk==LEX_R_FUNCTION) { //TODO
+	else if(lex->tk==LEX_R_FUNCTION) {
 		lex->chkread(LEX_R_FUNCTION);
 		return funcDef(lex);
 	}
