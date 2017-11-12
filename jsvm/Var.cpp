@@ -64,7 +64,9 @@ string BCVar::getParsableString() {
 		std::string funcStr;
 		funcStr += "function (";
 		// get list of parameters
-		int sz = (int)func->args.size();
+		int sz = 0;
+		if(func != NULL)
+			sz = (int)func->args.size();
 		for(int i=0; i<sz; ++i) {
 			string n = func->args[i];
 			funcStr += n;

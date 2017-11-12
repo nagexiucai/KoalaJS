@@ -1,4 +1,5 @@
 #include "JSON.h"
+#include "JSONParser.h"
 #include <cstdlib>
 
 using namespace std;
@@ -11,6 +12,8 @@ void JSON::toString(KoalaJS* js, BCVar *c, void *userdata) {
 }
 
 void JSON::parse(KoalaJS* js, BCVar *c, void *userdata) {
-	//c->setReturnVar(js->evaluateComplex(c->getParameter("src")->getString()).var);
+	string str = c->getParameter("src")->getString();
+	BCVar* v = JSONParser::parse(str);
+	c->setReturnVar(v);
 }
 

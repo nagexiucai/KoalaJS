@@ -15,7 +15,11 @@ a.belong.f(123);
 print(a);
 print("\n\n");
 
+
 a.name = "Yoda";
 print(a);
 print("\n");
 
+var s = "" + a;
+var b = RJSON.parse(s);
+println(b);
