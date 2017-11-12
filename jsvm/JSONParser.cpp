@@ -83,7 +83,7 @@ BCVar* JSONParser::factor(CScriptLex* lex) {
 		return arr;
 	}
 	else if (lex->tk=='{') {
-    lex->chkread('{');
+		lex->chkread('{');
 		BCVar* obj = new BCVar();
 		obj->type = BCVar::OBJECT;
 		while(lex->tk != '}') {
