@@ -87,15 +87,14 @@ string BCVar::getParsableString() {
 	return getString();
 }
 
-string BCVar::getJSON(const string& linePrefix, int level) {
+string BCVar::getJSON(const string& prefix, int level) {
 	string destination;
+	string linePrefix = prefix;
+	for(int i=0; i<level; ++i) {
+		linePrefix += prefix;
+	}
 
 	if (isObject()) {
-		std::string indented = "";
-		for(int i=0; i<level; ++i) {
-			indented += linePrefix;
-		}
-		std::string indentedLinePrefix = linePrefix + indented;
 		// children - handle with bracketed list
 		int sz = (int)children.size();
 		if(sz > 0)
@@ -108,28 +107,27 @@ string BCVar::getJSON(const string& linePrefix, int level) {
 			size_t pos = name.find("$");
 			if(pos != string::npos)
 				name = name.substr(0, pos);
-			destination += indentedLinePrefix;
+			destination += linePrefix;
 			destination += getJSString(name);
 			destination += " : ";
-			destination += n->var->getJSON(linePrefix, level+1);
+			destination += n->var->getJSON(prefix, level+1);
 			if ((i+1) < sz) {
 				destination  += ",\n";
 			}
 		}
 		if(sz > 0) {
 			destination += "\n";
-			destination += indented;
+			destination += linePrefix;
 		}
 		destination += "}";
 	} 
 	else if (isArray()) {
-		std::string indentedLinePrefix = linePrefix+"  ";
 //		destination += "[\n";
 		destination += "[";
 		int len = getChildrenNum();
 		if (len>10000) len=10000; // we don't want to get stuck here!
 		for (int i=0;i<len;i++) {
-			destination += getArrayIndex(i)->getJSON(indentedLinePrefix);
+			destination += getArrayIndex(i)->getJSON(prefix, level);
 			if (i<len-1) destination  += ", ";
 		}
 //		destination += "\n";
