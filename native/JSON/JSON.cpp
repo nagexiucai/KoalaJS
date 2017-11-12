@@ -7,7 +7,11 @@ using namespace JSM;
 
 void JSON::toString(KoalaJS* js, BCVar *c, void *userdata) {
 	string result;
-	result = c->getParameter("obj")->getJSON();
+	BCVar* v = c->getParameter("pre");
+	string pre = "";
+		if(v != NULL)
+			pre = v->getString();
+	result = c->getParameter("obj")->getJSON(pre);
 	c->getReturnVar()->setString(result.c_str());
 }
 

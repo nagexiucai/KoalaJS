@@ -13,6 +13,7 @@ namespace JSM {
 		protected:
 		inline void registerFunctions(KoalaJS* js, const std::string& className) {
 			addFunction(js, className, "toString(obj)", toString, NULL);
+			addFunction(js, className, "toString(obj, pre)", toString, NULL);
 			addFunction(js, className, "parse(src)", parse, NULL);
 		}
 

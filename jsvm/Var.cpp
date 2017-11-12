@@ -40,14 +40,15 @@ string BCVar::getJSString(const string &str) {
 			case '\a': replaceWith = "\\a"; break;
 			case '"':  replaceWith = "\\\""; break;
 			default: {
-								 int nCh = ((int)nStr[i]) &0xFF;
+								 /*int nCh = ((int)nStr[i]) &0xFF;
 								 if (nCh<32 || nCh>127) {
 									 char bytes[5];
 									 snprintf(bytes, 5, "\\x%02X", nCh);
 									 replaceWith = bytes;
 								 } else {
-									 replace=false;
 								 }
+								 */
+								 replace=false;
 							 }
 		}
 
@@ -90,10 +91,13 @@ string BCVar::getJSON(const string& linePrefix) {
 	string destination;
 
 	if (isObject()) {
-		std::string indentedLinePrefix = linePrefix+"  ";
+		std::string indentedLinePrefix = linePrefix;
 		// children - handle with bracketed list
-		destination += "{ \n";
 		int sz = (int)children.size();
+		if(sz > 0)
+			destination += "{\n";
+		else
+			destination += "{";
 		for(int i=0; i<sz; ++i) {
 			BCNode* n = children[i];
 			string name = n->name;
@@ -108,9 +112,11 @@ string BCVar::getJSON(const string& linePrefix) {
 				destination  += ",\n";
 			}
 		}
-		destination += "\n";
-		destination += linePrefix;
-		destination +=  "}";
+		if(sz > 0) {
+			destination += "\n";
+			destination += indentedLinePrefix;
+		}
+		destination += "}";
 	} 
 	else if (isArray()) {
 		std::string indentedLinePrefix = linePrefix+"  ";
