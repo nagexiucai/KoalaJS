@@ -33,6 +33,7 @@ NATIVE = $(NATIVE_DIR)/ClassLoader.cpp \
 	  $(NATIVE_DIR)/DNS/JSDNSC.cpp \
 	  $(NATIVE_DIR)/Dir/Dir.cpp \
 	  $(NATIVE_DIR)/Array/Array.cpp \
+	  $(NATIVE_DIR)/Time/Time.cpp \
 	  $(NATIVE_DIR)/MD5/JSMD5.cpp
 
 LIBS = $(LIBS_DIR)/Base64/Base64.cpp \

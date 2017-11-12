@@ -15,6 +15,7 @@
 #include "native/DNS/JSDNSC.h"
 #include "native/Dir/Dir.h"
 #include "native/Array/Array.h"
+#include "native/Time/Time.h"
 
 extern "C" void _basicModuleLoader(KoalaJS* tinyJS) {
 //load basic classes
@@ -37,4 +38,5 @@ extern "C" void _basicModuleLoader(KoalaJS* tinyJS) {
 	JSM::JSDNSC::instance().load(tinyJS, "RDNSC");
 	JSM::JSDir::instance().load(tinyJS, "RDir");
 	JSM::System::instance().load(tinyJS, "RSystem");
+	JSM::Time::instance().load(tinyJS, "RTime");
 }
