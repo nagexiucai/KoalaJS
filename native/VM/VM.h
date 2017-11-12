@@ -10,10 +10,13 @@ namespace JSM {
 
 		static void run(KoalaJS* js, BCVar *c, void *);
 
+		static void loadExt(KoalaJS* js, BCVar *c, void *);
+
 		protected:
 		inline void registerFunctions(KoalaJS* js, const std::string& className) {
 			addFunction(js, className, "exec(src)", exec, NULL);
 			addFunction(js, className, "run(file)", run, NULL);
+			addFunction(js, className, "loadExt(file)", loadExt, NULL);
 		}
 
 		public:

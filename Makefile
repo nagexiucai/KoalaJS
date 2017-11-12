@@ -19,32 +19,18 @@ TINYJS = $(VM_DIR)/*.cpp
 
 NATIVE = $(NATIVE_DIR)/ClassLoader.cpp \
 	  $(NATIVE_DIR)/Math/Math.cpp \
-	  $(NATIVE_DIR)/Base64/JSBase64.cpp \
 	  $(NATIVE_DIR)/Global/Global.cpp \
 	  $(NATIVE_DIR)/Bytes/Bytes.cpp \
-	  $(NATIVE_DIR)/Socket/TCP.cpp \
-	  $(NATIVE_DIR)/Socket/DNS.cpp \
 	  $(NATIVE_DIR)/System/System.cpp \
-	  $(NATIVE_DIR)/File/JSFile.cpp \
 	  $(NATIVE_DIR)/JSON/JSON.cpp \
 	  $(NATIVE_DIR)/String/String.cpp \
 	  $(NATIVE_DIR)/VM/VM.cpp \
-	  $(NATIVE_DIR)/Thread/Thread.cpp \
-	  $(NATIVE_DIR)/DNS/JSDNSC.cpp \
-	  $(NATIVE_DIR)/Dir/Dir.cpp \
 	  $(NATIVE_DIR)/Array/Array.cpp \
-	  $(NATIVE_DIR)/Time/Time.cpp \
-	  $(NATIVE_DIR)/MD5/JSMD5.cpp
+	  $(NATIVE_DIR)/Time/Time.cpp 
 
-LIBS = $(LIBS_DIR)/Base64/Base64.cpp \
-		$(LIBS_DIR)/MD5/md5.cpp \
-		$(LIBS_DIR)/DNS/query.cc \
-    $(LIBS_DIR)/DNS/response.cc \
-		$(LIBS_DIR)/DNS/dnsc.cc \
-		$(LIBS_DIR)/DNS/request.cc \
-		$(LIBS_DIR)/File/File.cpp
+LIBS = $(LIBS_DIR)/File/File.cpp
 
-LDFLAG = -lpthread
+LDFLAG = -lpthread -ldl
 
 VM = koala
 

@@ -8,6 +8,7 @@
 #include "Debug.h"
 #include <stack>
 #include <queue>
+#include <dlfcn.h>
 
 #define VAR(i) (i->isNode ? ((BCNode*)i)->var : (BCVar*)i)
 
@@ -63,6 +64,13 @@ class KoalaJS {
 
 		inline ~KoalaJS() {
 			clear();
+			//unload extended lib.
+			size_t sz = extDL.size();
+			for(size_t i=0; i<sz; ++i) {
+				void* h = extDL[i];
+				if(h != NULL)
+					dlclose(h);
+			}
 		}
 
 		inline void reset() {
@@ -111,6 +119,8 @@ class KoalaJS {
 			return moduleLoader;
 		}
 
+		bool loadExt(const string& fname);
+
 		BCVar* newObject(BCNode* cls);
 
 		BCVar* newObject(const string& clsName);
@@ -158,6 +168,7 @@ class KoalaJS {
 
 		BCVar* root;
 		vector<VMScope> scopes;
+		vector<void*> extDL;
 		stack<CodeT> codeStack; //code stack for "run" or "exec" js in js.
 		//run stack
 		const static uint16_t STACK_DEEP = 128;

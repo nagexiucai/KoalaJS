@@ -12,6 +12,23 @@
 
 static GlobalVars _globalVars;
 
+#define LOADER "_moduleLoader"
+bool KoalaJS::loadExt(const string& fname) {
+	void *h = dlopen(fname.c_str(), RTLD_LAZY);
+	if(h == NULL)
+		return false;
+
+	JSModuleLoader loader = (JSModuleLoader)dlsym(h, LOADER);
+	if(loader == NULL) {
+		return false;
+		dlclose(h);
+	}
+
+	loader(this);
+	extDL.push_back(h);
+	return true;
+}
+
 GlobalVars* KoalaJS::getGlobalVars() {
 	return &_globalVars;
 }
