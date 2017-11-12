@@ -16,12 +16,6 @@
 
 using namespace std;
 
-class CScriptException {
-	public:
-		std::string text;
-		CScriptException(const std::string &exceptionText);
-};
-
 class Compiler;
 
 typedef uint32_t POS;

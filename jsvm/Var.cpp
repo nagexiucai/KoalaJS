@@ -73,7 +73,7 @@ string BCVar::getParsableString() {
 			}
 		}
 		// add function body
-		funcStr += ") ";
+		funcStr += ") {}";
 		funcStr += getString();
 		return funcStr;
 	}
@@ -94,8 +94,12 @@ string BCVar::getJSON(const string& linePrefix) {
 		int sz = (int)children.size();
 		for(int i=0; i<sz; ++i) {
 			BCNode* n = children[i];
+			string name = n->name;
+			size_t pos = name.find("$");
+			if(pos != string::npos)
+				name = name.substr(0, pos);
 			destination += indentedLinePrefix;
-			destination += getJSString(n->name);
+			destination += getJSString(name);
 			destination += " : ";
 			destination += n->var->getJSON(indentedLinePrefix);
 			if ((i+1) < sz) {
