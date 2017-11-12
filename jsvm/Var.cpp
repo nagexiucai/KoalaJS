@@ -89,7 +89,7 @@ string BCVar::getParsableString() {
 
 string BCVar::getJSON(const string& prefix, int level) {
 	string destination;
-	string linePrefix = prefix;
+	string linePrefix = "";
 	for(int i=0; i<level; ++i) {
 		linePrefix += prefix;
 	}
@@ -107,7 +107,7 @@ string BCVar::getJSON(const string& prefix, int level) {
 			size_t pos = name.find("$");
 			if(pos != string::npos)
 				name = name.substr(0, pos);
-			destination += linePrefix;
+			destination += linePrefix + prefix;
 			destination += getJSString(name);
 			destination += " : ";
 			destination += n->var->getJSON(prefix, level+1);
