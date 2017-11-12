@@ -87,11 +87,15 @@ string BCVar::getParsableString() {
 	return getString();
 }
 
-string BCVar::getJSON(const string& linePrefix) {
+string BCVar::getJSON(const string& linePrefix, int level) {
 	string destination;
 
 	if (isObject()) {
-		std::string indentedLinePrefix = linePrefix;
+		std::string indented = "";
+		for(int i=0; i<level; ++i) {
+			indented += linePrefix;
+		}
+		std::string indentedLinePrefix = linePrefix + indented;
 		// children - handle with bracketed list
 		int sz = (int)children.size();
 		if(sz > 0)
@@ -107,14 +111,14 @@ string BCVar::getJSON(const string& linePrefix) {
 			destination += indentedLinePrefix;
 			destination += getJSString(name);
 			destination += " : ";
-			destination += n->var->getJSON(indentedLinePrefix);
+			destination += n->var->getJSON(linePrefix, level+1);
 			if ((i+1) < sz) {
 				destination  += ",\n";
 			}
 		}
 		if(sz > 0) {
 			destination += "\n";
-			destination += indentedLinePrefix;
+			destination += indented;
 		}
 		destination += "}";
 	} 

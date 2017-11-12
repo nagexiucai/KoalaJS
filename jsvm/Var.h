@@ -394,7 +394,7 @@ public:
 
 	string getParsableString();
 	string getJSString(const string &str);
-	string getJSON(const string& linePrefix = "");
+	string getJSON(const string& linePrefix = "", int level = 0);
 };
 
 #endif

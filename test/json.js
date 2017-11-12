@@ -12,14 +12,15 @@ var a = {
 
 a.belong.f(123);
 
-print(a);
-print("\n\n");
-
-
-a.name = "Yoda";
-print(a);
+var s = RJSON.toString(a, "  ");
+println(s);
 print("\n");
 
-var s = "" + a;
+a.name = "Yoda";
+s = RJSON.toString(a, "  ");
+println(s);
+print("\n");
+
 var b = RJSON.parse(s);
-println(b);
+s = RJSON.toString(b, "  ");
+println(s);
