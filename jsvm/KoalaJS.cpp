@@ -15,11 +15,14 @@ static GlobalVars _globalVars;
 #define LOADER "_moduleLoader"
 bool KoalaJS::loadExt(const string& fname) {
 	void *h = dlopen(fname.c_str(), RTLD_LAZY);
-	if(h == NULL)
+	if(h == NULL) {
+		ERR("Can not open ext module: %s!", fname.c_str());
 		return false;
+	}
 
 	JSModuleLoader loader = (JSModuleLoader)dlsym(h, LOADER);
 	if(loader == NULL) {
+		ERR("Can not find load-function from module: %s!", fname.c_str());
 		return false;
 		dlclose(h);
 	}

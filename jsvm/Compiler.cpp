@@ -69,7 +69,6 @@ bool Compiler::exec(const std::string &code, Bytecode* bc) {
 		}
 		bytecode->reserve(); //add a nil instruction at the end of bytecode->
 	} catch (CScriptException *e) {
-		std::string msg;
 		std::stringstream ss;
 		ss << "Error at " << l->getPosition().c_str() << ": " << e->text.c_str();
 		ERR("%s\n", ss.str().c_str());

@@ -9,7 +9,7 @@ AR := $(CROSS_COMPILE)ar
 LD := $(CROSS_COMPILE)g++
 
 
-CFLAG = -Wall -g -I./ -I./jsvm -I./utils
+CFLAG = -Wall -g -I./ -I./jsvm -I./utils -fPIC
 
 VM_DIR = jsvm
 NATIVE_DIR = native

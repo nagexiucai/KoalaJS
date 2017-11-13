@@ -6,7 +6,8 @@ using namespace JSM;
 
 void VM::exec(KoalaJS* js, BCVar *c, void *userdata) {
 	KoalaJS kjs(js->getRoot());
-	kjs.exec(c->getParameter("src")->getString());
+	string s = c->getParameter("src")->getString();
+	kjs.exec(s);
 }
 
 void VM::run(KoalaJS* js, BCVar *c, void *userdata) {

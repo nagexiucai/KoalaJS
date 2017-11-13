@@ -7,6 +7,7 @@
 #include "native/Bytes/Bytes.h"
 #include "native/Array/Array.h"
 #include "native/Time/Time.h"
+#include "native/Thread/Thread.h"
 
 extern "C" void _basicModuleLoader(KoalaJS* tinyJS) {
 //load basic classes
@@ -22,4 +23,5 @@ extern "C" void _basicModuleLoader(KoalaJS* tinyJS) {
 	JSM::JSON::instance().load(tinyJS, "RJSON");
 	JSM::VM::instance().load(tinyJS, "RVM");
 	JSM::Time::instance().load(tinyJS, "RTime");
+	JSM::JSThread::instance().load(tinyJS, "RThread");
 }
