@@ -6,20 +6,22 @@
 #include "native/Global/Global.h"
 #include "native/Bytes/Bytes.h"
 #include "native/Array/Array.h"
+#include "native/Thread/Thread.h"
 #include "native/Time/Time.h"
 
-extern "C" void _basicModuleLoader(KoalaJS* tinyJS) {
+extern "C" void _basicModuleLoader(KoalaJS* js) {
 //load basic classes
-	JSM::Bytes::instance().load(tinyJS, "Bytes");
-	JSM::String::instance().load(tinyJS, "String");
-	JSM::Array::instance().load(tinyJS, "Array");
+	JSM::Bytes::instance().load(js, "Bytes");
+	JSM::String::instance().load(js, "String");
+	JSM::Array::instance().load(js, "Array");
 
 //load Rkid extended classes
-	JSM::Debug::instance().load(tinyJS, "Debug");
+	JSM::Debug::instance().load(js, "Debug");
 
-	JSM::Global::instance().load(tinyJS, "RGlobal");
-	JSM::Math::instance().load(tinyJS, "RMath");
-	JSM::JSON::instance().load(tinyJS, "RJSON");
-	JSM::VM::instance().load(tinyJS, "RVM");
-	JSM::Time::instance().load(tinyJS, "RTime");
+	JSM::Global::instance().load(js, "RGlobal");
+	JSM::Math::instance().load(js, "RMath");
+	JSM::JSON::instance().load(js, "RJSON");
+	JSM::VM::instance().load(js, "RVM");
+	JSM::Time::instance().load(js, "RTime");
+	JSM::JSThread::instance().load(js, "RThread");
 }
