@@ -9,7 +9,7 @@ AR := $(CROSS_COMPILE)ar
 LD := $(CROSS_COMPILE)g++
 
 
-CFLAG = -Wall -g -I./ -I./jsvm -I./utils -fPIC
+CFLAG = -Wall -g -I./ -I./jsvm -I./utils
 
 VM_DIR = jsvm
 NATIVE_DIR = native
@@ -26,7 +26,6 @@ NATIVE = $(NATIVE_DIR)/ClassLoader.cpp \
 	  $(NATIVE_DIR)/String/String.cpp \
 	  $(NATIVE_DIR)/VM/VM.cpp \
 	  $(NATIVE_DIR)/Array/Array.cpp \
-	  $(NATIVE_DIR)/Thread/Thread.cpp \
 	  $(NATIVE_DIR)/Time/Time.cpp 
 
 LIBS = $(LIBS_DIR)/File/File.cpp

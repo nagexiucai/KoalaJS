@@ -109,14 +109,6 @@ BCVar* JSONParser::factor(CScriptLex* lex) {
 
 BCVar* JSONParser::parse(const string& str) {
 	CScriptLex lex(str);
-	BCVar* ret = NULL;
-	try {
-		ret = factor(&lex);
-	} catch (CScriptException *e) {
-		std::stringstream ss;
-		ss << "Error at " << lex.getPosition().c_str() << ": " << e->text.c_str();
-		delete e;
-	}
-
+	BCVar* ret = factor(&lex);
 	return ret;
 }
