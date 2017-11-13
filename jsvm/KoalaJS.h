@@ -8,6 +8,7 @@
 #include "Debug.h"
 #include <stack>
 #include <queue>
+#include <map>
 #include <dlfcn.h>
 
 #define VAR(i) (i->isNode ? ((BCNode*)i)->var : (BCVar*)i)
@@ -65,9 +66,9 @@ class KoalaJS {
 		inline ~KoalaJS() {
 			clear();
 			//unload extended lib.
-			size_t sz = extDL.size();
-			for(size_t i=0; i<sz; ++i) {
-				void* h = extDL[i];
+			std::map<string, void*>::iterator it;
+			for(it=extDL.begin(); it!=extDL.end(); ++it) {
+				void* h = it->second;
 				if(h != NULL)
 					dlclose(h);
 			}
@@ -113,6 +114,7 @@ class KoalaJS {
 			if(moduleLoader != NULL) {
 				moduleLoader(this);
 			}
+			loadExts();
 		}
 
 		inline JSModuleLoader getModuleLoader() {
@@ -168,7 +170,7 @@ class KoalaJS {
 
 		BCVar* root;
 		vector<VMScope> scopes;
-		vector<void*> extDL;
+		map<string, void*> extDL;
 		stack<CodeT> codeStack; //code stack for "run" or "exec" js in js.
 		//run stack
 		const static uint16_t STACK_DEEP = 128;
@@ -177,6 +179,8 @@ class KoalaJS {
 		//interupt queue	
 		queue<Interupt*> interupts;
 		Debug debug;
+
+		void loadExts();
 
 		void doInterupt();
 

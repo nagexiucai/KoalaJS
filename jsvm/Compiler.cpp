@@ -36,6 +36,15 @@ bool Compiler::run(const std::string &fname, Bytecode* bc, bool debug) {
 	cname = File::getFullname(cwd, fname);
 	cwd = File::getPath(cname);
 
+	//check if included.
+	size_t sz = included.size();
+	for(size_t i=0; i<sz; ++i) {
+		string fn = included[i];
+		if(fn == cname)
+			return true; //included.
+	}
+
+
 	std::string input = File::read(cname);
 	if(input.length() > 0) {
 		bytecode = bc;
@@ -50,6 +59,7 @@ bool Compiler::run(const std::string &fname, Bytecode* bc, bool debug) {
 	else {
 		ERR("Can not run file \"%s\"!\n", cname.c_str());
 	}
+	included.push_back(cname);
 
 	if(oldCwd.length() > 0)
 		cwd = oldCwd;

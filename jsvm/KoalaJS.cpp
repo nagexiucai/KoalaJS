@@ -14,20 +14,48 @@ static GlobalVars _globalVars;
 
 #define LOADER "_moduleLoader"
 bool KoalaJS::loadExt(const string& fname) {
-	void *h = dlopen(fname.c_str(), RTLD_LAZY);
+	std::map<string, void*>::iterator it = extDL.find(fname);
+	void* h = NULL;
+	if(it == extDL.end()) {
+		h = dlopen(fname.c_str(), RTLD_LAZY);
+		if(h == NULL) {
+			ERR("Can not load extended module %s!\n", fname.c_str());
+			return false;
+		}
+		extDL.insert(pair<string, void*>(fname, h));
+		it = extDL.find(fname);
+	}
+	else {
+		h = it->second;
+	}
 	if(h == NULL)
 		return false;
 
 	JSModuleLoader loader = (JSModuleLoader)dlsym(h, LOADER);
 	if(loader == NULL) {
-		return false;
 		dlclose(h);
+		extDL.erase (it);
+		ERR("Extended module load-function not defined (%s)!\n", fname.c_str());
+		return false;
 	}
 
 	loader(this);
-	extDL.push_back(h);
 	return true;
 }
+
+void KoalaJS::loadExts() {
+	std::map<string, void*>::iterator it;
+	for(it = extDL.begin(); it != extDL.end(); ++it) {
+		void *h = it->second;
+		if(h == NULL)
+			continue;
+		JSModuleLoader loader = (JSModuleLoader)dlsym(h, LOADER);
+		if(loader != NULL) {
+			loader(this);
+		}
+	}
+}
+
 
 GlobalVars* KoalaJS::getGlobalVars() {
 	return &_globalVars;

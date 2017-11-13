@@ -45,6 +45,7 @@ class Compiler {
 		std::string cwd;
 		std::string cname;
 		
+		vector<string> included;
 		std::stack<Loop> loopStack;
 
 		CScriptLex *l;             /// current lexer
