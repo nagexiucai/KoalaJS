@@ -65,6 +65,10 @@ uint32_t DebugInfo::getLine(uint32_t index, string& line, string& fname) {
 	uint16_t l = pos & 0xFFFF;
 
 	fname = fileTable[fileIndex];
+	size_t sz = fileLines[fileIndex].size();
+	if(l > sz)
+		l = sz;
+
 	string ln = fileLines[fileIndex][l-1];
 	line = ln;
 	return l;
@@ -285,6 +289,17 @@ string Bytecode::strs() {
 		ret = ret + index + strTable[i] + "\n";
 	}
 	return ret;
+}
+
+string Bytecode::getDebugLine(PC index) {
+	if(!debug)
+		return "";
+
+	string ln = "";
+	string fn = "";
+	string dbg = "";
+	int l = debugInfo.getLine(index, ln, fn);
+	return dbg + " (" + fn + ":" + StringUtil::from(l) + ") " + ln;
 }
 
 string Bytecode::dump() {

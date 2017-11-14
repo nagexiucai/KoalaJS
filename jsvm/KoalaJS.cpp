@@ -10,6 +10,8 @@
 
 #define INTERUPT_COUNT 10240
 
+#define DEBUG_LINE bcode->getDebugLine(pc-1).c_str()
+
 static GlobalVars _globalVars;
 
 #define LOADER "_moduleLoader"
@@ -384,7 +386,7 @@ void KoalaJS::doNew(const string& clsName) { //TODO: construct with arguments.
 			cls = findInScopes(cn);
 
 		if(cls == NULL) {
-			ERR("Class %s not found\n", cn.c_str());
+			ERR("Class %s not found %s\n", cn.c_str(), DEBUG_LINE);
 			return;
 		}
 		if(cls->var->isFunction()) {
@@ -448,7 +450,7 @@ bool KoalaJS::funcCall(const string& funcName, bool member) {
 
 		if(n == NULL) {
 			if(fname != CONSTRUCTOR)
-				ERR("Function '%s' not found\n", fname.c_str());
+				ERR("Function '%s' not found%s\n", fname.c_str(), DEBUG_LINE);
 			push(object); //push back to stack
 			return false;
 		}
@@ -465,7 +467,7 @@ bool KoalaJS::funcCall(const string& funcName, bool member) {
 		string arg = func->args[i];
 		si = pop2();
 		if(si == NULL) {
-			ERR("%s argument not match\n", fname.c_str());
+			ERR("%s argument not match %s\n", fname.c_str(), DEBUG_LINE);
 			delete params;
 			return false;
 		}
@@ -504,7 +506,7 @@ BCVar* KoalaJS::funcDef(const string& funcName, bool regular) {
 	if(funcName.length() > 0) {
 		BCNode* n = findInScopes(funcName);
 		if(n != NULL) {
-			ERR("Function '%s' has already been defined\n", funcName.c_str());			
+			ERR("Function '%s' has already been defined %s\n", funcName.c_str(), DEBUG_LINE);			
 			return NULL;
 		}
 	}
@@ -814,7 +816,7 @@ BCNode* KoalaJS::load(const string& name, bool create) {
 				return NULL;
 
 			if(name != THIS)
-				ERR("Warning: '%s' undefined!\n", name.c_str());
+				ERR("Warning: '%s' undefined!%s\n", name.c_str(), DEBUG_LINE);
 			node = current->var->addChild(name);
 		}
 	}
@@ -843,7 +845,7 @@ void KoalaJS::runCode(Bytecode* bc) {
 	size_t interuptCount = 0;
 
 	while(pc < codeSize) {
-		if(bcode->isDebug()) {
+		if(bcode->isDebug() && bc != NULL) { //don't debug for js function call or interupt.
 			debug.debug(this, pc);
 		}
 
@@ -1056,7 +1058,7 @@ void KoalaJS::runCode(Bytecode* bc) {
 													BCNode *node = find(str);
 													if(node != NULL) { //find just in current scope
 														if(node->var->isUndefined()) // declared only before
-															ERR("Warning: %s has already existed.\n", str.c_str());
+															ERR("Warning: %s has already existed.%s\n", str.c_str(), DEBUG_LINE);
 													}
 													else {
 														VMScope* current = scope();
@@ -1117,7 +1119,7 @@ void KoalaJS::runCode(Bytecode* bc) {
 														if(modi) 
 															node->replace(v);
 														else
-															ERR("Can not change a const variable: %s!\n", node->name.c_str());
+															ERR("Can not change a const variable: %s!%s\n", node->name.c_str(), DEBUG_LINE);
 														v->unref();
 														push(node->var->ref());
 													}

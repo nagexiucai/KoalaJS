@@ -97,6 +97,8 @@ public:
 		return &debugInfo;
 	}
 
+	string getDebugLine(PC index);
+
 	inline bool isDebug() {
 		return debug;
 	}
