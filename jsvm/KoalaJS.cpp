@@ -741,7 +741,9 @@ void KoalaJS::doGet(BCVar* v, const string& str) {
 		}
 	}
 	else {
-		ERR("can not get memnber %s.%s\n", str.c_str(), DEBUG_LINE);
+		if(!v->isObject())
+			ERR("can not get memnber %s.%s\n", str.c_str(), DEBUG_LINE);
+
 		if(v->isUndefined()) 
 			v->type = BCVar::OBJECT;
 		n = v->addChild(str);
