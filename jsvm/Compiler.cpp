@@ -216,6 +216,7 @@ LEX_TYPES Compiler::statement(bool pop) {
 		setLoopBreaks(getLoop(), bytecode->getPC());
 		setLoopContinues(getLoop(), cpc);
 		loopStack.pop();
+		pop = false;
 	}
 	else if (l->tk==LEX_R_IF) {
 		l->chkread(LEX_R_IF);
@@ -235,6 +236,7 @@ LEX_TYPES Compiler::statement(bool pop) {
 		else {
 			bytecode->setJmp(pc, INSTR_NJMP);
 		}
+		pop = false;
 	}
 	else if (l->tk==LEX_R_FOR) {
 		Loop loop;
@@ -262,6 +264,7 @@ LEX_TYPES Compiler::statement(bool pop) {
 		setLoopBreaks(getLoop(), bytecode->getPC());
 		setLoopContinues(getLoop(), cpc);
 		loopStack.pop();
+		pop = false;
 	}
 	else {
 		l->chkread(LEX_EOF);
