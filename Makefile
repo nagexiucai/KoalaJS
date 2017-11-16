@@ -8,7 +8,6 @@ CXX := $(CROSS_COMPILE)g++
 AR := $(CROSS_COMPILE)ar
 LD := $(CROSS_COMPILE)g++
 
-
 CFLAG = -Wall -fPIC -g -I./ -I./jsvm -I./utils
 
 VM_DIR = jsvm

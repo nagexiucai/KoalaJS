@@ -7,6 +7,7 @@
 #include <sstream>  
 #include <stdlib.h>
 #include <stdarg.h>
+#include <stdio.h>
 
 #define INTERUPT_COUNT 10240
 
@@ -63,62 +64,14 @@ GlobalVars* KoalaJS::getGlobalVars() {
 	return &_globalVars;
 }
 
-static ThreadLock _intrLock;
-
 void KoalaJS::doInterupt() {
-	_intrLock.lock();
-	Interupt* intr = NULL;
-	if(!interupts.empty()) {
-		intr = interupts.front();
-		interupts.pop();
-	}
-	_intrLock.unlock();
-
-	if(intr == NULL)
-		return;
-
-	/*TRACE("Interupted for '%s$%d', %d in queue.\n", 
-			intr->funcName.c_str(), 
-			(int)intr->args.size(),
-			(int)sz);
-	*/
-
-	BCVar* v = callJSFunc(intr->funcName, intr->args);
-	v->unref();
-	delete intr;
-}
-
-#define INTERUPT_LIMIT 16
-
-void KoalaJS::interupt(const string& funcName, int argNum, ...) {
-	Interupt *intr = new Interupt(funcName);
-
-	va_list args;
-	va_start(args, argNum);
-	for(int i=0; i<argNum; ++i) {
-		BCVar* v = va_arg(args, BCVar*);
-		intr->args.push_back(v);
-	}
-	va_end(args);
-
-	_intrLock.lock();
-	if(interupts.size() >= INTERUPT_LIMIT) { //drop oldest one if too much request.
-		TRACE("Too much interupts (%d), drop the oldest.\n", INTERUPT_LIMIT);
-		Interupt* it = interupts.front();
-		interupts.pop();
-		size_t num = it->args.size();
-		for(size_t i=0; i<num; ++i) {
-			delete it->args[i];
-		}
-		delete it;
-	}
-	interupts.push(intr);
-	_intrLock.unlock();
+	if(interupter != NULL)
+		interupter->doInterupt();
 }
 
 BCVar* KoalaJS::callJSFunc(const string& funcName, const vector<BCVar*>& args) {
 	BCVar* v = NULL;
-	KoalaJS js(getRoot());
+	KoalaJS js(getRoot(), interupter);
 	js.moduleLoader = getModuleLoader();
 	js.setBytecode(bcode);
 
