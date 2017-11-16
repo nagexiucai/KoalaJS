@@ -22,7 +22,6 @@ bool KoalaJS::loadExt(const string& fname) {
 	if(it == extDL.end()) {
 		h = dlopen(fname.c_str(), RTLD_LAZY);
 		if(h == NULL) {
-			ERR("Can not load extended module %s!\n", fname.c_str());
 			return false;
 		}
 		extDL.insert(pair<string, void*>(fname, h));

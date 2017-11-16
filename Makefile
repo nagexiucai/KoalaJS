@@ -53,7 +53,6 @@ lib:
 clean:
 	rm -fr $(TARGET)
 	rm -fr $(VM)
-	rm -fr $(VM)-arm
 	rm -fr *.o *.dSYM *.bcode
 
 install:

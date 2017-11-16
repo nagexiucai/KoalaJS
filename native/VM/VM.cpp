@@ -21,7 +21,13 @@ void VM::loadExt(KoalaJS* js, BCVar *c, void *userdata) {
 	size_t pos = fname.rfind(".so");
 	if(pos != fname.length() - 3)
 		fname += ".so";
-	js->loadExt(fname);
+	if(!js->loadExt(fname)) {
+		//try /usr/local/lib/koala path
+		string fn = "/usr/local/lib/koala/";
+		fname = fn + fname;
+		if(!js->loadExt(fname))
+			ERR("Can not load extended module %s!\n", fname.c_str());
+	}
 }
 
 
