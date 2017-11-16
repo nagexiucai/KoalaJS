@@ -26,6 +26,7 @@ NATIVE = $(NATIVE_DIR)/ClassLoader.cpp \
 	  $(NATIVE_DIR)/VM/VM.cpp \
 	  $(NATIVE_DIR)/Array/Array.cpp \
 	  $(NATIVE_DIR)/Thread/Thread.cpp \
+	  $(NATIVE_DIR)/Timer/Timer.cpp \
 	  $(NATIVE_DIR)/Time/Time.cpp 
 
 LIBS = $(LIBS_DIR)/File/File.cpp

@@ -8,6 +8,7 @@
 #include "native/Array/Array.h"
 #include "native/Thread/Thread.h"
 #include "native/Time/Time.h"
+#include "native/Timer/Timer.h"
 
 extern "C" void _basicModuleLoader(KoalaJS* js) {
 //load basic classes
@@ -23,5 +24,6 @@ extern "C" void _basicModuleLoader(KoalaJS* js) {
 	JSM::JSON::instance().load(js, "RJSON");
 	JSM::VM::instance().load(js, "RVM");
 	JSM::Time::instance().load(js, "RTime");
+	JSM::Timer::instance().load(js, "RTimer");
 	JSM::JSThread::instance().load(js, "RThread");
 }
