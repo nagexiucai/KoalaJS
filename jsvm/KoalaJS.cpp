@@ -741,6 +741,8 @@ void KoalaJS::doGet(BCVar* v, const string& str) {
 		}
 	}
 	else {
+		if(v->isUndefined()) 
+			v->type = BCVar::OBJECT;
 		n = v->addChild(str);
 	}
 
@@ -1034,9 +1036,7 @@ void KoalaJS::runCode(Bytecode* bc) {
 												StackItem* i = pop2();
 												if(i != NULL) {
 													BCVar* v = VAR(i);
-													if(v->isString() || v->isObject() || v->isArray()) {
-														doGet(v, str);
-													}
+													doGet(v, str);
 													v->unref();
 												}
 												break;
