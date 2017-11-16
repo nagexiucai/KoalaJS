@@ -1,9 +1,6 @@
 .Author
 	Misa.Z misa.zhu@gmail.com
 
-.License
-	under GPL.
-
 .About
 	Bytecode compiler and vm are all wrote by Misa.Z. 
 
