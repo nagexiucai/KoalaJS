@@ -6,7 +6,7 @@
 #include "Var.h"
 #include "GlobalVars.h"
 #include "Debug.h"
-#include "Interupter.h"
+#include "Interrupter.h"
 #include <stack>
 #include <map>
 #include <dlfcn.h>
@@ -41,20 +41,20 @@ class KoalaJS {
 			bcode = NULL;
 			stackTop = STACK_DEEP;
 			this->root = NULL;
-			interupter = new Interupter(this);
-			freeInterupter = true;
+			interrupter = new Interrupter(this);
+			freeInterrupter = true;
 			init();
 		}
 		
-		inline KoalaJS(BCVar* rt, Interupter* inter) {
+		inline KoalaJS(BCVar* rt, Interrupter* inter) {
 			moduleLoader = NULL;
 			pc = 0;
 			codeSize = 0;
 			code = NULL;
 			bcode = NULL;
 			stackTop = STACK_DEEP;
-			interupter = inter;
-			freeInterupter = false;
+			interrupter = inter;
+			freeInterrupter = false;
 			init(rt);
 		}
 
@@ -67,8 +67,8 @@ class KoalaJS {
 				if(h != NULL)
 					dlclose(h);
 			}
-			if(freeInterupter)
-				delete interupter;
+			if(freeInterrupter)
+				delete interrupter;
 		}
 
 		inline void reset() {
@@ -144,7 +144,7 @@ class KoalaJS {
 
 		BCVar* callJSFunc(const string& name, const vector<BCVar*>& args);
 
-		void interupt(const string& name, int argNum, ...);
+		void interrupt(const string& name, int argNum, ...);
 
 		inline void stop() {
 			pc = codeSize + 1;
@@ -158,8 +158,8 @@ class KoalaJS {
 			return (int)scopes.size();
 		}
 
-		inline Interupter* getInterupter() {
-			return interupter;
+		inline Interrupter* getInterrupter() {
+			return interrupter;
 		}
 	private:
 		string cwd;
@@ -181,13 +181,13 @@ class KoalaJS {
 		uint16_t stackTop;
 		Debug debug;
 
-		//interupt queue	
-		Interupter* interupter;
-		bool freeInterupter;
+		//interrupt queue	
+		Interrupter* interrupter;
+		bool freeInterrupter;
 
 		void loadExts();
 
-		void doInterupt();
+		void doInterrupt();
 
 		void runCode(Bytecode* bc);
 

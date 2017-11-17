@@ -63,14 +63,14 @@ GlobalVars* KoalaJS::getGlobalVars() {
 	return &_globalVars;
 }
 
-void KoalaJS::doInterupt() {
-	if(interupter != NULL)
-		interupter->doInterupt();
+void KoalaJS::doInterrupt() {
+	if(interrupter != NULL)
+		interrupter->doInterrupt();
 }
 
 BCVar* KoalaJS::callJSFunc(const string& funcName, const vector<BCVar*>& args) {
 	BCVar* v = NULL;
-	KoalaJS js(getRoot(), interupter);
+	KoalaJS js(getRoot(), interrupter);
 	js.moduleLoader = getModuleLoader();
 	js.setBytecode(bcode);
 
@@ -566,11 +566,15 @@ void KoalaJS::init(BCVar* rt) {
 
 void KoalaJS::compare(OpCode op, BCVar* v1, BCVar* v2) {
 	float f1, f2;
+
 	f1 = v1->getFloat();
 	f2 = v2->getFloat();
 
 	bool i = false;
-	if(v1->type == v2->type) {
+	if(v1 == v2) {
+		i = true;
+	}
+	else if(v1->type == v2->type) {
 		if(v1->isUndefined()) {
 			switch(op) {
 				case INSTR_EQ: 
@@ -799,17 +803,17 @@ void KoalaJS::runCode(Bytecode* bc) {
 		pushScope(sc);
 	}
 	size_t scDeep = scopes.size();
-	size_t interuptCount = 0;
+	size_t interruptCount = 0;
 
 	while(pc < codeSize) {
-		if(bcode->isDebug() && bc != NULL) { //don't debug for js function call or interupt.
+		if(bcode->isDebug() && bc != NULL) { //don't debug for js function call or interrupt.
 			debug.debug(this, pc);
 		}
 
-		interuptCount++;
-		if(interuptCount >= INTERUPT_COUNT) {
-			interuptCount = 0;
-			doInterupt();
+		interruptCount++;
+		if(interruptCount >= INTERUPT_COUNT) {
+			interruptCount = 0;
+			doInterrupt();
 		}
 
 		PC ins = code[pc++];
@@ -1160,13 +1164,13 @@ void KoalaJS::runCode(Bytecode* bc) {
 			case INSTR_CALL: {
 												 if(!funcCall(bcode->getStr(offset)))
 													 pop();//drop this
-												 interuptCount = INTERUPT_COUNT;
+												 interruptCount = INTERUPT_COUNT;
 												 break;
 											 }
 			case INSTR_CALLO: {
 													if(!funcCall(bcode->getStr(offset), true))
 														pop(); //drop this
-												 	interuptCount = INTERUPT_COUNT;
+												 	interruptCount = INTERUPT_COUNT;
 													break;
 												}
 			case INSTR_NEW: {

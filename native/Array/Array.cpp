@@ -13,3 +13,11 @@ void Array::clear(KoalaJS* js, BCVar *c, void *) {
 	c->getParameter("this")->removeAllChildren();
 }
 
+void Array::add(KoalaJS* js, BCVar *c, void *) {
+	BCVar* thisV = c->getParameter("this");
+	BCVar* v = c->getParameter("v");
+	thisV->addChild("", v);
+
+	c->setReturnVar(v);
+}
+

@@ -1,6 +1,6 @@
 #include "utils/Thread/Thread.h"
 #include "KoalaJS.h"
-#include "Interupter.h"
+#include "Interrupter.h"
 #include <stdarg.h>
 #include <stdio.h>
 
@@ -8,36 +8,37 @@
 
 static ThreadLock _intrLock;
 
-Interupter::Interupter(KoalaJS* h) {
+Interrupter::Interrupter(KoalaJS* h) {
 	this->handler = h;
 }
 
-void Interupter::doInterupt() {
+void Interrupter::doInterrupt() {
 	_intrLock.lock();
-	Interupt* intr = NULL;
-	if(!interupter.empty()) {
-		intr = interupter.front();
-		interupter.pop();
+	Interrupt* intr = NULL;
+	if(!interrupter.empty()) {
+		intr = interrupter.front();
+		interrupter.pop();
 	}
 	_intrLock.unlock();
 
 	if(intr == NULL)
 		return;
 
-	TRACE("Interupted for '%s$%d', %d in queue.\n", 
+	/*TRACE("Interrupted for '%s$%d', %d in queue.\n", 
 			intr->funcName.c_str(), 
 			(int)intr->args.size(),
-			(int)interupter.size());
+			(int)interrupter.size());
+			*/
 
 	BCVar* v = handler->callJSFunc(intr->funcName, intr->args);
 	v->unref();
 	delete intr;
 }
 
-void Interupter::interupt(const string& funcName, int argNum, ...) {
+void Interrupter::interrupt(const string& funcName, int argNum, ...) {
 	_intrLock.lock();
-	Interupt *intr = new Interupt(funcName);
-	TRACE("get Interupt %s$%d.\n", funcName.c_str(), argNum);
+	Interrupt *intr = new Interrupt(funcName);
+	//TRACE("get Interrupt %s$%d.\n", funcName.c_str(), argNum);
 
 	va_list args;
 	va_start(args, argNum);
@@ -47,18 +48,18 @@ void Interupter::interupt(const string& funcName, int argNum, ...) {
 	}
 	va_end(args);
 
-	size_t sz = interupter.size();
+	size_t sz = interrupter.size();
 	if(sz >= INTERUPT_LIMIT) { //drop oldest one if too much request.
-		TRACE("Too much interupter (%d), drop the oldest.\n", (int)sz);
-		Interupt* it = interupter.front();
-		interupter.pop();
+		TRACE("Too much interrupter (%d), drop the oldest.\n", (int)sz);
+		Interrupt* it = interrupter.front();
+		interrupter.pop();
 		size_t num = it->args.size();
 		for(size_t i=0; i<num; ++i) {
 			delete it->args[i];
 		}
 		delete it;
 	}
-	interupter.push(intr);
+	interrupter.push(intr);
 	_intrLock.unlock();
 }
 

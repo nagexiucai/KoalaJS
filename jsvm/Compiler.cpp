@@ -209,7 +209,7 @@ LEX_TYPES Compiler::statement(bool pop) {
 		base(); //condition
 		l->chkread(')');
 		PC pc = bytecode->reserve();
-		statement(false);
+		statement();
 		bytecode->addJmp(cpc, INSTR_JMPB); //coninue anchor;
 		bytecode->setJmp(pc, INSTR_NJMP); // end anchor;
 
@@ -224,13 +224,13 @@ LEX_TYPES Compiler::statement(bool pop) {
 		base(); //condition
 		l->chkread(')');
 		PC pc = bytecode->reserve();
-		statement(false);
+		statement();
 
 		if (l->tk==LEX_R_ELSE) {
 			l->chkread(LEX_R_ELSE);
 			PC pc2 = bytecode->reserve();
 			bytecode->setJmp(pc, INSTR_NJMP);
-			statement(false);
+			statement();
 			bytecode->setJmp(pc2, INSTR_JMP);
 		}
 		else {
@@ -257,7 +257,7 @@ LEX_TYPES Compiler::statement(bool pop) {
 		l->chkread(')');
 		bytecode->addJmp(cpc, INSTR_JMPB); //continue anchor
 		bytecode->setJmp(loopPC, INSTR_JMP);
-		statement(false);
+		statement();
 		bytecode->addJmp(ipc, INSTR_JMPB); //iterator anchor
 		bytecode->setJmp(breakPC, INSTR_NJMP); //end anchor
 		

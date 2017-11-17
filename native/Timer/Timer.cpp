@@ -10,7 +10,7 @@ static uint32_t _timerUSEC = 0xFFFFFFFF;
 
 #define MINI_STEP 20000 //mini step as 0.02 sec.
 static void* _timerThread(void* data) {
-	Interupter* inter = (Interupter*)data;	
+	Interrupter* inter = (Interrupter*)data;	
 	pthread_detach(pthread_self());
 
 	uint32_t count = 0;
@@ -20,7 +20,7 @@ static void* _timerThread(void* data) {
 		if(_timerUSEC > 0) {
 			if(count > (_timerUSEC / MINI_STEP)) {
 				count = 0;
-				inter->interupt("_onTimer", 0);
+				inter->interrupt("_onTimer", 0);
 			}
 		}
 	}
@@ -31,7 +31,7 @@ static void* _timerThread(void* data) {
 void Timer::on(KoalaJS* js, BCVar *c, void *userdata) {
 	if(_timerUSEC == 0xFFFFFFFF) {
 		_timerUSEC = 0;
-		Thread::run(_timerThread, js->getInterupter());
+		Thread::run(_timerThread, js->getInterrupter());
 	}
 }
 
