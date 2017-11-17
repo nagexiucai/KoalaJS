@@ -10,9 +10,11 @@ namespace JSM {
 
 		static void time(KoalaJS* js, BCVar *c, void *);
 
+		static void localTime(KoalaJS* js, BCVar *c, void *);
 		protected:
 		inline void registerFunctions(KoalaJS* js, const std::string& className) {
 			addFunction(js, className, "time()", time, NULL);
+			addFunction(js, className, "localTime()", localTime, NULL);
 			addFunction(js, className, "timeOfDay()", timeOfDay, NULL);
 		}
 
