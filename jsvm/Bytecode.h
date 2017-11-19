@@ -100,6 +100,8 @@ public:
 
 	string getDebugLine(PC index);
 
+	string getInstrStr(PC &index, bool step = true);
+
 	inline bool isDebug() {
 		return debug;
 	}

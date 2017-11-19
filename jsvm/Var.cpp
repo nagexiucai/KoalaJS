@@ -87,7 +87,12 @@ string BCVar::getParsableString() {
 	return getString();
 }
 
+#define MAX_LEVEL 16
+
 string BCVar::getJSON(const string& prefix, int level) {
+	if(level >= MAX_LEVEL)
+		return "{.....}";
+
 	string destination;
 	string linePrefix = "";
 	for(int i=0; i<level; ++i) {

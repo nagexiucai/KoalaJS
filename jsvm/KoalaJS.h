@@ -250,8 +250,9 @@ class KoalaJS {
 
 		inline void popScope() {
 			VMScope* sc = scope();
-			if(sc != NULL && sc->var != NULL)
+			if(sc != NULL && sc->var != NULL) {
 				sc->var->unref();
+			}
 			scopes.pop_back();
 		}
 

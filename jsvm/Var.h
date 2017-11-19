@@ -6,6 +6,7 @@
 #include <stdint.h>
 #include <sstream>  
 #include <iostream>  
+#include <stdio.h>  
 #include "Instr.h"
 
 #define CLS_ARR "Array"
@@ -269,7 +270,7 @@ public:
 	}
 	
 	inline void clean() {
-		if(pointV != NULL && needDestroy) {
+		if((type == OBJECT || type == BYTES) && pointV != NULL && needDestroy) {
 			if(destroyFunc != NULL)
 				destroyFunc(pointV);
 			else

@@ -409,6 +409,7 @@ bool KoalaJS::funcCall(const string& funcName, bool member) {
 	}
 
 	BCVar* params = new BCVar(); //function parameters
+	params->type = BCVar::OBJECT;
 	FuncT* func = n->var->getFunc();
 	params->addChild(THIS, object);
 	object->unref(); //unref after pop
@@ -820,6 +821,7 @@ void KoalaJS::runCode(Bytecode* bc) {
 		OpCode instr = ins >> 16;
 		OpCode offset = ins & 0x0000FFFF;
 		string str;
+		
 
 		switch(instr) {
 			case INSTR_NIL: {
@@ -1000,9 +1002,15 @@ void KoalaJS::runCode(Bytecode* bc) {
 			case INSTR_RETURNV: { //return with value
 														VMScope* sc = scope();
 														if(sc != NULL) {
-															BCVar* thisVar = sc->var->getThisVar();
-															if(instr == INSTR_RETURN) //return without value, push "this" to stack
+															if(instr == INSTR_RETURN) {//return without value, push "this" to stack
+																BCVar* thisVar = sc->var->getThisVar();
 																push(thisVar->ref());
+															}
+															else {
+																StackItem* it = pop2();
+																if(it != NULL)
+																push(VAR(it));
+															}
 
 															pc = sc->pc;
 															if(scDeep == scopes.size() && bc == NULL) { //usually means call js function.
@@ -1162,14 +1170,16 @@ void KoalaJS::runCode(Bytecode* bc) {
 															break;
 														}
 			case INSTR_CALL: {
-												 if(!funcCall(bcode->getStr(offset)))
+												 if(!funcCall(bcode->getStr(offset))) {
 													 pop();//drop this
+												 }
 												 interruptCount = INTERUPT_COUNT;
 												 break;
 											 }
 			case INSTR_CALLO: {
-													if(!funcCall(bcode->getStr(offset), true))
+													if(!funcCall(bcode->getStr(offset), true)) {
 														pop(); //drop this
+													}
 												 	interruptCount = INTERUPT_COUNT;
 													break;
 												}
