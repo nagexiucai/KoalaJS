@@ -18,7 +18,11 @@ void VM::run(KoalaJS* js, BCVar *c, void *userdata) {
 
 void VM::getenv(KoalaJS* js, BCVar *c, void *userdata) {
 	std::string s = c->getParameter("name")->getString();
-	s = ::getenv(s.c_str());
+	const char* env = ::getenv(s.c_str());
+	if(env == NULL)
+		s = "";
+	else 
+		s = env;
 	c->setReturnVar(new BCVar(s));
 }
 
