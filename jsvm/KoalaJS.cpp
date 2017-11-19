@@ -596,7 +596,7 @@ void KoalaJS::compare(OpCode op, BCVar* v1, BCVar* v2) {
 					break;
 			}
 		}
-		else {
+		else if(v1->isInt() || v1->isFloat()) {
 			switch(op) {
 				case INSTR_EQ: 
 					i = (f1 == f2);
