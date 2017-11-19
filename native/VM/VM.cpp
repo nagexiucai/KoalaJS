@@ -16,6 +16,12 @@ void VM::run(KoalaJS* js, BCVar *c, void *userdata) {
 	kjs.run(fname);
 }
 
+void VM::getenv(KoalaJS* js, BCVar *c, void *userdata) {
+	std::string s = c->getParameter("name")->getString();
+	s = ::getenv(s.c_str());
+	c->setReturnVar(new BCVar(s));
+}
+
 void VM::loadExt(KoalaJS* js, BCVar *c, void *userdata) {
 	std::string fname = c->getParameter("file")->getString();
 	size_t pos = fname.rfind(".so");
