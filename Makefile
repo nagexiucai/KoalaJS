@@ -57,12 +57,6 @@ clean:
 	rm -fr *.o *.dSYM *.bcode
 
 install:
-	mkdir -p /usr/include/koala
-	cp koala /usr/bin
-	cp build/libKoalaJS.a /usr/lib
-	cp build/include/*.h /usr/include/koala
-
-local:
 	mkdir -p /usr/local/include/koala
 	mkdir -p /usr/local/lib/koala
 	mkdir -p /usr/local/bin
