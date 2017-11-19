@@ -62,7 +62,7 @@ install:
 	cp build/libKoalaJS.a /usr/lib
 	cp build/include/*.h /usr/include/koala
 
-inst-osx:
+local:
 	mkdir -p /usr/local/include/koala
 	mkdir -p /usr/local/lib/koala
 	mkdir -p /usr/local/bin
