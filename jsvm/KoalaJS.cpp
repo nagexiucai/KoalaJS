@@ -824,10 +824,19 @@ void KoalaJS::runCode(Bytecode* bc) {
 		
 
 		switch(instr) {
-			case INSTR_NIL: 
-			case INSTR_INCLUDE: {
+			case INSTR_NIL: {
 												break;
 											}
+			case INSTR_BLOCK: {
+													VMScope bl;
+													bl.var = scope()->var->ref();
+													pushScope(bl);
+													break;
+												}
+			case INSTR_BLOCK_END: {
+															popScope();
+															break;
+														}
 			case INSTR_TRUE: {
 												 BCVar* v = new BCVar(1);	
 												 push(v->ref());

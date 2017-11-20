@@ -93,7 +93,8 @@ const static OpCode INSTR_POP					= 0x0080; // : pop and release
 const static OpCode INSTR_OBJ					= 0x0090; // : object for JSON 
 const static OpCode INSTR_OBJ_END			= 0x0091; // : object end for JSON 
 
-const static OpCode INSTR_INCLUDE			= 0x00A0; // : include 
+const static OpCode INSTR_BLOCK				= 0x00A0; // : block 
+const static OpCode INSTR_BLOCK_END		= 0x00A1; // : block end 
 
 class BCOpCode {
 	public:
@@ -167,7 +168,8 @@ class BCOpCode {
 			case  INSTR_UNDEF				: return "undef";
 			case  INSTR_NEW					: return "new";
 			case  INSTR_GET					: return "get";
-			case  INSTR_INCLUDE			: return "include";
+			case  INSTR_BLOCK				: return "block";
+			case  INSTR_BLOCK_END		: return "blocke";
 			default									: return "";
 		}
 	}

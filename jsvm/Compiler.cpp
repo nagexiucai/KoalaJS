@@ -99,9 +99,9 @@ LEX_TYPES Compiler::statement(bool pop) {
 	if (l->tk==LEX_R_INCLUDE) {
 		l->chkread(LEX_R_INCLUDE);
 
-		PC resv = bytecode->reserve(); 
+		bytecode->gen(INSTR_BLOCK); 
 		run(l->tkStr, bytecode, bytecode->isDebug());
-		bytecode->setInstr(resv, INSTR_INCLUDE);
+		bytecode->gen(INSTR_BLOCK_END); 
 		pop = false;
 
 		l->chkread(LEX_STR);
@@ -540,7 +540,7 @@ LEX_TYPES Compiler::defFunc(string& name) {
 	PC pc = bytecode->reserve();
 	block();
 	
-	OpCode op = bytecode->getOpCode(bytecode->getPC() - 1) >> 16;
+	OpCode op = bytecode->getInstr(bytecode->getPC() - 1) >> 16;
 
 	if(op != INSTR_RETURN && op != INSTR_RETURNV)
 		bytecode->gen(INSTR_RETURN);
