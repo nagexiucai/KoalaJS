@@ -93,6 +93,8 @@ const static OpCode INSTR_POP					= 0x0080; // : pop and release
 const static OpCode INSTR_OBJ					= 0x0090; // : object for JSON 
 const static OpCode INSTR_OBJ_END			= 0x0091; // : object end for JSON 
 
+const static OpCode INSTR_INCLUDE			= 0x00A0; // : include 
+
 class BCOpCode {
 	public:
 	inline static string instr(OpCode ins) {
@@ -165,6 +167,7 @@ class BCOpCode {
 			case  INSTR_UNDEF				: return "undef";
 			case  INSTR_NEW					: return "new";
 			case  INSTR_GET					: return "get";
+			case  INSTR_INCLUDE			: return "include";
 			default									: return "";
 		}
 	}

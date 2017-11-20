@@ -154,20 +154,21 @@ public:
 
 		return codeBuf[index];
 	}
+
 	
 	/** set reserved instructioin , offset to current pc
 	 @param anchar, anchor of reserved instruction.
 	 @param opCode, opCode.
 	 @param target, target pc.
 	*/
-	void setJmp(PC anchor, OpCode op, PC target = 0xFFFFFFFF);
+	void setInstr(PC anchor, OpCode op, PC target = 0xFFFFFFFF);
 
 	/** add instructioin , offset to current pc
 	 @param anchar, anchor of reserved instruction.
 	 @param opCode, opCode.
 	 @param target, target pc.
 	*/
-	void addJmp(PC anchor, OpCode op, PC target = 0xFFFFFFFF);
+	void addInstr(PC anchor, OpCode op, PC target = 0xFFFFFFFF);
 
 
 

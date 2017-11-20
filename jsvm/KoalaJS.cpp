@@ -824,7 +824,8 @@ void KoalaJS::runCode(Bytecode* bc) {
 		
 
 		switch(instr) {
-			case INSTR_NIL: {
+			case INSTR_NIL: 
+			case INSTR_INCLUDE: {
 												break;
 											}
 			case INSTR_TRUE: {

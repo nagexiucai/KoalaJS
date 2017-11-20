@@ -262,7 +262,7 @@ PC Bytecode::gen(OpCode instr, int i) {
 	return cindex;
 }
 
-void Bytecode::setJmp(PC anchor, OpCode op, PC target) {
+void Bytecode::setInstr(PC anchor, OpCode op, PC target) {
 	if(target == 0xFFFFFFFF)
 		target = cindex;
 
@@ -271,7 +271,7 @@ void Bytecode::setJmp(PC anchor, OpCode op, PC target) {
 	codeBuf[anchor] = ins;
 }
 
-void Bytecode::addJmp(PC anchor, OpCode op, PC target) {
+void Bytecode::addInstr(PC anchor, OpCode op, PC target) {
 	if(target == 0xFFFFFFFF)
 		target = cindex;
 
@@ -336,17 +336,17 @@ string Bytecode::getInstrStr(PC &i, bool step) {
 	}
 	
 	if(instr == INSTR_INT) {
-		ins = codeBuf[i];
-		sprintf(s, "\n  |%04d 0x%08X ; (%d)", i, ins, ins);	
+		ins = codeBuf[i+1];
+		sprintf(s, "\n  |%04d 0x%08X ; (%d)", i+1, ins, ins);	
 		ret += s;
 		if(step)
 			i++;
 	}
 	else if(instr == INSTR_FLOAT) {
-		ins = codeBuf[i];
+		ins = codeBuf[i+1];
 		float f;
 		memcpy(&f, &ins, sizeof(PC));
-		sprintf(s, "\n  |%04d 0x%08X ; (%f)", i, ins, f);	
+		sprintf(s, "\n  |%04d 0x%08X ; (%f)", i+1, ins, f);	
 		ret += s;
 		if(step)
 			i++;

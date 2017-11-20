@@ -33,14 +33,15 @@ void VM::loadExt(KoalaJS* js, BCVar *c, void *userdata) {
 		fname += ".so";
 	if(js->loadExt(fname))
 		return;
-	//try some lib/koala path
-	string fn = "/usr/lib/koala/";
-	fn = fn + fname;
-	if(js->loadExt(fn))
-		return;
 
-	fn = "/usr/local/lib/koala/";
-	fn = fn + fname;
+	const char* env = ::getenv("KOALA_ROOT");
+	string fn = "/usr/lib/koala";
+	if(env != NULL) {
+		 fn = env;
+		 fn = fn + "/modules";
+	}
+	//try some lib/koala path
+	fn = fn + "/" + fname;
 	if(!js->loadExt(fn))
 		ERR("Can not load extended module %s!\n", fname.c_str());
 }
