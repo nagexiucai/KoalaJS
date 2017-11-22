@@ -10,7 +10,6 @@ typedef uint16_t OprCode;
 typedef uint32_t PC; //PC for : Program Counter
 
 #define INS(ins, off) ((((ins) << 16) & 0xFFFF0000) | ((off) & 0x0000FFFF))
-
 const static OprCode INSTR_NIL					= 0x0000; // NIL									: Do nothing.
 
 const static OprCode INSTR_VAR					= 0x0001; // VAR x								: declare var x
@@ -93,7 +92,8 @@ const static OprCode INSTR_POP					= 0x0080; // : pop and release
 const static OprCode INSTR_OBJ					= 0x0090; // : object for JSON 
 const static OprCode INSTR_OBJ_END			= 0x0091; // : object end for JSON 
 
-const static OprCode INSTR_INCLUDE			= 0x00A0; // : include 
+const static OprCode INSTR_BLOCK				= 0x00A0; // : block 
+const static OprCode INSTR_BLOCK_END		= 0x00A1; // : block end 
 
 class BCOprCode {
 	public:
@@ -167,7 +167,8 @@ class BCOprCode {
 			case  INSTR_UNDEF				: return "undef";
 			case  INSTR_NEW					: return "new";
 			case  INSTR_GET					: return "get";
-			case  INSTR_INCLUDE			: return "include";
+			case  INSTR_BLOCK				: return "block";
+			case  INSTR_BLOCK_END		: return "blocke";
 			default									: return "";
 		}
 	}

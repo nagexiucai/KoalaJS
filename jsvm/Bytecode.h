@@ -148,7 +148,7 @@ public:
 		return cindex;
 	}
 
-	inline PC  getOprCode(PC index) {
+	inline PC  getInstr(PC index) {
 		if(index >= cindex)
 			return 0;
 

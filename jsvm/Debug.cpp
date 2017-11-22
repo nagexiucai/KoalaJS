@@ -139,11 +139,12 @@ void Debug::debug(KoalaJS* js, PC pc) {
 	int ln = bc->getDebug()->getLine(pc, sline, fname);
 	size_t index = 0;
 
-	if(lastStop == ln || 
+	if((lastStop == ln && fname == oldfile) || 
 				(lastScopeDeep >= 0 && lastScopeDeep < js->scopeDeep())) //dont block at same line.
 		return;
 	if(!next && !isBreak(ln, fname, index)) 
 		return;
+
 	lastScopeDeep = js->scopeDeep();
 	lastStop = ln;
 	if(oldfile != fname || index > 0) {
