@@ -467,8 +467,8 @@ BCVar* KoalaJS::funcDef(const string& funcName, bool regular) {
 	PC funcPC = 0;
 	while(true) {
 		PC ins = code[pc++];
-		OpCode instr = ins >> 16;
-		OpCode offset = ins & 0x0000FFFF;
+		OprCode instr = ins >> 16;
+		OprCode offset = ins & 0x0000FFFF;
 
 		if(instr == INSTR_JMP) {
 			funcPC = pc;
@@ -565,7 +565,7 @@ void KoalaJS::init(BCVar* rt) {
 	root->ref();
 }
 
-void KoalaJS::compare(OpCode op, BCVar* v1, BCVar* v2) {
+void KoalaJS::compare(OprCode op, BCVar* v1, BCVar* v2) {
 	float f1, f2;
 
 	f1 = v1->getFloat();
@@ -627,7 +627,7 @@ void KoalaJS::compare(OpCode op, BCVar* v1, BCVar* v2) {
 	push(v->ref());
 }
 
-void KoalaJS::mathOp(OpCode op, BCVar* v1, BCVar* v2) {
+void KoalaJS::mathOp(OprCode op, BCVar* v1, BCVar* v2) {
 	if(v1->isNumber() && v2->isNumber()) {
 		//do number 
 		float f1, f2, ret = 0.0;
@@ -818,8 +818,8 @@ void KoalaJS::runCode(Bytecode* bc) {
 		}
 
 		PC ins = code[pc++];
-		OpCode instr = ins >> 16;
-		OpCode offset = ins & 0x0000FFFF;
+		OprCode instr = ins >> 16;
+		OprCode offset = ins & 0x0000FFFF;
 		string str;
 		
 

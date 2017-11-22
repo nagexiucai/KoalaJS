@@ -134,11 +134,11 @@ public:
 
 	string strs();
 
-	PC gen(OpCode instr, const string& str = "");
+	PC gen(OprCode instr, const string& str = "");
 
-	PC gen(OpCode instr, int intV);
+	PC gen(OprCode instr, int intV);
 
-	PC bytecode(OpCode instr, const string& str = "");
+	PC bytecode(OprCode instr, const string& str = "");
 
 	string getStr(int i);
 
@@ -148,7 +148,7 @@ public:
 		return cindex;
 	}
 
-	inline PC  getOpCode(PC index) {
+	inline PC  getOprCode(PC index) {
 		if(index >= cindex)
 			return 0;
 
@@ -161,14 +161,14 @@ public:
 	 @param opCode, opCode.
 	 @param target, target pc.
 	*/
-	void setInstr(PC anchor, OpCode op, PC target = 0xFFFFFFFF);
+	void setInstr(PC anchor, OprCode op, PC target = 0xFFFFFFFF);
 
 	/** add instructioin , offset to current pc
 	 @param anchar, anchor of reserved instruction.
 	 @param opCode, opCode.
 	 @param target, target pc.
 	*/
-	void addInstr(PC anchor, OpCode op, PC target = 0xFFFFFFFF);
+	void addInstr(PC anchor, OprCode op, PC target = 0xFFFFFFFF);
 
 
 

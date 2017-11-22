@@ -6,98 +6,98 @@
 
 using namespace std;
 
-typedef uint16_t OpCode;
+typedef uint16_t OprCode;
 typedef uint32_t PC; //PC for : Program Counter
 
 #define INS(ins, off) ((((ins) << 16) & 0xFFFF0000) | ((off) & 0x0000FFFF))
 
-const static OpCode INSTR_NIL					= 0x0000; // NIL									: Do nothing.
+const static OprCode INSTR_NIL					= 0x0000; // NIL									: Do nothing.
 
-const static OpCode INSTR_VAR					= 0x0001; // VAR x								: declare var x
-const static OpCode INSTR_CONST				= 0x0002; // CONST x							: declare const x
-const static OpCode INSTR_LOAD				= 0x0003; // LOAD x								: load and push x 
-const static OpCode INSTR_STORE				= 0x0004; // STORE x							: pop and store to x
-const static OpCode INSTR_GET					= 0x0005; // getfield
-const static OpCode INSTR_ASIGN				= 0x0006; // ASIGN								: =
+const static OprCode INSTR_VAR					= 0x0001; // VAR x								: declare var x
+const static OprCode INSTR_CONST				= 0x0002; // CONST x							: declare const x
+const static OprCode INSTR_LOAD				= 0x0003; // LOAD x								: load and push x 
+const static OprCode INSTR_STORE				= 0x0004; // STORE x							: pop and store to x
+const static OprCode INSTR_GET					= 0x0005; // getfield
+const static OprCode INSTR_ASIGN				= 0x0006; // ASIGN								: =
 
-const static OpCode INSTR_INT					= 0x0007; // INT int 							: push int
-const static OpCode INSTR_FLOAT				= 0x0008; // FLOAT float					: push float 
-const static OpCode INSTR_STR					= 0x0009; // STR "str"						: push str
-const static OpCode INSTR_ARRAY_AT		= 0x000A; // ARRAT 								: get array element at
-const static OpCode INSTR_ARRAY				= 0x000B; // ARRAY 								: array start
-const static OpCode INSTR_ARRAY_END		= 0x000C; // ARRAY_END 						: array end
+const static OprCode INSTR_INT					= 0x0007; // INT int 							: push int
+const static OprCode INSTR_FLOAT				= 0x0008; // FLOAT float					: push float 
+const static OprCode INSTR_STR					= 0x0009; // STR "str"						: push str
+const static OprCode INSTR_ARRAY_AT		= 0x000A; // ARRAT 								: get array element at
+const static OprCode INSTR_ARRAY				= 0x000B; // ARRAY 								: array start
+const static OprCode INSTR_ARRAY_END		= 0x000C; // ARRAY_END 						: array end
 
-const static OpCode INSTR_FUNC				= 0x0010; // FUNC x								: function definetion x
-const static OpCode INSTR_FUNC_GET		= 0x0011; // GET FUNC x						: class get function definetion x
-const static OpCode INSTR_FUNC_SET		= 0x0012; // SET FUNC x						: class set function definetion x
-const static OpCode INSTR_CALL				= 0x0013; // CALL x								: call function x and push res
-const static OpCode INSTR_CALLO				= 0x0014; // CALL obj.x						: call object member function x and push res
-const static OpCode INSTR_CLASS				= 0x0015; // class								: define class
-const static OpCode INSTR_CLASS_END		= 0x0016; // class end						: end of class definition
-const static OpCode INSTR_MEMBER			= 0x0017; // member without name
-const static OpCode INSTR_MEMBERN			= 0x0018; // : member with name
+const static OprCode INSTR_FUNC				= 0x0010; // FUNC x								: function definetion x
+const static OprCode INSTR_FUNC_GET		= 0x0011; // GET FUNC x						: class get function definetion x
+const static OprCode INSTR_FUNC_SET		= 0x0012; // SET FUNC x						: class set function definetion x
+const static OprCode INSTR_CALL				= 0x0013; // CALL x								: call function x and push res
+const static OprCode INSTR_CALLO				= 0x0014; // CALL obj.x						: call object member function x and push res
+const static OprCode INSTR_CLASS				= 0x0015; // class								: define class
+const static OprCode INSTR_CLASS_END		= 0x0016; // class end						: end of class definition
+const static OprCode INSTR_MEMBER			= 0x0017; // member without name
+const static OprCode INSTR_MEMBERN			= 0x0018; // : member with name
 
-const static OpCode INSTR_NOT					= 0x0020; // NOT									: !
-const static OpCode INSTR_MULTI				= 0x0021; // MULTI								: *
-const static OpCode INSTR_DIV					= 0x0022; // DIV									: /
-const static OpCode INSTR_MOD					= 0x0023; // MOD									: %
-const static OpCode INSTR_PLUS				= 0x0024; // PLUS									: + 
-const static OpCode INSTR_MINUS				= 0x0025; // MINUS								: - 
-const static OpCode INSTR_NEG					= 0x0026; // NEG									: negate -
-const static OpCode INSTR_PPLUS				= 0x0027; // PPLUS								: x++
-const static OpCode INSTR_MMINUS			= 0x0028; // MMINUS								: x--
-const static OpCode INSTR_PPLUS_PRE		= 0x0029; // PPLUS								: ++x
-const static OpCode INSTR_MMINUS_PRE	= 0x002A; // MMINUS								: --x
-const static OpCode INSTR_LSHIFT			= 0x002B; // LSHIFT								: <<
-const static OpCode INSTR_RSHIFT			= 0x002C; // RSHIFT								: >>
-const static OpCode INSTR_URSHIFT			= 0x002D; // URSHIFT							: >>>
+const static OprCode INSTR_NOT					= 0x0020; // NOT									: !
+const static OprCode INSTR_MULTI				= 0x0021; // MULTI								: *
+const static OprCode INSTR_DIV					= 0x0022; // DIV									: /
+const static OprCode INSTR_MOD					= 0x0023; // MOD									: %
+const static OprCode INSTR_PLUS				= 0x0024; // PLUS									: + 
+const static OprCode INSTR_MINUS				= 0x0025; // MINUS								: - 
+const static OprCode INSTR_NEG					= 0x0026; // NEG									: negate -
+const static OprCode INSTR_PPLUS				= 0x0027; // PPLUS								: x++
+const static OprCode INSTR_MMINUS			= 0x0028; // MMINUS								: x--
+const static OprCode INSTR_PPLUS_PRE		= 0x0029; // PPLUS								: ++x
+const static OprCode INSTR_MMINUS_PRE	= 0x002A; // MMINUS								: --x
+const static OprCode INSTR_LSHIFT			= 0x002B; // LSHIFT								: <<
+const static OprCode INSTR_RSHIFT			= 0x002C; // RSHIFT								: >>
+const static OprCode INSTR_URSHIFT			= 0x002D; // URSHIFT							: >>>
 
-const static OpCode INSTR_EQ					= 0x0030; // EQ										: ==
-const static OpCode INSTR_NEQ					= 0x0031; // NEQ									: !=
-const static OpCode INSTR_LEQ					= 0x0032; // LEQ									: <=
-const static OpCode INSTR_GEQ					= 0x0033; // GEQ									: >=
-const static OpCode INSTR_GRT					= 0x0034; // GRT									: >
-const static OpCode INSTR_LES					= 0x0035; // LES									: <
+const static OprCode INSTR_EQ					= 0x0030; // EQ										: ==
+const static OprCode INSTR_NEQ					= 0x0031; // NEQ									: !=
+const static OprCode INSTR_LEQ					= 0x0032; // LEQ									: <=
+const static OprCode INSTR_GEQ					= 0x0033; // GEQ									: >=
+const static OprCode INSTR_GRT					= 0x0034; // GRT									: >
+const static OprCode INSTR_LES					= 0x0035; // LES									: <
 
-const static OpCode INSTR_PLUSEQ			= 0x0036; // +=
-const static OpCode INSTR_MINUSEQ			= 0x0037; // -=	
-const static OpCode INSTR_MULTIEQ			= 0x0038; // *=
-const static OpCode INSTR_DIVEQ				= 0x0039; // /=
-const static OpCode INSTR_MODEQ				= 0x003A; // %=
+const static OprCode INSTR_PLUSEQ			= 0x0036; // +=
+const static OprCode INSTR_MINUSEQ			= 0x0037; // -=	
+const static OprCode INSTR_MULTIEQ			= 0x0038; // *=
+const static OprCode INSTR_DIVEQ				= 0x0039; // /=
+const static OprCode INSTR_MODEQ				= 0x003A; // %=
 
-const static OpCode INSTR_AAND				= 0x0040; // AAND									: &&
-const static OpCode INSTR_OOR					= 0x0041; // OOR									: ||
-const static OpCode INSTR_OR					= 0x0042; // OR										: |
-const static OpCode INSTR_XOR					= 0x0043; // XOR									: ^
-const static OpCode INSTR_AND					= 0x0044; // AND									: &
+const static OprCode INSTR_AAND				= 0x0040; // AAND									: &&
+const static OprCode INSTR_OOR					= 0x0041; // OOR									: ||
+const static OprCode INSTR_OR					= 0x0042; // OR										: |
+const static OprCode INSTR_XOR					= 0x0043; // XOR									: ^
+const static OprCode INSTR_AND					= 0x0044; // AND									: &
 
-const static OpCode INSTR_BREAK				= 0x0050; // : break
-const static OpCode INSTR_CONTINUE		= 0x0051; // : continue
-const static OpCode INSTR_RETURN			= 0x0052; // : return none value
-const static OpCode INSTR_RETURNV			= 0x0053; // : return with value
+const static OprCode INSTR_BREAK				= 0x0050; // : break
+const static OprCode INSTR_CONTINUE		= 0x0051; // : continue
+const static OprCode INSTR_RETURN			= 0x0052; // : return none value
+const static OprCode INSTR_RETURNV			= 0x0053; // : return with value
 
-const static OpCode INSTR_NJMP				= 0x0054; // NJMP x								: Condition not JMP offset x 
-const static OpCode INSTR_JMPB				= 0x0055; // JMP back x						: JMP back offset x  
-const static OpCode INSTR_NJMPB				= 0x0056; // NJMP back x					: Condition not JMP back offset x 
-const static OpCode INSTR_JMP					= 0x0057; // JMP x								: JMP offset x  
+const static OprCode INSTR_NJMP				= 0x0054; // NJMP x								: Condition not JMP offset x 
+const static OprCode INSTR_JMPB				= 0x0055; // JMP back x						: JMP back offset x  
+const static OprCode INSTR_NJMPB				= 0x0056; // NJMP back x					: Condition not JMP back offset x 
+const static OprCode INSTR_JMP					= 0x0057; // JMP x								: JMP offset x  
 
-const static OpCode INSTR_TRUE				= 0x0060; // : true
-const static OpCode INSTR_FALSE				= 0x0061; // : false
-const static OpCode INSTR_NULL				= 0x0062; // : null
-const static OpCode INSTR_UNDEF				= 0x0063; // : undefined
+const static OprCode INSTR_TRUE				= 0x0060; // : true
+const static OprCode INSTR_FALSE				= 0x0061; // : false
+const static OprCode INSTR_NULL				= 0x0062; // : null
+const static OprCode INSTR_UNDEF				= 0x0063; // : undefined
 
-const static OpCode INSTR_NEW					= 0x0070; // : new
+const static OprCode INSTR_NEW					= 0x0070; // : new
 
-const static OpCode INSTR_POP					= 0x0080; // : pop and release
+const static OprCode INSTR_POP					= 0x0080; // : pop and release
 
-const static OpCode INSTR_OBJ					= 0x0090; // : object for JSON 
-const static OpCode INSTR_OBJ_END			= 0x0091; // : object end for JSON 
+const static OprCode INSTR_OBJ					= 0x0090; // : object for JSON 
+const static OprCode INSTR_OBJ_END			= 0x0091; // : object end for JSON 
 
-const static OpCode INSTR_INCLUDE			= 0x00A0; // : include 
+const static OprCode INSTR_INCLUDE			= 0x00A0; // : include 
 
-class BCOpCode {
+class BCOprCode {
 	public:
-	inline static string instr(OpCode ins) {
+	inline static string instr(OprCode ins) {
 		switch(ins) {
 			case  INSTR_NIL					: return "nil";
 			case  INSTR_OBJ					: return "obj";

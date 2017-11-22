@@ -540,7 +540,7 @@ LEX_TYPES Compiler::defFunc(string& name) {
 	PC pc = bytecode->reserve();
 	block();
 	
-	OpCode op = bytecode->getOpCode(bytecode->getPC() - 1) >> 16;
+	OprCode op = bytecode->getOprCode(bytecode->getPC() - 1) >> 16;
 
 	if(op != INSTR_RETURN && op != INSTR_RETURNV)
 		bytecode->gen(INSTR_RETURN);

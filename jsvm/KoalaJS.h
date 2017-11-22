@@ -240,9 +240,9 @@ class KoalaJS {
 
 		BCVar* getCurrentObj(bool create = false);
 
-		void compare(OpCode op, BCVar* v1, BCVar* v2);
+		void compare(OprCode op, BCVar* v1, BCVar* v2);
 
-		void mathOp(OpCode op, BCVar* v1, BCVar* v2);
+		void mathOp(OprCode op, BCVar* v1, BCVar* v2);
 
 		inline void pushScope(const VMScope& sc) {
 			scopes.push_back(sc);
