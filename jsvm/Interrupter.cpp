@@ -23,11 +23,12 @@ void Interrupter::doInterrupt() {
 
 	if(intr == NULL)
 		return;
-
+	/*
 	TRACE("Interrupted for '%s$%d', %d in queue.\n", 
 			intr->funcName.c_str(), 
 			(int)intr->args.size(),
 			(int)interrupter.size());
+	*/
 
 	BCVar* v = handler->callJSFunc(intr->funcName, intr->args);
 	v->unref();

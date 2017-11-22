@@ -35,7 +35,7 @@ void VM::loadExt(KoalaJS* js, BCVar *c, void *userdata) {
 		return;
 
 	const char* env = ::getenv("KOALA_ROOT");
-	string fn = "/usr/lib/koala";
+	string fn = "/usr/lib/koala/modules";
 	if(env != NULL) {
 		 fn = env;
 		 fn = fn + "/modules";
