@@ -84,14 +84,19 @@ class Bytecode {
 	bool debug;
 	DebugInfo debugInfo;
 
-public:
 	const static uint32_t BUF_SIZE = 1024;
+public:
+
 	Bytecode() {
 		debug = false;
 		compiler = NULL;
 		cindex = 0;
 		codeBuf = NULL;
 		bufSize = 0;
+	}
+
+	inline PC endPC() {
+		return cindex;
 	}
 
 	inline DebugInfo* getDebug() {

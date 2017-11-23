@@ -95,11 +95,14 @@ const static OprCode INSTR_OBJ_END			= 0x0091; // : object end for JSON
 const static OprCode INSTR_BLOCK				= 0x00A0; // : block 
 const static OprCode INSTR_BLOCK_END		= 0x00A1; // : block end 
 
+const static OprCode INSTR_END					= 0x00B0; // END									: end of code.
+
 class BCOprCode {
 	public:
 	inline static string instr(OprCode ins) {
 		switch(ins) {
 			case  INSTR_NIL					: return "nil";
+			case  INSTR_END					: return "end";
 			case  INSTR_OBJ					: return "obj";
 			case  INSTR_OBJ_END			: return "obje";
 			case  INSTR_MEMBER			: return "member";

@@ -16,7 +16,7 @@
 static GlobalVars _globalVars;
 
 #define LOADER "_moduleLoader"
-bool KoalaJS::loadExt(const string& fname) {
+bool KoalaJS::loadModule(const string& fname) {
 	std::map<string, void*>::iterator it = extDL.find(fname);
 	void* h = NULL;
 	if(it == extDL.end()) {
@@ -45,7 +45,7 @@ bool KoalaJS::loadExt(const string& fname) {
 	return true;
 }
 
-void KoalaJS::loadExts() {
+void KoalaJS::loadModules() {
 	std::map<string, void*>::iterator it;
 	for(it = extDL.begin(); it != extDL.end(); ++it) {
 		void *h = it->second;
@@ -58,7 +58,6 @@ void KoalaJS::loadExts() {
 	}
 }
 
-
 GlobalVars* KoalaJS::getGlobalVars() {
 	return &_globalVars;
 }
@@ -70,17 +69,14 @@ void KoalaJS::doInterrupt() {
 
 BCVar* KoalaJS::callJSFunc(const string& funcName, const vector<BCVar*>& args) {
 	BCVar* v = NULL;
-	KoalaJS js(getRoot(), interrupter);
-	js.moduleLoader = getModuleLoader();
-	js.setBytecode(bcode);
 
 	size_t argNum = args.size();
 	for(size_t i=0; i<argNum; ++i) {
 		v = args[i];
-		js.push(v->ref());
+		push(v->ref());
 	}
 
-	js.push(js.root->ref());
+	push(root->ref());
 
 	string fname = funcName;
 	if(argNum > 0) {
@@ -88,18 +84,18 @@ BCVar* KoalaJS::callJSFunc(const string& funcName, const vector<BCVar*>& args) {
 	}
 
 	VMScope sc;
-	sc.var = js.root->ref();
-	sc.pc = 0;
-	js.pushScope(sc);
+	sc.var = root->ref();
+	sc.pc = pc;
+	pushScope(sc);
 
-	size_t scDeep = js.scopes.size();
-	js.funcCall(fname, false);
-	if(scDeep < js.scopes.size()) {
-		js.runCode(NULL);
+	size_t scDeep = scopes.size();
+	funcCall(fname, false);
+	if(scDeep < scopes.size()) {
+		runCode(NULL);
 	}
-	js.popScope();
+	popScope();
 
-	StackItem* i = js.pop2();
+	StackItem* i = pop2();
 	if(i != NULL)
 		v = VAR(i);
 	else {
@@ -163,48 +159,55 @@ BCVar* KoalaJS::newObject(BCNode* cls) {
 	return ret;
 }
 
-void KoalaJS::run(const std::string &fname, bool debug) {
+bool KoalaJS::run(const string& fname, bool debug, bool repeat) {
+	bool res = true;
+	Bytecode bc;
+	if(bcode == NULL)
+		bcode = &bc;
+	PC start = bcode->endPC();
+
 	std::string oldCwd = cwd;
 	cname = File::getFullname(cwd, fname);
 	cwd = File::getPath(cname);
 
-	Bytecode* bc = CodeCache::get(cname);
-	if(bc != NULL) {
-		runCode(bc);
+	std::map<string, PC>::iterator it = extJSC.find(cname);
+	if(it == extJSC.end()) { 
+		Compiler compiler;
+		if(!compiler.run(cname, bcode, debug)) 
+			res = false;
+
+		runCode(bcode, start);
+		extJSC.insert(pair<string, PC>(cname, start));
 	}
-	else {
-		bc = new Bytecode();
-		if(cname.find(".bcode") != string::npos) {
-			if(bc->fromFile(cname)) {
-				CodeCache::cache(cname, bc);
-				runCode(bc);
-			}
-		}
-		else {
-			Compiler compiler;
-			if(compiler.run(cname, bc, debug)) {
-				CodeCache::cache(cname, bc);
-				runCode(bc);
-			}
-		}
+	else if(repeat) {
+		start = it->second;
+		runCode(bcode, start);
 	}
 
 	if(oldCwd.length() > 0)
 		cwd = oldCwd;
+	return res;
 }
 
-void KoalaJS::exec(const std::string &code) {
-	Bytecode* bc = CodeCache::get(code);
-	if(bc == NULL) {
-		bc = new Bytecode();
+bool KoalaJS::exec(const std::string &code, bool repeat) {
+	bool res = true;
+	PC start = bcode->endPC();
+
+	std::map<string, PC>::iterator it = extJSC.find(code);
+	if(it == extJSC.end()) { 
 		Compiler compiler;
-		if(compiler.exec(code, bc)) {
-			CodeCache::cache(code, bc);
-		}
-	}
-	runCode(bc);
-}
+		if(!compiler.exec(code, bcode))
+			res = false;
 
+		runCode(bcode, start);
+		extJSC.insert(pair<string, PC>(code, start));
+	}
+	else if(repeat) {
+		start = it->second;
+		runCode(bcode, start);
+	}
+	return res;
+}
 
 StackItem* KoalaJS::pop2() {
 	if(stackTop == STACK_DEEP) // touch the bottom of stack
@@ -430,6 +433,7 @@ bool KoalaJS::funcCall(const string& funcName, bool member) {
 	}
 
 	VMScope sc;
+	sc.pc = pc;
 	sc.var = params->ref();
 
 	if(n->var->type == BCVar::NFUNC) { //native function
@@ -444,7 +448,6 @@ bool KoalaJS::funcCall(const string& funcName, bool member) {
 		return true;
 	}
 
-	sc.pc = pc;
 	pushScope(sc);
 	//js function
 	pc = func->pc;
@@ -785,9 +788,9 @@ BCNode* KoalaJS::load(const string& name, bool create) {
 	return node;
 }
 
-void KoalaJS::runCode(Bytecode* bc) {
+void KoalaJS::runCode(Bytecode* bc, PC startPC) {
 	if(bc != NULL) {
-		if(code != NULL && bcode != NULL) {
+		/*if(code != NULL && bcode != NULL) {
 			CodeT cs;
 			cs.pc = pc;
 			cs.code = code;
@@ -795,14 +798,17 @@ void KoalaJS::runCode(Bytecode* bc) {
 			cs.bcode = bcode;
 			codeStack.push(cs);	
 		}
-		
+		*/
 		setBytecode(bc);
 
 		VMScope sc;
 		sc.var = root->ref();
-		sc.pc = 0;
+		sc.pc = pc;
 		pushScope(sc);
+
+		pc = startPC;
 	}
+
 	size_t scDeep = scopes.size();
 	size_t interruptCount = 0;
 
@@ -821,8 +827,10 @@ void KoalaJS::runCode(Bytecode* bc) {
 		OprCode instr = ins >> 16;
 		OprCode offset = ins & 0x0000FFFF;
 		string str;
-		
 
+		if(instr == INSTR_END)
+			break;
+		
 		switch(instr) {
 			case INSTR_NIL: {
 												break;
@@ -1201,7 +1209,7 @@ void KoalaJS::runCode(Bytecode* bc) {
 	}
 	popScope();
 
-	if(!codeStack.empty()) {
+	/*if(!codeStack.empty()) {
 		CodeT cs = codeStack.top();
 		codeStack.pop();
 
@@ -1210,5 +1218,6 @@ void KoalaJS::runCode(Bytecode* bc) {
 		codeSize = cs.size;
 		bcode = cs.bcode;
 	}
+	*/
 }
 

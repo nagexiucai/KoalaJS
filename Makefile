@@ -61,3 +61,4 @@ install:
 	cp koala /usr/local/bin
 	cp build/libKoalaJS.a /usr/local/lib
 	cp build/include/*.h /usr/local/include/koala
+	cp -r classes /usr/local/koala

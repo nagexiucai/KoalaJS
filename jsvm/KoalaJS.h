@@ -18,6 +18,7 @@ typedef struct STScope {
 	PC pc; //stack pc
 	inline STScope() {
 		var = NULL;
+		pc = 0xFFFFFFFF;
 	}
 } VMScope;
 
@@ -98,9 +99,9 @@ class KoalaJS {
 			}
 		}
 
-		void run(const string& fname, bool debug = false);
+		bool run(const string& fname, bool debug=false, bool repeat=false);
 
-		void exec(const string& code);
+		bool exec(const string& code, bool repeat=true);
 
 		void addNative(const string& clsName, const string& funcDecl, JSCallback native, void* data);
 
@@ -111,14 +112,14 @@ class KoalaJS {
 			if(moduleLoader != NULL) {
 				moduleLoader(this);
 			}
-			loadExts();
+			loadModules();
 		}
 
 		inline JSModuleLoader getModuleLoader() {
 			return moduleLoader;
 		}
 
-		bool loadExt(const string& fname);
+		bool loadModule(const string& fname);
 
 		BCVar* newObject(BCNode* cls);
 
@@ -173,7 +174,8 @@ class KoalaJS {
 
 		BCVar* root;
 		vector<VMScope> scopes;
-		map<string, void*> extDL;
+		map<string, void*> extDL; //extended module(dynamic lib)
+		map<string, PC> extJSC; //extended js classes
 		stack<CodeT> codeStack; //code stack for "run" or "exec" js in js.
 		//run stack
 		const static uint16_t STACK_DEEP = 128;
@@ -185,11 +187,11 @@ class KoalaJS {
 		Interrupter* interrupter;
 		bool freeInterrupter;
 
-		void loadExts();
+		void loadModules();
 
 		void doInterrupt();
 
-		void runCode(Bytecode* bc);
+		void runCode(Bytecode* bc, PC startPC = 0);
 
 		void init(BCVar* rt = NULL);
 
@@ -221,7 +223,6 @@ class KoalaJS {
 		void pop();
 
 		inline void setBytecode(Bytecode* bc) {
-			pc = 0;
 			bcode = bc;
 			code = bcode->getCode(codeSize);
 		}
@@ -250,12 +251,14 @@ class KoalaJS {
 
 		inline void popScope() {
 			VMScope* sc = scope();
+			if(sc->pc != 0xFFFFFFFF)
+				pc = sc->pc;
+
 			if(sc != NULL && sc->var != NULL) {
 				sc->var->unref();
 			}
 			scopes.pop_back();
 		}
-
 };
 
 #endif
