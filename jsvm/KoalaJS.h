@@ -179,6 +179,7 @@ class KoalaJS {
 		const static uint16_t STACK_DEEP = 128;
 		StackItem* vStack[STACK_DEEP];
 		uint16_t stackTop;
+		BCVar* exception;
 		Debug debug;
 
 		//interrupt queue	

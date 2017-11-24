@@ -269,6 +269,24 @@ LEX_TYPES Compiler::statement(bool pop) {
 		loopStack.pop();
 		pop = false;
 	}
+	else if (l->tk==LEX_R_THROW) {
+		l->chkread(LEX_R_THROW);
+		base();
+		bytecode->gen(INSTR_THROW);
+	}
+	else if (l->tk==LEX_R_TRY) {
+		l->chkread(LEX_R_TRY);
+		block();
+		l->chkread(LEX_R_CATCH);
+		l->chkread('(');
+		string vname = l->tkStr;
+		l->chkread(LEX_ID);
+		bytecode->gen(INSTR_VAR, vname);
+		bytecode->gen(INSTR_LOAD, vname);
+		bytecode->gen(INSTR_MOV_EXCP);
+		l->chkread(')');
+		block();
+	}
 	else {
 		l->chkread(LEX_EOF);
 	}

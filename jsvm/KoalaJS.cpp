@@ -1197,6 +1197,16 @@ void KoalaJS::runCode(Bytecode* bc) {
 												doNew(bcode->getStr(offset));
 												break;
 											}
+			case INSTR_THROW: {
+				exception = reinterpret_cast<BCVar*>(pop2());
+				break;
+			}
+			case INSTR_MOV_EXCP: {
+				BCNode *node = reinterpret_cast<BCNode*>(pop2());
+				node->replace(exception);
+				//exception->clean();
+				break;
+			}
 		}
 	}
 	popScope();

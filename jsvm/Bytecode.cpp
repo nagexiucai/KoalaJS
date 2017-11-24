@@ -209,6 +209,20 @@ uint16_t Bytecode::getStrIndex(const string& n) {
 	return sz;
 }	
 
+PC Bytecode::getTryTarget(PC pc) {
+	for(size_t i=0; i<tryTable.size(); i++) {
+		TryItemT item = tryTable[i];
+		if(pc >= item.start && pc < item.end) {
+			return item.target;
+		}
+	}
+	return ILLEGAL_PC;
+}
+
+void Bytecode::addTryItem(TryItemT item) {
+	tryTable.push_back(item);
+}
+
 PC Bytecode::bytecode(OpCode instr, const string& str) {
 	OpCode r = instr;
 	OpCode i = 0xFFFF;
@@ -263,7 +277,7 @@ PC Bytecode::gen(OpCode instr, int i) {
 }
 
 void Bytecode::setInstr(PC anchor, OpCode op, PC target) {
-	if(target == 0xFFFFFFFF)
+	if(target == ILLEGAL_PC)
 		target = cindex;
 
 	int offset = target > anchor ? (target-anchor) : (anchor-target);
@@ -272,7 +286,7 @@ void Bytecode::setInstr(PC anchor, OpCode op, PC target) {
 }
 
 void Bytecode::addInstr(PC anchor, OpCode op, PC target) {
-	if(target == 0xFFFFFFFF)
+	if(target == ILLEGAL_PC)
 		target = cindex;
 
 	int offset = target > anchor ? (target-anchor) : (anchor-target);

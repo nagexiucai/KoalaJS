@@ -9,6 +9,8 @@ using namespace std;
 typedef uint16_t OpCode;
 typedef uint32_t PC; //PC for : Program Counter
 
+#define ILLEGAL_PC 0xFFFFFFFF
+
 #define INS(ins, off) ((((ins) << 16) & 0xFFFF0000) | ((off) & 0x0000FFFF))
 
 const static OpCode INSTR_NIL					= 0x0000; // NIL									: Do nothing.
@@ -96,6 +98,9 @@ const static OpCode INSTR_OBJ_END			= 0x0091; // : object end for JSON
 const static OpCode INSTR_BLOCK				= 0x00A0; // : block 
 const static OpCode INSTR_BLOCK_END		= 0x00A1; // : block end 
 
+const static OpCode INSTR_THROW				= 0x00B0; // : throw
+const static OpCode INSTR_MOV_EXCP		= 0x00B1; // : move exception
+
 class BCOpCode {
 	public:
 	inline static string instr(OpCode ins) {
@@ -170,6 +175,8 @@ class BCOpCode {
 			case  INSTR_GET					: return "get";
 			case  INSTR_BLOCK				: return "block";
 			case  INSTR_BLOCK_END		: return "blocke";
+			case  INSTR_THROW				: return "throw";
+			case  INSTR_MOV_EXCP		: return "movexcp";
 			default									: return "";
 		}
 	}
