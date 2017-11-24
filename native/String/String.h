@@ -42,8 +42,8 @@ namespace JSM {
 			addFunction(js, className, "charCodeAt(pos)", charCodeAt, NULL);
 			addFunction(js, className, "fromCharCode(char)", fromCharCode, NULL);
 			addFunction(js, className, "split(separator)", split, NULL);
-			addFunction(js, className, "indexOf(sub)", indexOf, NULL);
-			addFunction(js, className, "lastIndexOf(sub)", lastIndexOf, NULL);
+			addFunction(js, className, "indexOf(search)", indexOf, NULL);
+			addFunction(js, className, "lastIndexOf(search)", lastIndexOf, NULL);
 			addFunction(js, className, "replace(key, with)", replace, NULL);
 			addFunction(js, className, "length()", length, NULL);
 			addFunction(js, className, "trimR()", trimR, NULL);
