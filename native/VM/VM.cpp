@@ -15,7 +15,7 @@ void VM::exec(KoalaJS* js, BCVar *c, void *userdata) {
 
 void VM::run(KoalaJS* js, BCVar *c, void *userdata) {
 	std::string fname = c->getParameter("file")->getString();
-	js->run(fname, false, true); //nodebug, repeat
+	js->run(fname, js->isDebug(), true); //nodebug, repeat
 }
 
 void VM::getenv(KoalaJS* js, BCVar *c, void *userdata) {
@@ -30,7 +30,7 @@ void VM::getenv(KoalaJS* js, BCVar *c, void *userdata) {
 
 void VM::loadJS(KoalaJS* js, BCVar *c, void *userdata) {
 	std::string fname = c->getParameter("file")->getString();
-	js->run(fname);
+	js->run(fname, js->isDebug());
 }
 
 void VM::loadClass(KoalaJS* js, BCVar *c, void *userdata) {

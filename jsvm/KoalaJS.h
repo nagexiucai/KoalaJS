@@ -44,6 +44,7 @@ class KoalaJS {
 			this->root = NULL;
 			interrupter = new Interrupter(this);
 			freeInterrupter = true;
+			debugMode = false;
 			init();
 		}
 		
@@ -56,6 +57,7 @@ class KoalaJS {
 			stackTop = STACK_DEEP;
 			interrupter = inter;
 			freeInterrupter = false;
+			debugMode = false;
 			init(rt);
 		}
 
@@ -97,6 +99,10 @@ class KoalaJS {
 				root->unref();
 				root = NULL;
 			}
+		}
+
+		inline bool isDebug() {
+			return debugMode;
 		}
 
 		bool run(const string& fname, bool debug=false, bool repeat=false);
@@ -184,6 +190,7 @@ class KoalaJS {
 		StackItem* vStack[STACK_DEEP];
 		uint16_t stackTop;
 		Debug debug;
+		bool debugMode;
 
 		//interrupt queue	
 		Interrupter* interrupter;

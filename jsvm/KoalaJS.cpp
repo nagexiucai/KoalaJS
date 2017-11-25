@@ -161,7 +161,9 @@ BCVar* KoalaJS::newObject(BCNode* cls) {
 
 bool KoalaJS::run(const string& fname, bool debug, bool repeat) {
 	bool res = true;
+	debugMode = debug;
 	Bytecode bc;
+
 	if(bcode == NULL)
 		bcode = &bc;
 	PC start = bcode->endPC();
@@ -493,7 +495,7 @@ BCVar* KoalaJS::funcDef(const string& funcName, bool regular) {
 BCVar* KoalaJS::loadClass(const string& clsName, const string& jsFile) {
 	BCNode* cls = root->getChild(clsName);
 	if(cls == NULL) {
-		if(!run(jsFile))
+		if(!run(jsFile, debugMode))
 			return NULL;
 		cls = root->getChild(clsName);
 		if(cls == NULL)
