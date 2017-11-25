@@ -352,6 +352,8 @@ void KoalaJS::doNew(const string& clsName) { //TODO: construct with arguments.
 			return;
 		}
 		ret = newObject(cls);
+		if(ret == NULL)
+			return;
 		if(construct(ret, argNum))
 			return;
 	}
@@ -486,6 +488,18 @@ BCVar* KoalaJS::funcDef(const string& funcName, bool regular) {
 	ret->getFunc()->regular = regular;
 	ret->getFunc()->args = args;
 	return ret;
+}
+
+BCVar* KoalaJS::loadClass(const string& clsName, const string& jsFile) {
+	BCNode* cls = root->getChild(clsName);
+	if(cls == NULL) {
+		if(!run(jsFile))
+			return NULL;
+		cls = root->getChild(clsName);
+		if(cls == NULL)
+			return NULL;
+	}
+	return cls->var;
 }
 
 BCVar* KoalaJS::getOrAddClass(const string& clsName) {
@@ -1177,7 +1191,7 @@ void KoalaJS::runCode(Bytecode* bc, PC startPC) {
 			case INSTR_CLASS: {
 													str = bcode->getStr(offset);
 													BCVar* v = getOrAddClass(str);
-													push(v->ref());
+													//push(v->ref());
 													VMScope sc;
 													sc.var = v->ref();
 													pushScope(sc);

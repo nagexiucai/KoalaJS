@@ -107,6 +107,8 @@ class KoalaJS {
 
 		BCVar* getOrAddClass(const string& clsName);
 
+		BCVar* loadClass(const string& clsName, const string& jsFile);
+
 		inline void loadModule(JSModuleLoader loader) {
 			moduleLoader = loader;
 			if(moduleLoader != NULL) {
