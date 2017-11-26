@@ -280,7 +280,7 @@ BCNode* KoalaJS::findInClass(BCVar* obj, const string& name) {
 			return cls->var->getChild(name);
 	}
 
-	while(obj != NULL) {
+	/*while(obj != NULL) {
 		BCNode* n;
 		n = obj->getChild(PROTOTYPE);
 		if(n != NULL) {
@@ -292,6 +292,25 @@ BCNode* KoalaJS::findInClass(BCVar* obj, const string& name) {
 		else {
 			break;
 		}
+	}
+	return NULL;
+	*/
+
+	n = obj->getChild(PROTOTYPE);
+	if(n == NULL)
+		return NULL;
+	obj = n->var;
+
+	while(obj != NULL) {
+		n = obj->getChild(name);
+		if(n != NULL) 
+			return n;
+
+		n = obj->getChild(SUPER);
+		if(n == NULL)
+			return NULL;
+
+		obj = n->var;
 	}
 	return NULL;
 }
@@ -319,7 +338,6 @@ bool KoalaJS::construct(BCVar* obj, int argNum) {
 	prepareFuncArgs(argNum, args);
 
 	BCNode* func;
-	/*
 	//do super constructor
 	vector<BCVar*> supers;
 	BCVar* v = obj;
@@ -342,7 +360,6 @@ bool KoalaJS::construct(BCVar* obj, int argNum) {
 			}
 		}
 	}
-	*/
 	//do constructor
 	func = findFunc(obj, fname, true);
 	if(func != NULL) {
@@ -411,7 +428,7 @@ void KoalaJS::doExtends(BCVar* v, const string& clsName) {
 		ERR("Super Class %s not found %s\n", clsName.c_str(), DEBUG_LINE);
 		return;
 	}
-	v->addChild(PROTOTYPE, cls->var);
+	v->addChild(SUPER, cls->var);
 }
 
 BCNode* KoalaJS::findMemberFunc(BCVar* owner, const string& fname) {
@@ -446,7 +463,8 @@ BCNode* KoalaJS::findFunc(BCVar* owner, const string& fname, bool member) {
 		n = findInScopes(fname);
 
 	if(n == NULL || !n->var->isFunction()) {
-		ERR("Can not find function '%s'!\n", fname.c_str());
+		if(fname != CONSTRUCTOR)
+			ERR("Can not find function '%s'!\n", fname.c_str());
 		return NULL;
 	}
 	return n;
@@ -460,7 +478,7 @@ bool KoalaJS::prepareFuncArgs(int argNum, vector<BCVar*>& args) {
 			return false;
 		}
 		BCVar* v = VAR(si);
-		args.push_back(v);
+		args.insert(args.begin(), v);
 	}
 	return true;
 }
@@ -498,7 +516,7 @@ bool KoalaJS::funcCall(BCVar* object, BCVar* funcV, const vector<BCVar*>* args) 
 	}
 	else {
 		for(int i=argNum-1; i>= 0; --i) {
-			BCVar* v = (*args)[argNum-i-1];
+			BCVar* v = (*args)[i];
 			string arg = func->args[i];
 			params->addChild(arg, v);
 		}

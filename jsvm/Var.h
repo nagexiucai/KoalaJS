@@ -249,7 +249,7 @@ public:
 		else if(type == STRING) 
 			ss << stringV;
 		else if(isObject() || type == ARRAY) 
-			ss << getJSON();
+			ss << getJSON("  ");
 		else if(isBytes())
 			ss << "[" << intV << ":" << (char*)pointV << "]";
 		else if(isUndefined())
@@ -301,7 +301,13 @@ public:
 
 	//get super var 
 	inline BCVar* getSuperVar() {
-		BCNode* n = getChild(PROTOTYPE);
+		BCNode* n = getChild(SUPER);
+		if(n == NULL) {
+			n = getChild(PROTOTYPE);
+			if(n != NULL)
+				n = getChild(SUPER);
+		}
+
 		if(n == NULL)
 			return NULL;
 		return n->var;
