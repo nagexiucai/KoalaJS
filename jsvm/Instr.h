@@ -35,6 +35,7 @@ const static OprCode INSTR_CLASS				= 0x0015; // class								: define class
 const static OprCode INSTR_CLASS_END		= 0x0016; // class end						: end of class definition
 const static OprCode INSTR_MEMBER			= 0x0017; // member without name
 const static OprCode INSTR_MEMBERN			= 0x0018; // : member with name
+const static OprCode INSTR_EXTENDS			= 0x0019; // : class extends
 
 const static OprCode INSTR_NOT					= 0x0020; // NOT									: !
 const static OprCode INSTR_MULTI				= 0x0021; // MULTI								: *
@@ -127,6 +128,7 @@ class BCOprCode {
 			case  INSTR_FUNC_SET		: return "funcset";
 			case  INSTR_CLASS				: return "class";
 			case  INSTR_CLASS_END		: return "classe";
+			case  INSTR_EXTENDS			: return "extends";
 			case  INSTR_CALL				: return "call";
 			case  INSTR_CALLO				: return "callo";
 			case  INSTR_NOT					: return "not";

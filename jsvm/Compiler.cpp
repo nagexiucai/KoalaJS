@@ -552,17 +552,24 @@ LEX_TYPES Compiler::defFunc(string& name) {
 
 LEX_TYPES Compiler::defClass() {
 	LEX_TYPES ret = LEX_EOF;
-	// actually parse a function...
+	// actually parse a class...
 	l->chkread(LEX_R_CLASS);
 	std::string name = "";
-	/* we can have functions without names */
+	/* we can have classes without names */
 	if (l->tk==LEX_ID) {
 		name = l->tkStr;
 		l->chkread(LEX_ID);
 	}
-
 	bytecode->gen(INSTR_CLASS, name);
-	//do arguments
+	
+	/*read extends*/
+	if (l->tk==LEX_R_EXTENDS) {
+		l->chkread(LEX_R_EXTENDS);
+		name = l->tkStr;
+		l->chkread(LEX_ID);
+		bytecode->gen(INSTR_EXTENDS, name);
+	}
+
 	l->chkread('{');
 	while (l->tk!='}') {
 		defFunc(name);

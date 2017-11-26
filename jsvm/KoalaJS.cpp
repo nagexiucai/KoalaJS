@@ -67,35 +67,22 @@ void KoalaJS::doInterrupt() {
 		interrupter->doInterrupt();
 }
 
-BCVar* KoalaJS::callJSFunc(const string& funcName, const vector<BCVar*>& args) {
-	BCVar* v = NULL;
 
-	size_t argNum = args.size();
-	for(size_t i=0; i<argNum; ++i) {
-		v = args[i];
-		push(v->ref());
-	}
-
-	push(root->ref());
-
-	string fname = funcName;
-	if(argNum > 0) {
-		fname = fname + "$" + StringUtil::from((int)argNum);
-	}
-
+BCVar* KoalaJS::runJSFunc(BCVar* obj, BCVar* funcV, const vector<BCVar*>* args) {
 	VMScope sc;
-	sc.var = root->ref();
+	sc.var = obj->ref();
 	sc.pc = pc;
 	pushScope(sc);
 
 	size_t scDeep = scopes.size();
-	funcCall(fname, false);
+	funcCall(obj, funcV, args);
 	if(scDeep < scopes.size()) {
 		runCode(NULL);
 	}
 	popScope();
 
 	StackItem* i = pop2();
+	BCVar* v = NULL;
 	if(i != NULL)
 		v = VAR(i);
 	else {
@@ -103,6 +90,27 @@ BCVar* KoalaJS::callJSFunc(const string& funcName, const vector<BCVar*>& args) {
 		v->ref();
 	}
 	return v;
+}
+
+BCVar* KoalaJS::callJSFunc(const string& funcName, const vector<BCVar*>& args, BCVar* obj) {
+	BCVar* v = NULL;
+
+	size_t argNum = args.size();
+	string fname = funcName;
+	if(argNum > 0) {
+		fname = fname + "$" + StringUtil::from((int)argNum);
+	}
+
+	if(obj == NULL)
+		obj = root;
+
+	BCNode *func = findFunc(obj, fname, false);
+	if(func == NULL) {
+		v = new BCVar();
+		v->ref();
+		return v;
+	}
+	return runJSFunc(obj, func->var, &args);
 }
 
 BCVar* KoalaJS::callJSFunc(const string& funcName, int argNum, ...) {
@@ -280,7 +288,7 @@ BCNode* KoalaJS::findInClass(BCVar* obj, const string& name) {
 			n = obj->getChild(name);
 			if(n != NULL)
 				return n;
-		}		
+		}
 		else {
 			break;
 		}
@@ -302,18 +310,51 @@ BCVar* KoalaJS::getCurrentObj(bool create) {
 }
 
 bool KoalaJS::construct(BCVar* obj, int argNum) {
-	push(obj->ref());
 	string fname = CONSTRUCTOR;
-	fname = fname + "$" + StringUtil::from(argNum);
-	if(!funcCall(fname, true)) {
-		obj = (BCVar*)pop2();
-		obj->unref(false);
-		return false;
+	if(argNum > 0) {
+		fname = fname + "$" + StringUtil::from(argNum);
 	}
+
+	vector<BCVar*> args;
+	prepareFuncArgs(argNum, args);
+
+	BCNode* func;
+	/*
+	//do super constructor
+	vector<BCVar*> supers;
+	BCVar* v = obj;
+	while(true) {
+		v = v->getSuperVar();
+		if(v == NULL)
+			break;
+		supers.push_back(v);
+	}
+
+	size_t sz = supers.size();
+	for(size_t i=sz; i>0; --i) {
+		v = supers[i-1];
+		if(v != NULL) {
+			func = findFunc(v, fname, true);
+			if(func != NULL) {
+				BCVar* r = runJSFunc(obj, func->var, &args);
+				if(r != NULL)
+					r->unref();
+			}
+		}
+	}
+	*/
+	//do constructor
+	func = findFunc(obj, fname, true);
+	if(func != NULL) {
+		BCVar* r = runJSFunc(obj, func->var, &args);
+		if(r != NULL)
+			r->unref();
+	}
+	releaseFuncArgs(args);
 	return true;
 }
 
-void KoalaJS::doNew(const string& clsName) { //TODO: construct with arguments.
+void KoalaJS::doNew(const string& clsName) { 
 	BCVar* ret = NULL;
 
 	size_t pos = clsName.find("$");
@@ -348,108 +389,135 @@ void KoalaJS::doNew(const string& clsName) { //TODO: construct with arguments.
 		}
 		if(cls->var->isFunction()) {
 			BCVar* v = getCurrentObj(true);
-			push(v->ref());	//push this
-			if(!funcCall(clsName))
-				pop(); //pop and drop this
+			funcCall(v, cls->var);
 			return;
 		}
 		ret = newObject(cls);
 		if(ret == NULL)
 			return;
-		if(construct(ret, argNum))
-			return;
+		ret->ref();
+		construct(ret, argNum);
+		push(ret);
+		return;
 	}
 
 	if(ret != NULL)
 		push(ret->ref());
 }
 
-BCNode* KoalaJS::findFunc(BCVar* owner, const string& fname, bool member) {
+void KoalaJS::doExtends(BCVar* v, const string& clsName) { 
+	BCNode* cls = findInScopes(clsName);
+	if(cls == NULL) {
+		ERR("Super Class %s not found %s\n", clsName.c_str(), DEBUG_LINE);
+		return;
+	}
+	v->addChild(PROTOTYPE, cls->var);
+}
+
+BCNode* KoalaJS::findMemberFunc(BCVar* owner, const string& fname) {
 	//find function in object;
 	BCNode*	n = owner->getChild(fname);
-	if(n == NULL && member)
-		n = findInClass(owner, fname);
-
-	//find function in scopes;
-	if(n == NULL)
-		n = findInScopes(fname);
-
 	if(n == NULL) {
-		return NULL;
+		n = findInClass(owner, fname);
 	}
 
-	if(!n->var->isFunction()) {
+	if(n == NULL || !n->var->isFunction()) {
 		return NULL;
 	}
 	return n;
 }
 
-bool KoalaJS::funcCall(const string& funcName, bool member) {
-	if(funcName.length() == 0)
-		return false;
-
-	size_t pos = funcName.find("$");
-	string fname = funcName;
-	if(pos != string::npos)	{
-		fname = funcName.substr(0, pos);
-	}
-
-	//read object
-	StackItem* si = pop2();
-	BCVar* object = NULL;
-	if(si == NULL)  {
-		return false;
-	}
-	object = VAR(si);	
-
-	BCNode* n = findFunc(object, funcName, member);
-	if(n == NULL) {
-		if(pos != string::npos)
-			n = findFunc(object, fname, member);
-
-		if(n == NULL) {
-			if(fname != CONSTRUCTOR)
-				ERR("Function '%s' not found%s\n", fname.c_str(), DEBUG_LINE);
-			push(object); //push back to stack
-			return false;
+BCNode* KoalaJS::findFunc(BCVar* owner, const string& fname, bool member) {
+	//find function in object;
+	BCNode*	n = findMemberFunc(owner, fname);
+	size_t pos = fname.find("$");
+	if(n == NULL && pos != string::npos) {
+		string fn = fname.substr(0, pos);
+		n = findMemberFunc(owner, fn);
+		if(n != NULL) {
+			string args = fname.substr(pos+1);
+			int argsNum = atoi(args.c_str());
+			if(n->var->getFunc()->args.size() != argsNum)
+				n = NULL;
 		}
 	}
+	//find function in scopes;
+	if(n == NULL)
+		n = findInScopes(fname);
 
-	BCVar* params = new BCVar(); //function parameters
-	params->type = BCVar::OBJECT;
-	FuncT* func = n->var->getFunc();
-	params->addChild(THIS, object);
-	object->unref(); //unref after pop
+	if(n == NULL || !n->var->isFunction()) {
+		ERR("Can not find function '%s'!\n", fname.c_str());
+		return NULL;
+	}
+	return n;
+}
 
-	//read arguments
-	int argNum = (int)func->args.size();
-	for(int i=argNum-1; i>=0; --i) {
-		string arg = func->args[i];
-		si = pop2();
+bool KoalaJS::prepareFuncArgs(int argNum, vector<BCVar*>& args) {
+//read arguments
+	for(int i=0; i<argNum; ++i) {
+		StackItem* si = pop2();
 		if(si == NULL) {
-			ERR("%s argument not match %s\n", fname.c_str(), DEBUG_LINE);
-			delete params;
 			return false;
 		}
 		BCVar* v = VAR(si);
-		params->addChild(arg, v);
-		v->unref(); //unref after pop
+		args.push_back(v);
+	}
+	return true;
+}
+
+void KoalaJS::releaseFuncArgs(vector<BCVar*>& args) {
+//read arguments
+	int argNum = (int)args.size();
+	for(int i=0; i<argNum; ++i) {
+		BCVar* v = args[i];
+		v->unref();
+	}
+	args.clear();
+}
+
+bool KoalaJS::funcCall(BCVar* object, BCVar* funcV, const vector<BCVar*>* args) {
+	BCVar* params = new BCVar(); //function parameters
+	params->type = BCVar::OBJECT;
+	FuncT* func = funcV->getFunc();
+	params->addChild(THIS, object);
+
+	//read arguments
+	int argNum = (int)func->args.size();
+	if(args == NULL) { //read arguments from stack
+		for(int i=argNum-1; i>= 0; --i) {
+			string arg = func->args[i];
+			StackItem* si = pop2();
+			if(si == NULL) {
+				delete params;
+				return false;
+			}
+			BCVar* v = VAR(si);
+			params->addChild(arg, v);
+			v->unref(); //unref after pop
+		}
+	}
+	else {
+		for(int i=argNum-1; i>= 0; --i) {
+			BCVar* v = (*args)[argNum-i-1];
+			string arg = func->args[i];
+			params->addChild(arg, v);
+		}
 	}
 
 	VMScope sc;
 	sc.pc = pc;
 	sc.var = params->ref();
 
-	if(n->var->type == BCVar::NFUNC) { //native function
+	if(funcV->type == BCVar::NFUNC) { //native function
 		if(func->native != NULL) {
-			pushScope(sc);
+			//pushScope(sc);
 			func->native(this, params, func->data);
 			//read return.
 			BCVar* ret = params->getReturnVar();
 			push(ret->ref());
-			popScope();
+			//popScope();
 		}
-		return true;
+		return true; 
 	}
 
 	pushScope(sc);
@@ -756,10 +824,7 @@ void KoalaJS::doGet(BCVar* v, const string& str) {
 		if(n->var->isFunction()) {
 			FuncT* func = n->var->getFunc();
 			if(!func->regular) { //class get/set function.
-				push(v->ref()); //push this
-				if(!funcCall(str, true))
-					pop(); //pop and drop this
-
+				funcCall(v, n->var);
 				return;
 			}
 		}
@@ -806,15 +871,6 @@ BCNode* KoalaJS::load(const string& name, bool create) {
 
 void KoalaJS::runCode(Bytecode* bc, PC startPC) {
 	if(bc != NULL) {
-		/*if(code != NULL && bcode != NULL) {
-			CodeT cs;
-			cs.pc = pc;
-			cs.code = code;
-			cs.size = codeSize;
-			cs.bcode = bcode;
-			codeStack.push(cs);	
-		}
-		*/
 		setBytecode(bc);
 
 		VMScope sc;
@@ -1193,7 +1249,16 @@ void KoalaJS::runCode(Bytecode* bc, PC startPC) {
 			case INSTR_CLASS: {
 													str = bcode->getStr(offset);
 													BCVar* v = getOrAddClass(str);
-													//push(v->ref());
+													//read extends
+													ins = code[pc];
+													instr = ins >> 16;
+													if(instr == INSTR_EXTENDS) {
+														pc++;
+														offset = ins & 0x0000FFFF;
+														str = bcode->getStr(offset);
+														doExtends(v, str);
+													}
+
 													VMScope sc;
 													sc.var = v->ref();
 													pushScope(sc);
@@ -1203,19 +1268,18 @@ void KoalaJS::runCode(Bytecode* bc, PC startPC) {
 															popScope();
 															break;
 														}
-			case INSTR_CALL: {
-												 if(!funcCall(bcode->getStr(offset))) {
-													 pop();//drop this
+			case INSTR_CALL: 
+			case INSTR_CALLO: {
+												 str = bcode->getStr(offset);
+												 StackItem* i = pop2();
+												 BCVar* obj = VAR(i);
+												 BCNode* func = findFunc(obj, str, true);
+												 if(func != NULL) {
+													 funcCall(obj, func->var);
 												 }
+												 obj->unref();
 												 interruptCount = INTERUPT_COUNT;
 												 break;
-											 }
-			case INSTR_CALLO: {
-													if(!funcCall(bcode->getStr(offset), true)) {
-														pop(); //drop this
-													}
-												 	interruptCount = INTERUPT_COUNT;
-													break;
 												}
 			case INSTR_NEW: {
 												doNew(bcode->getStr(offset));
@@ -1224,16 +1288,5 @@ void KoalaJS::runCode(Bytecode* bc, PC startPC) {
 		}
 	}
 	popScope();
-
-	/*if(!codeStack.empty()) {
-		CodeT cs = codeStack.top();
-		codeStack.pop();
-
-		pc = cs.pc;
-		code = cs.code;
-		codeSize = cs.size;
-		bcode = cs.bcode;
-	}
-	*/
 }
 

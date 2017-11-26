@@ -1,4 +1,5 @@
 #include "Var.h"
+#include "utils/String/StringUtil.h"
 #include <stdio.h>
 #include <string.h>
 

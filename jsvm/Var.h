@@ -12,6 +12,7 @@
 #define CLS_ARR "Array"
 #define CLS_OBJECT "Object"
 #define THIS "this"
+#define SUPER "super"
 #define PROTOTYPE "prototype"
 #define RETURN "return"
 #define CONSTRUCTOR "constructor"
@@ -293,9 +294,17 @@ public:
 		return (n == NULL ? NULL : n->var);
 	}
 
-	//get function this var 
+	//get this var 
 	inline BCVar* getThisVar() {
 		return getChildOrCreate(THIS)->var;
+	}
+
+	//get super var 
+	inline BCVar* getSuperVar() {
+		BCNode* n = getChild(PROTOTYPE);
+		if(n == NULL)
+			return NULL;
+		return n->var;
 	}
 
 	//get function return var 

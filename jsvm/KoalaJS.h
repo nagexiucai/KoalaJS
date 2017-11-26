@@ -151,7 +151,11 @@ class KoalaJS {
 		 */
 		BCVar* callJSFunc(const string& name, int argNum, ...);
 
-		BCVar* callJSFunc(const string& name, const vector<BCVar*>& args);
+		BCVar* callJSFunc(const string& name, const vector<BCVar*>& args, BCVar* obj = NULL);
+
+		bool prepareFuncArgs(int argNum, vector<BCVar*>& args);
+
+		void releaseFuncArgs(vector<BCVar*>& args);
 
 		void interrupt(const string& name, int argNum, ...);
 
@@ -240,9 +244,15 @@ class KoalaJS {
 
 		BCNode* findFunc(BCVar* owner, const string& funcName, bool member);
 
-		bool funcCall(const string& funcName, bool member = true);
+		BCNode* findMemberFunc(BCVar* owner, const string& funcName);
+
+		BCVar* runJSFunc(BCVar* obj, BCVar* funcV, const vector<BCVar*>* args);
+
+		bool funcCall(BCVar* object, BCVar* func, const vector<BCVar*>* args = NULL);
 
 		void doNew(const string& clsName);
+
+		void doExtends(BCVar* v, const string& clsName);
 
 		bool construct(BCVar* obj, int argNum);
 
