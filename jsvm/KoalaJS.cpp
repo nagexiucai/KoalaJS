@@ -454,7 +454,7 @@ BCNode* KoalaJS::findFunc(BCVar* owner, const string& fname, bool member) {
 		if(n != NULL) {
 			string args = fname.substr(pos+1);
 			int argsNum = atoi(args.c_str());
-			if(n->var->getFunc()->args.size() != argsNum)
+			if(argsNum != (int)n->var->getFunc()->args.size())
 				n = NULL;
 		}
 	}
@@ -849,7 +849,7 @@ void KoalaJS::doGet(BCVar* v, const string& str) {
 	}
 	else {
 		if(!v->isObject())
-			ERR("can not get memnber %s.%s\n", str.c_str(), DEBUG_LINE);
+			ERR("can not get member %s.%s\n", str.c_str(), DEBUG_LINE);
 
 		if(v->isUndefined()) 
 			v->type = BCVar::OBJECT;
@@ -1283,6 +1283,8 @@ void KoalaJS::runCode(Bytecode* bc, PC startPC) {
 													break;
 												}
 			case INSTR_CLASS_END: {
+															BCVar* v = scope()->var;
+															push(v->ref());
 															popScope();
 															break;
 														}

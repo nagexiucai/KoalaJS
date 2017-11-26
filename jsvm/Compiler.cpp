@@ -122,6 +122,7 @@ LEX_TYPES Compiler::statement(bool pop) {
 	else if (l->tk=='{') {
 		/* A block of code */
 		block();
+		pop = false;
 	}
 	else if (l->tk==';') {
 		/* Empty statement - to allow things like ;;; */
@@ -190,7 +191,6 @@ LEX_TYPES Compiler::statement(bool pop) {
 	}
 	else if(l->tk==LEX_R_CLASS) {
 		defClass();
-		pop = false;
 	}
 	else if (l->tk==LEX_R_RETURN) {
 		l->chkread(LEX_R_RETURN);

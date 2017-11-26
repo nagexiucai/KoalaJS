@@ -305,7 +305,7 @@ public:
 		if(n == NULL) {
 			n = getChild(PROTOTYPE);
 			if(n != NULL)
-				n = getChild(SUPER);
+				n = n->var->getChild(SUPER);
 		}
 
 		if(n == NULL)
