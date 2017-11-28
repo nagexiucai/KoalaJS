@@ -37,7 +37,7 @@ bool KoalaJS::loadModule(const string& fname) {
 	if(loader == NULL) {
 		dlclose(h);
 		extDL.erase (it);
-		ERR("Extended module load-function not defined (%s)!\n", fname.c_str());
+		ERR("Extended module load-function not defined (%s)! %s\n", fname.c_str(), DEBUG_LINE);
 		return false;
 	}
 
@@ -147,7 +147,7 @@ BCVar* KoalaJS::newObject(const string& clsName) {
 
 	BCNode* cls = findInScopes(clsName);
 	if(cls == NULL) {
-		ERR("Class %s not found\n", clsName.c_str());
+		ERR("Class %s not found!%s\n", clsName.c_str(), DEBUG_LINE);
 		return NULL;
 	}
 
@@ -157,7 +157,7 @@ BCVar* KoalaJS::newObject(const string& clsName) {
 BCVar* KoalaJS::newObject(BCNode* cls) {
 	BCVar* ret = NULL;
 	if(cls->var->type != BCVar::CLASS) {
-		ERR("%s is not a class\n", cls->name.c_str());
+		ERR("%s is not a class!%s\n", cls->name.c_str(), DEBUG_LINE);
 		return NULL;
 	}
 
@@ -401,7 +401,7 @@ void KoalaJS::doNew(const string& clsName) {
 			cls = findInScopes(cn);
 
 		if(cls == NULL) {
-			ERR("Class %s not found %s\n", cn.c_str(), DEBUG_LINE);
+			ERR("Class %s not found!%s\n", cn.c_str(), DEBUG_LINE);
 			return;
 		}
 		if(cls->var->isFunction()) {
@@ -425,7 +425,7 @@ void KoalaJS::doNew(const string& clsName) {
 void KoalaJS::doExtends(BCVar* v, const string& clsName) { 
 	BCNode* cls = findInScopes(clsName);
 	if(cls == NULL) {
-		ERR("Super Class %s not found %s\n", clsName.c_str(), DEBUG_LINE);
+		ERR("Super Class %s not found!%s\n", clsName.c_str(), DEBUG_LINE);
 		return;
 	}
 	v->addChild(SUPER, cls->var);
@@ -464,7 +464,7 @@ BCNode* KoalaJS::findFunc(BCVar* owner, const string& fname, bool member) {
 
 	if(n == NULL || !n->var->isFunction()) {
 		if(fname != CONSTRUCTOR)
-			ERR("Can not find function '%s'!\n", fname.c_str());
+			ERR("Can not find function '%s'! %s\n", fname.c_str(), DEBUG_LINE);
 		return NULL;
 	}
 	return n;
@@ -522,10 +522,6 @@ bool KoalaJS::funcCall(BCVar* object, BCVar* funcV, const vector<BCVar*>* args) 
 		}
 	}
 
-	VMScope sc;
-	sc.pc = pc;
-	sc.var = params->ref();
-
 	if(funcV->type == BCVar::NFUNC) { //native function
 		if(func->native != NULL) {
 			//pushScope(sc);
@@ -533,10 +529,15 @@ bool KoalaJS::funcCall(BCVar* object, BCVar* funcV, const vector<BCVar*>* args) 
 			//read return.
 			BCVar* ret = params->getReturnVar();
 			push(ret->ref());
+			delete params;
 			//popScope();
 		}
 		return true; 
 	}
+
+	VMScope sc;
+	sc.pc = pc;
+	sc.var = params->ref();
 
 	pushScope(sc);
 	//js function
@@ -552,7 +553,7 @@ BCVar* KoalaJS::funcDef(const string& funcName, bool regular) {
 	if(funcName.length() > 0) {
 		BCNode* n = findInScopes(funcName);
 		if(n != NULL) {
-			ERR("Function '%s' has already been defined %s\n", funcName.c_str(), DEBUG_LINE);			
+			ERR("Function '%s' has already been defined! %s\n", funcName.c_str(), DEBUG_LINE);			
 			return NULL;
 		}
 	}
@@ -849,7 +850,7 @@ void KoalaJS::doGet(BCVar* v, const string& str) {
 	}
 	else {
 		if(!v->isObject())
-			ERR("can not get member %s.%s\n", str.c_str(), DEBUG_LINE);
+			ERR("Can not get member %s! %s\n", str.c_str(), DEBUG_LINE);
 
 		if(v->isUndefined()) 
 			v->type = BCVar::OBJECT;
@@ -880,7 +881,7 @@ BCNode* KoalaJS::load(const string& name, bool create) {
 				return NULL;
 
 			if(name != THIS)
-				ERR("Warning: '%s' undefined!%s\n", name.c_str(), DEBUG_LINE);
+				ERR("Warning: '%s' undefined! %s\n", name.c_str(), DEBUG_LINE);
 			node = current->var->addChild(name);
 		}
 	}
@@ -1135,7 +1136,7 @@ void KoalaJS::runCode(Bytecode* bc, PC startPC) {
 													BCNode *node = find(str);
 													if(node != NULL) { //find just in current scope
 														if(node->var->isUndefined()) // declared only before
-															ERR("Warning: %s has already existed.%s\n", str.c_str(), DEBUG_LINE);
+															ERR("Warning: %s has already existed. %s\n", str.c_str(), DEBUG_LINE);
 													}
 													else {
 														VMScope* current = scope();
@@ -1194,7 +1195,7 @@ void KoalaJS::runCode(Bytecode* bc, PC startPC) {
 														if(modi) 
 															node->replace(v);
 														else
-															ERR("Can not change a const variable: %s!%s\n", node->name.c_str(), DEBUG_LINE);
+															ERR("Can not change a const variable: %s! %s\n", node->name.c_str(), DEBUG_LINE);
 														v->unref();
 														push(node->var->ref());
 													}
