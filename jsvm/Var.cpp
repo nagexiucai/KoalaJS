@@ -158,7 +158,7 @@ BCNode* BCVar::addChild(const string& name, BCVar* v, bool beConst) {
 		v = new BCVar();
 
 	BCNode* ret = getChild(name);
-	if(ret != NULL) {
+	if(type != ARRAY && ret != NULL) {
 		ret->beConst = beConst;
 		ret->replace(v);
 		return ret;
