@@ -15,3 +15,7 @@ print("\n");
 print("replace ',' by '--':\n    ");
 s.replace(",", "--");
 println(s);
+
+
+var i = (0x80<<24) | (0x70<<16) | (0x60<<8) | 0x50;
+println("HEX: " + String.format("0x%08X", i) + ": " + i);

@@ -145,4 +145,16 @@ void String::toFloat(KoalaJS* js, BCVar *c, void *) {
 
 	f = atof(str.c_str());
 	c->setReturnVar(new BCVar(f));	
-}	
+}
+
+void String::format(KoalaJS* js, BCVar *c, void *) {
+	char buf[32] = "";
+	string str = c->getParameter("fmt")->getString();
+	BCVar* v = c->getParameter("val");
+	if(v->type == BCVar::INT)
+		snprintf(buf, 32, str.c_str(), v->getInt());
+	else if(v->type == BCVar::FLOAT)
+		snprintf(buf, 32, str.c_str(), v->getFloat());
+
+	c->setReturnVar(new BCVar(buf));	
+}		
