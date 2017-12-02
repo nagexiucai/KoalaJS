@@ -766,6 +766,18 @@ void KoalaJS::mathOp(OprCode op, BCVar* v1, BCVar* v2) {
 			case INSTR_MODEQ: 
 				ret = (((int)f1) % (int)f2);
 				break; 
+			case INSTR_RSHIFT: 
+				ret = (((int)f1) >> (int)f2);
+				break; 
+			case INSTR_LSHIFT: 
+				ret = (((int)f1) << (int)f2);
+				break; 
+			case INSTR_AND: 
+				ret = (((int)f1) & (int)f2);
+				break; 
+			case INSTR_OR: 
+				ret = (((int)f1) | (int)f2);
+				break; 
 		}
 
 		BCVar* v;
@@ -1042,6 +1054,10 @@ void KoalaJS::runCode(Bytecode* bc, PC startPC) {
 												break;
 											}
 			case INSTR_PLUS: 
+			case INSTR_RSHIFT: 
+			case INSTR_LSHIFT: 
+			case INSTR_AND: 
+			case INSTR_OR: 
 			case INSTR_PLUSEQ: 
 			case INSTR_MULTIEQ: 
 			case INSTR_DIVEQ: 
