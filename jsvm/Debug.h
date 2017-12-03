@@ -1,5 +1,7 @@
-#ifndef KOALA_DEBUG
-#define KOALA_DEBUG
+#ifndef KOALA_DEBUG_HH
+#define KOALA_DEBUG_HH
+
+#ifdef KOALA_DEBUG
 
 #include <string>
 #include <vector>
@@ -42,5 +44,7 @@ public:
 
 	void debug(KoalaJS* js, PC pc);
 };
+
+#endif
 
 #endif

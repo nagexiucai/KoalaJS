@@ -1,3 +1,5 @@
+#ifdef KOALA_DEBUG
+
 #include "Debug.h"
 #include "utils/String/StringUtil.h"
 #include "KoalaJS.h"
@@ -222,3 +224,5 @@ void Debug::debug(KoalaJS* js, PC pc) {
 		}
 	}
 }
+
+#endif
