@@ -397,6 +397,9 @@ void KoalaJS::doNew(const string& clsName) {
 		ret->type = BCVar::ARRAY;
 	}
 	else if(cn == CLS_OBJECT) {
+		if(argNum == 1)
+			return;
+
 		ret = new BCVar();
 		ret->type = BCVar::OBJECT;
 	}
