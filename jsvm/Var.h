@@ -12,6 +12,7 @@
 #define CLS_ARR "Array"
 #define CLS_OBJECT "Object"
 #define THIS "this"
+#define SUPER "super"
 #define PROTOTYPE "prototype"
 #define RETURN "return"
 #define CONSTRUCTOR "constructor"
@@ -248,7 +249,7 @@ public:
 		else if(type == STRING) 
 			ss << stringV;
 		else if(isObject() || type == ARRAY) 
-			ss << getJSON();
+			ss << getJSON("  ");
 		else if(isBytes())
 			ss << "[" << intV << ":" << (char*)pointV << "]";
 		else if(isUndefined())
@@ -293,9 +294,23 @@ public:
 		return (n == NULL ? NULL : n->var);
 	}
 
-	//get function this var 
+	//get this var 
 	inline BCVar* getThisVar() {
 		return getChildOrCreate(THIS)->var;
+	}
+
+	//get super var 
+	inline BCVar* getSuperVar() {
+		BCNode* n = getChild(SUPER);
+		if(n == NULL) {
+			n = getChild(PROTOTYPE);
+			if(n != NULL)
+				n = n->var->getChild(SUPER);
+		}
+
+		if(n == NULL)
+			return NULL;
+		return n->var;
 	}
 
 	//get function return var 
@@ -363,16 +378,7 @@ public:
 		return ret;
 	}
 
-	//add child, this function doesn't check existed or not!!
-	inline BCNode* addChild(const string& name, BCVar* v = NULL, bool beConst = false) {
-		if(v == NULL)
-			v = new BCVar();
-
-		BCNode* ret = new BCNode(name, v);
-		ret->beConst = beConst;
-		children.push_back(ret);
-		return ret;
-	}
+	BCNode* addChild(const string& name, BCVar* v = NULL, bool beConst = false);
 
 	inline int getRefs() {
 		return refs;

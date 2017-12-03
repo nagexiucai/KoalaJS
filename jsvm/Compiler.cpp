@@ -28,7 +28,7 @@ Compiler::~Compiler() {
 }
 
 //added by Misa.Z for running file
-bool Compiler::run(const std::string &fname, Bytecode* bc, bool debug) {
+bool Compiler::run(const std::string &fname, Bytecode* bc, bool debug, bool end) {
 	bool res = false;
 	std::string oldCwd = cwd;
 	std::string oldCName = cname;
@@ -51,7 +51,7 @@ bool Compiler::run(const std::string &fname, Bytecode* bc, bool debug) {
 		if(debug)
 			bytecode->setCompiler(this);
 
-		res = exec(input, bc);
+		res = exec(input, bc, end);
 
 		if(debug)
 			bc->getDebug()->loadFiles();
@@ -68,7 +68,7 @@ bool Compiler::run(const std::string &fname, Bytecode* bc, bool debug) {
 	return res;
 }
 
-bool Compiler::exec(const std::string &code, Bytecode* bc) {
+bool Compiler::exec(const std::string &code, Bytecode* bc, bool end) {
 	bytecode = bc;
 	CScriptLex* old = l;
 	l = new CScriptLex(code);
@@ -77,7 +77,8 @@ bool Compiler::exec(const std::string &code, Bytecode* bc) {
 		while (l->tk) {
 			statement();
 		}
-		bytecode->reserve(); //add a nil instruction at the end of bytecode->
+		if(end)
+			bytecode->gen(INSTR_END);
 	} catch (CScriptException *e) {
 		std::string msg;
 		std::stringstream ss;
@@ -100,7 +101,7 @@ LEX_TYPES Compiler::statement(bool pop) {
 		l->chkread(LEX_R_INCLUDE);
 
 		bytecode->gen(INSTR_BLOCK); 
-		run(l->tkStr, bytecode, bytecode->isDebug());
+		run(l->tkStr, bytecode, bytecode->isDebug(), false);
 		bytecode->gen(INSTR_BLOCK_END); 
 		pop = false;
 
@@ -121,6 +122,7 @@ LEX_TYPES Compiler::statement(bool pop) {
 	else if (l->tk=='{') {
 		/* A block of code */
 		block();
+		pop = false;
 	}
 	else if (l->tk==';') {
 		/* Empty statement - to allow things like ;;; */
@@ -558,7 +560,7 @@ LEX_TYPES Compiler::defFunc(string& name) {
 	PC pc = bytecode->reserve();
 	block();
 	
-	OpCode op = bytecode->getInstr(bytecode->getPC() - 1) >> 16;
+	OprCode op = bytecode->getInstr(bytecode->getPC() - 1) >> 16;
 
 	if(op != INSTR_RETURN && op != INSTR_RETURNV)
 		bytecode->gen(INSTR_RETURN);
@@ -568,17 +570,24 @@ LEX_TYPES Compiler::defFunc(string& name) {
 
 LEX_TYPES Compiler::defClass() {
 	LEX_TYPES ret = LEX_EOF;
-	// actually parse a function...
+	// actually parse a class...
 	l->chkread(LEX_R_CLASS);
 	std::string name = "";
-	/* we can have functions without names */
+	/* we can have classes without names */
 	if (l->tk==LEX_ID) {
 		name = l->tkStr;
 		l->chkread(LEX_ID);
 	}
-
 	bytecode->gen(INSTR_CLASS, name);
-	//do arguments
+	
+	/*read extends*/
+	if (l->tk==LEX_R_EXTENDS) {
+		l->chkread(LEX_R_EXTENDS);
+		name = l->tkStr;
+		l->chkread(LEX_ID);
+		bytecode->gen(INSTR_EXTENDS, name);
+	}
+
 	l->chkread('{');
 	while (l->tk!='}') {
 		defFunc(name);

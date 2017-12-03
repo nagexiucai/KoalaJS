@@ -223,9 +223,9 @@ void Bytecode::addTryItem(TryItemT item) {
 	tryTable.push_back(item);
 }
 
-PC Bytecode::bytecode(OpCode instr, const string& str) {
-	OpCode r = instr;
-	OpCode i = 0xFFFF;
+PC Bytecode::bytecode(OprCode instr, const string& str) {
+	OprCode r = instr;
+	OprCode i = 0xFFFF;
 
 	if(str.length() > 0)
 		i = this->getStrIndex(str);
@@ -233,7 +233,7 @@ PC Bytecode::bytecode(OpCode instr, const string& str) {
 	return INS(r, i);
 }
 		
-PC Bytecode::gen(OpCode instr, const string& str) {
+PC Bytecode::gen(OprCode instr, const string& str) {
 	int i = 0;
 	float f = 0.0;
 	string s = str;
@@ -254,7 +254,7 @@ PC Bytecode::gen(OpCode instr, const string& str) {
 	PC ins = bytecode(instr, s);
 	add(ins);
 
-//	P("%d\t0x%08X\t%s %s\n", cindex-1, ins, BCOpCode::instr(instr).c_str(), str.c_str());	
+//	P("%d\t0x%08X\t%s %s\n", cindex-1, ins, BCOprCode::instr(instr).c_str(), str.c_str());	
 
 	if(instr == INSTR_INT) {
 		add(i);
@@ -269,14 +269,14 @@ PC Bytecode::gen(OpCode instr, const string& str) {
 	return cindex;
 }
 
-PC Bytecode::gen(OpCode instr, int i) {
+PC Bytecode::gen(OprCode instr, int i) {
 	PC ins = bytecode(instr, "");
 	add(ins);
 	add(i);
 	return cindex;
 }
 
-void Bytecode::setInstr(PC anchor, OpCode op, PC target) {
+void Bytecode::setInstr(PC anchor, OprCode op, PC target) {
 	if(target == ILLEGAL_PC)
 		target = cindex;
 
@@ -285,7 +285,7 @@ void Bytecode::setInstr(PC anchor, OpCode op, PC target) {
 	codeBuf[anchor] = ins;
 }
 
-void Bytecode::addInstr(PC anchor, OpCode op, PC target) {
+void Bytecode::addInstr(PC anchor, OprCode op, PC target) {
 	if(target == ILLEGAL_PC)
 		target = cindex;
 
@@ -318,14 +318,14 @@ string Bytecode::getDebugLine(PC index) {
 
 string Bytecode::getInstrStr(PC &i, bool step) {
 	PC ins = codeBuf[i];
-	OpCode instr = (ins >> 16) & 0xFFFF;
-	OpCode strIndex = ins & 0xFFFF;
+	OprCode instr = (ins >> 16) & 0xFFFF;
+	OprCode strIndex = ins & 0xFFFF;
 
 	char s[32];
 	string ret = "";
 
 	if(strIndex == 0xFFFF) {
-		sprintf(s, "  |%04d 0x%08X ; %s", i, ins, BCOpCode::instr(instr).c_str());	
+		sprintf(s, "  |%04d 0x%08X ; %s", i, ins, BCOprCode::instr(instr).c_str());	
 		ret = s;
 	}
 	else {
@@ -333,18 +333,18 @@ string Bytecode::getInstrStr(PC &i, bool step) {
 				instr == INSTR_NJMP || 
 				instr == INSTR_NJMPB ||
 				instr == INSTR_JMPB) {
-			sprintf(s, "  |%04d 0x%08X ; %s %d", i, ins, BCOpCode::instr(instr).c_str(), strIndex);	
+			sprintf(s, "  |%04d 0x%08X ; %s %d", i, ins, BCOprCode::instr(instr).c_str(), strIndex);	
 			ret = s;
 		}
 		else if(instr == INSTR_STR) {
-			sprintf(s, "  |%04d 0x%08X ; %s \"", i, ins, BCOpCode::instr(instr).c_str());	
+			sprintf(s, "  |%04d 0x%08X ; %s \"", i, ins, BCOprCode::instr(instr).c_str());	
 			string dsp = StringUtil::replace(getStr(strIndex), "\n", "\\n");
 			dsp = StringUtil::replace(dsp, "\r", "\\r");
 			dsp = StringUtil::replace(dsp, "\t", "\\t");
 			ret = ret + s + dsp + "\"";	
 		}
 		else {
-			sprintf(s, "  |%04d 0x%08X ; %s ", i, ins, BCOpCode::instr(instr).c_str());	
+			sprintf(s, "  |%04d 0x%08X ; %s ", i, ins, BCOprCode::instr(instr).c_str());	
 			ret = ret + s + getStr(strIndex);
 		}
 	}
@@ -384,7 +384,7 @@ string Bytecode::dump() {
 	string fname = "";
 	while(i < cindex) {
 		ins = codeBuf[i];
-		OpCode instr = (ins >> 16) & 0xFFFF;
+		OprCode instr = (ins >> 16) & 0xFFFF;
 
 		string dbg = "";
 		string fn = "";

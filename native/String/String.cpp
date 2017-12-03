@@ -91,7 +91,7 @@ void String::fromCharCode(KoalaJS* js, BCVar *c, void *) {
 
 void String::lastIndexOf(KoalaJS* js, BCVar *c, void *) {
 	string str = c->getParameter("this")->getString();
-	string sub = c->getParameter("sub")->getString();
+	string sub = c->getParameter("search")->getString();
 
 	size_t p = str.rfind(sub);
 	int r = (p==string::npos) ? -1 : (int)p;
@@ -145,4 +145,16 @@ void String::toFloat(KoalaJS* js, BCVar *c, void *) {
 
 	f = atof(str.c_str());
 	c->setReturnVar(new BCVar(f));	
-}	
+}
+
+void String::format(KoalaJS* js, BCVar *c, void *) {
+	char buf[32] = "";
+	string str = c->getParameter("fmt")->getString();
+	BCVar* v = c->getParameter("val");
+	if(v->type == BCVar::INT)
+		snprintf(buf, 32, str.c_str(), v->getInt());
+	else if(v->type == BCVar::FLOAT)
+		snprintf(buf, 32, str.c_str(), v->getFloat());
+
+	c->setReturnVar(new BCVar(buf));	
+}		

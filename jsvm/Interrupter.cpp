@@ -23,7 +23,7 @@ void Interrupter::doInterrupt() {
 
 	if(intr == NULL)
 		return;
-
+	
 	TRACE("Interrupted for '%s$%d', %d in queue.\n", 
 			intr->funcName.c_str(), 
 			(int)intr->args.size(),

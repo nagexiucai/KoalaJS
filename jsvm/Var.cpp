@@ -1,4 +1,5 @@
 #include "Var.h"
+#include "utils/String/StringUtil.h"
 #include <stdio.h>
 #include <string.h>
 
@@ -151,4 +152,22 @@ string BCVar::getJSON(const string& prefix, int level) {
 
 	return destination;
 }
+
+BCNode* BCVar::addChild(const string& name, BCVar* v, bool beConst) {
+	if(v == NULL)
+		v = new BCVar();
+
+	BCNode* ret = getChild(name);
+	if(type != ARRAY && ret != NULL) {
+		ret->beConst = beConst;
+		ret->replace(v);
+		return ret;
+	}
+
+	ret = new BCNode(name, v);
+	ret->beConst = beConst;
+	children.push_back(ret);
+	return ret;
+}
+
 

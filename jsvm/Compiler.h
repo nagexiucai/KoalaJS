@@ -17,9 +17,9 @@ class Compiler {
 		Compiler();
 		~Compiler();
 
-		bool run(const std::string &fname, Bytecode* bc, bool debug = false);
+		bool run(const std::string &fname, Bytecode* bc, bool debug = false, bool end = true);
 
-		bool exec(const std::string &code, Bytecode* bc);
+		bool exec(const std::string &code, Bytecode* bc, bool end = true);
 		
 		inline const std::string& getcwd() {
 			return cwd;

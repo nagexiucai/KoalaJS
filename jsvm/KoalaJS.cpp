@@ -16,7 +16,7 @@
 static GlobalVars _globalVars;
 
 #define LOADER "_moduleLoader"
-bool KoalaJS::loadExt(const string& fname) {
+bool KoalaJS::loadModule(const string& fname) {
 	std::map<string, void*>::iterator it = extDL.find(fname);
 	void* h = NULL;
 	if(it == extDL.end()) {
@@ -37,7 +37,7 @@ bool KoalaJS::loadExt(const string& fname) {
 	if(loader == NULL) {
 		dlclose(h);
 		extDL.erase (it);
-		ERR("Extended module load-function not defined (%s)!\n", fname.c_str());
+		ERR("Extended module load-function not defined (%s)! %s\n", fname.c_str(), DEBUG_LINE);
 		return false;
 	}
 
@@ -45,7 +45,7 @@ bool KoalaJS::loadExt(const string& fname) {
 	return true;
 }
 
-void KoalaJS::loadExts() {
+void KoalaJS::loadModules() {
 	std::map<string, void*>::iterator it;
 	for(it = extDL.begin(); it != extDL.end(); ++it) {
 		void *h = it->second;
@@ -58,7 +58,6 @@ void KoalaJS::loadExts() {
 	}
 }
 
-
 GlobalVars* KoalaJS::getGlobalVars() {
 	return &_globalVars;
 }
@@ -68,38 +67,22 @@ void KoalaJS::doInterrupt() {
 		interrupter->doInterrupt();
 }
 
-BCVar* KoalaJS::callJSFunc(const string& funcName, const vector<BCVar*>& args) {
-	BCVar* v = NULL;
-	KoalaJS js(getRoot(), interrupter);
-	js.moduleLoader = getModuleLoader();
-	js.setBytecode(bcode);
 
-	size_t argNum = args.size();
-	for(size_t i=0; i<argNum; ++i) {
-		v = args[i];
-		js.push(v->ref());
-	}
-
-	js.push(js.root->ref());
-
-	string fname = funcName;
-	if(argNum > 0) {
-		fname = fname + "$" + StringUtil::from((int)argNum);
-	}
-
+BCVar* KoalaJS::runJSFunc(BCVar* obj, BCVar* funcV, const vector<BCVar*>* args) {
 	VMScope sc;
-	sc.var = js.root->ref();
-	sc.pc = 0;
-	js.pushScope(sc);
+	sc.var = obj->ref();
+	sc.pc = pc;
+	pushScope(sc);
 
-	size_t scDeep = js.scopes.size();
-	js.funcCall(fname, false);
-	if(scDeep < js.scopes.size()) {
-		js.runCode(NULL);
+	size_t scDeep = scopes.size();
+	funcCall(obj, funcV, args);
+	if(scDeep < scopes.size()) {
+		runCode(NULL);
 	}
-	js.popScope();
+	popScope();
 
-	StackItem* i = js.pop2();
+	StackItem* i = pop2();
+	BCVar* v = NULL;
 	if(i != NULL)
 		v = VAR(i);
 	else {
@@ -107,6 +90,27 @@ BCVar* KoalaJS::callJSFunc(const string& funcName, const vector<BCVar*>& args) {
 		v->ref();
 	}
 	return v;
+}
+
+BCVar* KoalaJS::callJSFunc(const string& funcName, const vector<BCVar*>& args, BCVar* obj) {
+	BCVar* v = NULL;
+
+	size_t argNum = args.size();
+	string fname = funcName;
+	if(argNum > 0) {
+		fname = fname + "$" + StringUtil::from((int)argNum);
+	}
+
+	if(obj == NULL)
+		obj = root;
+
+	BCNode *func = findFunc(obj, fname, false);
+	if(func == NULL) {
+		v = new BCVar();
+		v->ref();
+		return v;
+	}
+	return runJSFunc(obj, func->var, &args);
 }
 
 BCVar* KoalaJS::callJSFunc(const string& funcName, int argNum, ...) {
@@ -143,7 +147,7 @@ BCVar* KoalaJS::newObject(const string& clsName) {
 
 	BCNode* cls = findInScopes(clsName);
 	if(cls == NULL) {
-		ERR("Class %s not found\n", clsName.c_str());
+		ERR("Class %s not found!%s\n", clsName.c_str(), DEBUG_LINE);
 		return NULL;
 	}
 
@@ -153,7 +157,7 @@ BCVar* KoalaJS::newObject(const string& clsName) {
 BCVar* KoalaJS::newObject(BCNode* cls) {
 	BCVar* ret = NULL;
 	if(cls->var->type != BCVar::CLASS) {
-		ERR("%s is not a class\n", cls->name.c_str());
+		ERR("%s is not a class!%s\n", cls->name.c_str(), DEBUG_LINE);
 		return NULL;
 	}
 
@@ -163,48 +167,57 @@ BCVar* KoalaJS::newObject(BCNode* cls) {
 	return ret;
 }
 
-void KoalaJS::run(const std::string &fname, bool debug) {
+bool KoalaJS::run(const string& fname, bool debug, bool repeat) {
+	bool res = true;
+	debugMode = debug;
+	Bytecode bc;
+
+	if(bcode == NULL)
+		bcode = &bc;
+	PC start = bcode->endPC();
+
 	std::string oldCwd = cwd;
 	cname = File::getFullname(cwd, fname);
 	cwd = File::getPath(cname);
 
-	Bytecode* bc = CodeCache::get(cname);
-	if(bc != NULL) {
-		runCode(bc);
+	std::map<string, PC>::iterator it = extJSC.find(cname);
+	if(it == extJSC.end()) { 
+		Compiler compiler;
+		if(!compiler.run(cname, bcode, debug)) 
+			res = false;
+
+		runCode(bcode, start);
+		extJSC.insert(pair<string, PC>(cname, start));
 	}
-	else {
-		bc = new Bytecode();
-		if(cname.find(".bcode") != string::npos) {
-			if(bc->fromFile(cname)) {
-				CodeCache::cache(cname, bc);
-				runCode(bc);
-			}
-		}
-		else {
-			Compiler compiler;
-			if(compiler.run(cname, bc, debug)) {
-				CodeCache::cache(cname, bc);
-				runCode(bc);
-			}
-		}
+	else if(repeat) {
+		start = it->second;
+		runCode(bcode, start);
 	}
 
 	if(oldCwd.length() > 0)
 		cwd = oldCwd;
+	return res;
 }
 
-void KoalaJS::exec(const std::string &code) {
-	Bytecode* bc = CodeCache::get(code);
-	if(bc == NULL) {
-		bc = new Bytecode();
+bool KoalaJS::exec(const std::string &code, bool repeat) {
+	bool res = true;
+	PC start = bcode->endPC();
+
+	std::map<string, PC>::iterator it = extJSC.find(code);
+	if(it == extJSC.end()) { 
 		Compiler compiler;
-		if(compiler.exec(code, bc)) {
-			CodeCache::cache(code, bc);
-		}
-	}
-	runCode(bc);
-}
+		if(!compiler.exec(code, bcode))
+			res = false;
 
+		runCode(bcode, start);
+		extJSC.insert(pair<string, PC>(code, start));
+	}
+	else if(repeat) {
+		start = it->second;
+		runCode(bcode, start);
+	}
+	return res;
+}
 
 StackItem* KoalaJS::pop2() {
 	if(stackTop == STACK_DEEP) // touch the bottom of stack
@@ -267,7 +280,7 @@ BCNode* KoalaJS::findInClass(BCVar* obj, const string& name) {
 			return cls->var->getChild(name);
 	}
 
-	while(obj != NULL) {
+	/*while(obj != NULL) {
 		BCNode* n;
 		n = obj->getChild(PROTOTYPE);
 		if(n != NULL) {
@@ -275,10 +288,29 @@ BCNode* KoalaJS::findInClass(BCVar* obj, const string& name) {
 			n = obj->getChild(name);
 			if(n != NULL)
 				return n;
-		}		
+		}
 		else {
 			break;
 		}
+	}
+	return NULL;
+	*/
+
+	n = obj->getChild(PROTOTYPE);
+	if(n == NULL)
+		return NULL;
+	obj = n->var;
+
+	while(obj != NULL) {
+		n = obj->getChild(name);
+		if(n != NULL) 
+			return n;
+
+		n = obj->getChild(SUPER);
+		if(n == NULL)
+			return NULL;
+
+		obj = n->var;
 	}
 	return NULL;
 }
@@ -297,18 +329,49 @@ BCVar* KoalaJS::getCurrentObj(bool create) {
 }
 
 bool KoalaJS::construct(BCVar* obj, int argNum) {
-	push(obj->ref());
 	string fname = CONSTRUCTOR;
-	fname = fname + "$" + StringUtil::from(argNum);
-	if(!funcCall(fname, true)) {
-		obj = (BCVar*)pop2();
-		obj->unref(false);
-		return false;
+	if(argNum > 0) {
+		fname = fname + "$" + StringUtil::from(argNum);
 	}
+
+	vector<BCVar*> args;
+	prepareFuncArgs(argNum, args);
+
+	BCNode* func;
+	//do super constructor
+	vector<BCVar*> supers;
+	BCVar* v = obj;
+	while(true) {
+		v = v->getSuperVar();
+		if(v == NULL)
+			break;
+		supers.push_back(v);
+	}
+
+	size_t sz = supers.size();
+	for(size_t i=sz; i>0; --i) {
+		v = supers[i-1];
+		if(v != NULL) {
+			func = findFunc(v, fname, true);
+			if(func != NULL) {
+				BCVar* r = runJSFunc(obj, func->var, &args);
+				if(r != NULL)
+					r->unref();
+			}
+		}
+	}
+	//do constructor
+	func = findFunc(obj, fname, true);
+	if(func != NULL) {
+		BCVar* r = runJSFunc(obj, func->var, &args);
+		if(r != NULL)
+			r->unref();
+	}
+	releaseFuncArgs(args);
 	return true;
 }
 
-void KoalaJS::doNew(const string& clsName) { //TODO: construct with arguments.
+void KoalaJS::doNew(const string& clsName) { 
 	BCVar* ret = NULL;
 
 	size_t pos = clsName.find("$");
@@ -338,113 +401,144 @@ void KoalaJS::doNew(const string& clsName) { //TODO: construct with arguments.
 			cls = findInScopes(cn);
 
 		if(cls == NULL) {
-			ERR("Class %s not found %s\n", cn.c_str(), DEBUG_LINE);
+			ERR("Class %s not found!%s\n", cn.c_str(), DEBUG_LINE);
 			return;
 		}
 		if(cls->var->isFunction()) {
 			BCVar* v = getCurrentObj(true);
-			push(v->ref());	//push this
-			if(!funcCall(clsName))
-				pop(); //pop and drop this
+			funcCall(v, cls->var);
 			return;
 		}
 		ret = newObject(cls);
-		if(construct(ret, argNum))
+		if(ret == NULL)
 			return;
+		ret->ref();
+		construct(ret, argNum);
+		push(ret);
+		return;
 	}
 
 	if(ret != NULL)
 		push(ret->ref());
 }
 
-BCNode* KoalaJS::findFunc(BCVar* owner, const string& fname, bool member) {
+void KoalaJS::doExtends(BCVar* v, const string& clsName) { 
+	BCNode* cls = findInScopes(clsName);
+	if(cls == NULL) {
+		ERR("Super Class %s not found!%s\n", clsName.c_str(), DEBUG_LINE);
+		return;
+	}
+	v->addChild(SUPER, cls->var);
+}
+
+BCNode* KoalaJS::findMemberFunc(BCVar* owner, const string& fname) {
 	//find function in object;
 	BCNode*	n = owner->getChild(fname);
-	if(n == NULL && member)
-		n = findInClass(owner, fname);
-
-	//find function in scopes;
-	if(n == NULL)
-		n = findInScopes(fname);
-
 	if(n == NULL) {
-		return NULL;
+		n = findInClass(owner, fname);
 	}
 
-	if(!n->var->isFunction()) {
+	if(n == NULL || !n->var->isFunction()) {
 		return NULL;
 	}
 	return n;
 }
 
-bool KoalaJS::funcCall(const string& funcName, bool member) {
-	if(funcName.length() == 0)
-		return false;
-
-	size_t pos = funcName.find("$");
-	string fname = funcName;
-	if(pos != string::npos)	{
-		fname = funcName.substr(0, pos);
-	}
-
-	//read object
-	StackItem* si = pop2();
-	BCVar* object = NULL;
-	if(si == NULL)  {
-		return false;
-	}
-	object = VAR(si);	
-
-	BCNode* n = findFunc(object, funcName, member);
-	if(n == NULL) {
-		if(pos != string::npos)
-			n = findFunc(object, fname, member);
-
-		if(n == NULL) {
-			if(fname != CONSTRUCTOR)
-				ERR("Function '%s' not found%s\n", fname.c_str(), DEBUG_LINE);
-			push(object); //push back to stack
-			return false;
+BCNode* KoalaJS::findFunc(BCVar* owner, const string& fname, bool member) {
+	//find function in object;
+	BCNode*	n = findMemberFunc(owner, fname);
+	size_t pos = fname.find("$");
+	if(n == NULL && pos != string::npos) {
+		string fn = fname.substr(0, pos);
+		n = findMemberFunc(owner, fn);
+		if(n != NULL) {
+			string args = fname.substr(pos+1);
+			int argsNum = atoi(args.c_str());
+			if(argsNum != (int)n->var->getFunc()->args.size())
+				n = NULL;
 		}
 	}
+	//find function in scopes;
+	if(n == NULL)
+		n = findInScopes(fname);
 
-	BCVar* params = new BCVar(); //function parameters
-	params->type = BCVar::OBJECT;
-	FuncT* func = n->var->getFunc();
-	params->addChild(THIS, object);
-	object->unref(); //unref after pop
+	if(n == NULL || !n->var->isFunction()) {
+		if(fname != CONSTRUCTOR)
+			ERR("Can not find function '%s'! %s\n", fname.c_str(), DEBUG_LINE);
+		return NULL;
+	}
+	return n;
+}
 
-	//read arguments
-	int argNum = (int)func->args.size();
-	for(int i=argNum-1; i>=0; --i) {
-		string arg = func->args[i];
-		si = pop2();
+bool KoalaJS::prepareFuncArgs(int argNum, vector<BCVar*>& args) {
+//read arguments
+	for(int i=0; i<argNum; ++i) {
+		StackItem* si = pop2();
 		if(si == NULL) {
-			ERR("%s argument not match %s\n", fname.c_str(), DEBUG_LINE);
-			delete params;
 			return false;
 		}
 		BCVar* v = VAR(si);
-		params->addChild(arg, v);
-		v->unref(); //unref after pop
+		args.insert(args.begin(), v);
+	}
+	return true;
+}
+
+void KoalaJS::releaseFuncArgs(vector<BCVar*>& args) {
+//read arguments
+	int argNum = (int)args.size();
+	for(int i=0; i<argNum; ++i) {
+		BCVar* v = args[i];
+		v->unref();
+	}
+	args.clear();
+}
+
+bool KoalaJS::funcCall(BCVar* object, BCVar* funcV, const vector<BCVar*>* args) {
+	BCVar* params = new BCVar(); //function parameters
+	params->type = BCVar::OBJECT;
+	FuncT* func = funcV->getFunc();
+	params->addChild(THIS, object);
+
+	//read arguments
+	int argNum = (int)func->args.size();
+	if(args == NULL) { //read arguments from stack
+		for(int i=argNum-1; i>= 0; --i) {
+			string arg = func->args[i];
+			StackItem* si = pop2();
+			if(si == NULL) {
+				delete params;
+				return false;
+			}
+			BCVar* v = VAR(si);
+			params->addChild(arg, v);
+			v->unref(); //unref after pop
+		}
+	}
+	else {
+		for(int i=argNum-1; i>= 0; --i) {
+			BCVar* v = (*args)[i];
+			string arg = func->args[i];
+			params->addChild(arg, v);
+		}
 	}
 
-	VMScope sc;
-	sc.var = params->ref();
-
-	if(n->var->type == BCVar::NFUNC) { //native function
+	if(funcV->type == BCVar::NFUNC) { //native function
 		if(func->native != NULL) {
-			pushScope(sc);
+			//pushScope(sc);
 			func->native(this, params, func->data);
 			//read return.
 			BCVar* ret = params->getReturnVar();
 			push(ret->ref());
-			popScope();
+			delete params;
+			//popScope();
 		}
-		return true;
+		return true; 
 	}
 
+	VMScope sc;
 	sc.pc = pc;
+	sc.var = params->ref();
+
 	pushScope(sc);
 	//js function
 	pc = func->pc;
@@ -459,7 +553,7 @@ BCVar* KoalaJS::funcDef(const string& funcName, bool regular) {
 	if(funcName.length() > 0) {
 		BCNode* n = findInScopes(funcName);
 		if(n != NULL) {
-			ERR("Function '%s' has already been defined %s\n", funcName.c_str(), DEBUG_LINE);			
+			ERR("Function '%s' has already been defined! %s\n", funcName.c_str(), DEBUG_LINE);			
 			return NULL;
 		}
 	}
@@ -467,8 +561,8 @@ BCVar* KoalaJS::funcDef(const string& funcName, bool regular) {
 	PC funcPC = 0;
 	while(true) {
 		PC ins = code[pc++];
-		OpCode instr = ins >> 16;
-		OpCode offset = ins & 0x0000FFFF;
+		OprCode instr = ins >> 16;
+		OprCode offset = ins & 0x0000FFFF;
 
 		if(instr == INSTR_JMP) {
 			funcPC = pc;
@@ -483,6 +577,18 @@ BCVar* KoalaJS::funcDef(const string& funcName, bool regular) {
 	ret->getFunc()->regular = regular;
 	ret->getFunc()->args = args;
 	return ret;
+}
+
+BCVar* KoalaJS::loadClass(const string& clsName, const string& jsFile) {
+	BCNode* cls = root->getChild(clsName);
+	if(cls == NULL) {
+		if(!run(jsFile, debugMode))
+			return NULL;
+		cls = root->getChild(clsName);
+		if(cls == NULL)
+			return NULL;
+	}
+	return cls->var;
 }
 
 BCVar* KoalaJS::getOrAddClass(const string& clsName) {
@@ -565,7 +671,7 @@ void KoalaJS::init(BCVar* rt) {
 	root->ref();
 }
 
-void KoalaJS::compare(OpCode op, BCVar* v1, BCVar* v2) {
+void KoalaJS::compare(OprCode op, BCVar* v1, BCVar* v2) {
 	float f1, f2;
 
 	f1 = v1->getFloat();
@@ -627,7 +733,7 @@ void KoalaJS::compare(OpCode op, BCVar* v1, BCVar* v2) {
 	push(v->ref());
 }
 
-void KoalaJS::mathOp(OpCode op, BCVar* v1, BCVar* v2) {
+void KoalaJS::mathOp(OprCode op, BCVar* v1, BCVar* v2) {
 	if(v1->isNumber() && v2->isNumber()) {
 		//do number 
 		float f1, f2, ret = 0.0;
@@ -659,6 +765,18 @@ void KoalaJS::mathOp(OpCode op, BCVar* v1, BCVar* v2) {
 			case INSTR_MOD: 
 			case INSTR_MODEQ: 
 				ret = (((int)f1) % (int)f2);
+				break; 
+			case INSTR_RSHIFT: 
+				ret = (((int)f1) >> (int)f2);
+				break; 
+			case INSTR_LSHIFT: 
+				ret = (((int)f1) << (int)f2);
+				break; 
+			case INSTR_AND: 
+				ret = (((int)f1) & (int)f2);
+				break; 
+			case INSTR_OR: 
+				ret = (((int)f1) | (int)f2);
 				break; 
 		}
 
@@ -737,17 +855,14 @@ void KoalaJS::doGet(BCVar* v, const string& str) {
 		if(n->var->isFunction()) {
 			FuncT* func = n->var->getFunc();
 			if(!func->regular) { //class get/set function.
-				push(v->ref()); //push this
-				if(!funcCall(str, true))
-					pop(); //pop and drop this
-
+				funcCall(v, n->var);
 				return;
 			}
 		}
 	}
 	else {
 		if(!v->isObject())
-			ERR("can not get memnber %s.%s\n", str.c_str(), DEBUG_LINE);
+			ERR("Can not get member %s! %s\n", str.c_str(), DEBUG_LINE);
 
 		if(v->isUndefined()) 
 			v->type = BCVar::OBJECT;
@@ -778,31 +893,25 @@ BCNode* KoalaJS::load(const string& name, bool create) {
 				return NULL;
 
 			if(name != THIS)
-				ERR("Warning: '%s' undefined!%s\n", name.c_str(), DEBUG_LINE);
+				ERR("Warning: '%s' undefined! %s\n", name.c_str(), DEBUG_LINE);
 			node = current->var->addChild(name);
 		}
 	}
 	return node;
 }
 
-void KoalaJS::runCode(Bytecode* bc) {
+void KoalaJS::runCode(Bytecode* bc, PC startPC) {
 	if(bc != NULL) {
-		if(code != NULL && bcode != NULL) {
-			CodeT cs;
-			cs.pc = pc;
-			cs.code = code;
-			cs.size = codeSize;
-			cs.bcode = bcode;
-			codeStack.push(cs);	
-		}
-		
 		setBytecode(bc);
 
 		VMScope sc;
 		sc.var = root->ref();
-		sc.pc = 0;
+		sc.pc = pc;
 		pushScope(sc);
+
+		pc = startPC;
 	}
+
 	size_t scDeep = scopes.size();
 	size_t interruptCount = 0;
 
@@ -818,11 +927,13 @@ void KoalaJS::runCode(Bytecode* bc) {
 		}
 
 		PC ins = code[pc++];
-		OpCode instr = ins >> 16;
-		OpCode offset = ins & 0x0000FFFF;
+		OprCode instr = ins >> 16;
+		OprCode offset = ins & 0x0000FFFF;
 		string str;
-		
 
+		if(instr == INSTR_END)
+			break;
+		
 		switch(instr) {
 			case INSTR_NIL: {
 												break;
@@ -943,6 +1054,10 @@ void KoalaJS::runCode(Bytecode* bc) {
 												break;
 											}
 			case INSTR_PLUS: 
+			case INSTR_RSHIFT: 
+			case INSTR_LSHIFT: 
+			case INSTR_AND: 
+			case INSTR_OR: 
 			case INSTR_PLUSEQ: 
 			case INSTR_MULTIEQ: 
 			case INSTR_DIVEQ: 
@@ -1037,7 +1152,7 @@ void KoalaJS::runCode(Bytecode* bc) {
 													BCNode *node = find(str);
 													if(node != NULL) { //find just in current scope
 														if(node->var->isUndefined()) // declared only before
-															ERR("Warning: %s has already existed.%s\n", str.c_str(), DEBUG_LINE);
+															ERR("Warning: %s has already existed. %s\n", str.c_str(), DEBUG_LINE);
 													}
 													else {
 														VMScope* current = scope();
@@ -1096,7 +1211,7 @@ void KoalaJS::runCode(Bytecode* bc) {
 														if(modi) 
 															node->replace(v);
 														else
-															ERR("Can not change a const variable: %s!%s\n", node->name.c_str(), DEBUG_LINE);
+															ERR("Can not change a const variable: %s! %s\n", node->name.c_str(), DEBUG_LINE);
 														v->unref();
 														push(node->var->ref());
 													}
@@ -1169,29 +1284,39 @@ void KoalaJS::runCode(Bytecode* bc) {
 			case INSTR_CLASS: {
 													str = bcode->getStr(offset);
 													BCVar* v = getOrAddClass(str);
-													push(v->ref());
+													//read extends
+													ins = code[pc];
+													instr = ins >> 16;
+													if(instr == INSTR_EXTENDS) {
+														pc++;
+														offset = ins & 0x0000FFFF;
+														str = bcode->getStr(offset);
+														doExtends(v, str);
+													}
+
 													VMScope sc;
 													sc.var = v->ref();
 													pushScope(sc);
 													break;
 												}
 			case INSTR_CLASS_END: {
+															BCVar* v = scope()->var;
+															push(v->ref());
 															popScope();
 															break;
 														}
-			case INSTR_CALL: {
-												 if(!funcCall(bcode->getStr(offset))) {
-													 pop();//drop this
+			case INSTR_CALL: 
+			case INSTR_CALLO: {
+												 str = bcode->getStr(offset);
+												 StackItem* i = pop2();
+												 BCVar* obj = VAR(i);
+												 BCNode* func = findFunc(obj, str, true);
+												 if(func != NULL) {
+													 funcCall(obj, func->var);
 												 }
+												 obj->unref();
 												 interruptCount = INTERUPT_COUNT;
 												 break;
-											 }
-			case INSTR_CALLO: {
-													if(!funcCall(bcode->getStr(offset), true)) {
-														pop(); //drop this
-													}
-												 	interruptCount = INTERUPT_COUNT;
-													break;
 												}
 			case INSTR_NEW: {
 												doNew(bcode->getStr(offset));
@@ -1210,15 +1335,5 @@ void KoalaJS::runCode(Bytecode* bc) {
 		}
 	}
 	popScope();
-
-	if(!codeStack.empty()) {
-		CodeT cs = codeStack.top();
-		codeStack.pop();
-
-		pc = cs.pc;
-		code = cs.code;
-		codeSize = cs.size;
-		bcode = cs.bcode;
-	}
 }
 

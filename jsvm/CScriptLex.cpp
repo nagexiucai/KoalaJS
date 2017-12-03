@@ -236,6 +236,7 @@ std::string CScriptLex::getTokenStr(int token) {
 		case LEX_R_CONTINUE     : return "continue";
 		case LEX_R_FUNCTION     : return "function";
 		case LEX_R_CLASS     		: return "class";
+		case LEX_R_EXTENDS   		: return "extends";
 		case LEX_R_RETURN       : return "return";
 		case LEX_R_CONST        : return "CONST";
 		case LEX_R_VAR          : return "var";
@@ -304,6 +305,7 @@ void CScriptLex::getNextToken() {
 		else if (tkStr=="continue")  tk = LEX_R_CONTINUE;
 		else if (tkStr=="function")  tk = LEX_R_FUNCTION;
 		else if (tkStr=="class") 		 tk = LEX_R_CLASS;
+		else if (tkStr=="extends") 	 tk = LEX_R_EXTENDS;
 		else if (tkStr=="return")    tk = LEX_R_RETURN;
 		else if (tkStr=="var")       tk = LEX_R_VAR;
 		else if (tkStr=="const")     tk = LEX_R_CONST;

@@ -91,14 +91,19 @@ class Bytecode {
 	bool debug;
 	DebugInfo debugInfo;
 
-public:
 	const static uint32_t BUF_SIZE = 1024;
+public:
+
 	Bytecode() {
 		debug = false;
 		compiler = NULL;
 		cindex = 0;
 		codeBuf = NULL;
 		bufSize = 0;
+	}
+
+	inline PC endPC() {
+		return cindex;
 	}
 
 	inline DebugInfo* getDebug() {
@@ -142,11 +147,11 @@ public:
 
 	string strs();
 
-	PC gen(OpCode instr, const string& str = "");
+	PC gen(OprCode instr, const string& str = "");
 
-	PC gen(OpCode instr, int intV);
+	PC gen(OprCode instr, int intV);
 
-	PC bytecode(OpCode instr, const string& str = "");
+	PC bytecode(OprCode instr, const string& str = "");
 
 	string getStr(int i);
 
@@ -173,14 +178,14 @@ public:
 	 @param opCode, opCode.
 	 @param target, target pc.
 	*/
-	void setInstr(PC anchor, OpCode op, PC target = ILLEGAL_PC);
+	void setInstr(PC anchor, OprCode op, PC target = ILLEGAL_PC);
 
 	/** add instructioin , offset to current pc
 	 @param anchar, anchor of reserved instruction.
 	 @param opCode, opCode.
 	 @param target, target pc.
 	*/
-	void addInstr(PC anchor, OpCode op, PC target = ILLEGAL_PC);
+	void addInstr(PC anchor, OprCode op, PC target = ILLEGAL_PC);
 
 
 
