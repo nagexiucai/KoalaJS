@@ -8,8 +8,6 @@
 #include <stdarg.h>
 #include <stdio.h>
 
-#define INTERUPT_COUNT 10240
-
 #define DEBUG_LINE bcode->getDebugLine(pc-1).c_str()
 
 static GlobalVars _globalVars;
@@ -920,20 +918,13 @@ void KoalaJS::runCode(Bytecode* bc, PC startPC) {
 	}
 
 	size_t scDeep = scopes.size();
-	size_t interruptCount = 0;
 
 	while(pc < codeSize) {
 #ifdef KOALA_DEBUG
-		if(bcode->isDebug() && bc != NULL) { //don't debug for js function call or interrupt.
+		if(bcode->isDebug()) {
 			debug.debug(this, pc);
 		}
 #endif
-
-		interruptCount++;
-		if(interruptCount >= INTERUPT_COUNT) {
-			interruptCount = 0;
-			doInterrupt();
-		}
 
 		PC ins = code[pc++];
 		OprCode instr = ins >> 16;
@@ -1324,7 +1315,7 @@ void KoalaJS::runCode(Bytecode* bc, PC startPC) {
 													 funcCall(obj, func->var);
 												 }
 												 obj->unref();
-												 interruptCount = INTERUPT_COUNT;
+												 doInterrupt();
 												 break;
 												}
 			case INSTR_NEW: {
