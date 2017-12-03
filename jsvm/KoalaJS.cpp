@@ -1,6 +1,5 @@
 #include "KoalaJS.h"
 #include "Compiler.h"
-#include "Debug.h"
 #include "utils/String/StringUtil.h"
 #include "utils/File/File.h"
 #include "utils/Thread/Thread.h"
@@ -169,7 +168,9 @@ BCVar* KoalaJS::newObject(BCNode* cls) {
 
 bool KoalaJS::run(const string& fname, bool debug, bool repeat) {
 	bool res = true;
+#ifdef KOALA_DEBUG
 	debugMode = debug;
+#endif
 	Bytecode bc;
 
 	if(bcode == NULL)
@@ -180,18 +181,24 @@ bool KoalaJS::run(const string& fname, bool debug, bool repeat) {
 	cname = File::getFullname(cwd, fname);
 	cwd = File::getPath(cname);
 
-	std::map<string, PC>::iterator it = extJSC.find(cname);
-	if(it == extJSC.end()) { 
-		Compiler compiler;
-		if(!compiler.run(cname, bcode, debug)) 
-			res = false;
-
-		runCode(bcode, start);
-		extJSC.insert(pair<string, PC>(cname, start));
+	if(fname.find(".bcode") != string::npos) {
+      bcode->fromFile(cname);
+			runCode(bcode, 0);
 	}
-	else if(repeat) {
-		start = it->second;
-		runCode(bcode, start);
+	else {
+		std::map<string, PC>::iterator it = extJSC.find(cname);
+		if(it == extJSC.end()) { 
+			Compiler compiler;
+			if(!compiler.run(cname, bcode, debug)) 
+				res = false;
+
+			runCode(bcode, start);
+			extJSC.insert(pair<string, PC>(cname, start));
+		}
+		else if(repeat) {
+			start = it->second;
+			runCode(bcode, start);
+		}
 	}
 
 	if(oldCwd.length() > 0)
@@ -582,7 +589,7 @@ BCVar* KoalaJS::funcDef(const string& funcName, bool regular) {
 BCVar* KoalaJS::loadClass(const string& clsName, const string& jsFile) {
 	BCNode* cls = root->getChild(clsName);
 	if(cls == NULL) {
-		if(!run(jsFile, debugMode))
+		if(!run(jsFile, false))
 			return NULL;
 		cls = root->getChild(clsName);
 		if(cls == NULL)
@@ -916,9 +923,11 @@ void KoalaJS::runCode(Bytecode* bc, PC startPC) {
 	size_t interruptCount = 0;
 
 	while(pc < codeSize) {
+#ifdef KOALA_DEBUG
 		if(bcode->isDebug() && bc != NULL) { //don't debug for js function call or interrupt.
 			debug.debug(this, pc);
 		}
+#endif
 
 		interruptCount++;
 		if(interruptCount >= INTERUPT_COUNT) {

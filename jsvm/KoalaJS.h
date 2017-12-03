@@ -5,11 +5,14 @@
 #include "CodeCache.h"
 #include "Var.h"
 #include "GlobalVars.h"
-#include "Debug.h"
 #include "Interrupter.h"
 #include <stack>
 #include <map>
 #include <dlfcn.h>
+
+#ifdef KOALA_DEBUG
+#include "Debug.h"
+#endif
 
 #define VAR(i) (i->isNode ? ((BCNode*)i)->var : (BCVar*)i)
 
@@ -35,6 +38,9 @@ typedef void (*JSModuleLoader)(KoalaJS *js);
 class KoalaJS {
 	public:
 		inline KoalaJS() {
+#ifdef KOALA_DEBUG
+			debugMode = false;
+#endif
 			moduleLoader = NULL;
 			pc = 0;
 			codeSize = 0;
@@ -44,11 +50,13 @@ class KoalaJS {
 			this->root = NULL;
 			interrupter = new Interrupter(this);
 			freeInterrupter = true;
-			debugMode = false;
 			init();
 		}
 		
 		inline KoalaJS(BCVar* rt, Interrupter* inter) {
+#ifdef KOALA_DEBUG
+			debugMode = false;
+#endif
 			moduleLoader = NULL;
 			pc = 0;
 			codeSize = 0;
@@ -57,7 +65,6 @@ class KoalaJS {
 			stackTop = STACK_DEEP;
 			interrupter = inter;
 			freeInterrupter = false;
-			debugMode = false;
 			init(rt);
 		}
 
@@ -101,9 +108,11 @@ class KoalaJS {
 			}
 		}
 
+#ifdef KOALA_DEBUG
 		inline bool isDebug() {
 			return debugMode;
 		}
+#endif
 
 		bool run(const string& fname, bool debug=false, bool repeat=false);
 
@@ -193,8 +202,11 @@ class KoalaJS {
 		const static uint16_t STACK_DEEP = 128;
 		StackItem* vStack[STACK_DEEP];
 		uint16_t stackTop;
+	
+#ifdef KOALA_DEBUG
 		Debug debug;
 		bool debugMode;
+#endif
 
 		//interrupt queue	
 		Interrupter* interrupter;
