@@ -8,13 +8,14 @@ CXX := $(CROSS_COMPILE)g++
 AR := $(CROSS_COMPILE)ar
 LD := $(CROSS_COMPILE)g++
 
-CFLAG = -Wall -fPIC -g -I./ -I./jsvm -I./utils
+CFLAG_DEBUG = -Wall -fPIC -O3 -I./ -I./jsvm -I./utils -DKOALA_DEBUG
+CFLAG = -Wall -fPIC -O3 -I./ -I./jsvm -I./utils
 
 VM_DIR = jsvm
 NATIVE_DIR = native
 LIBS_DIR = utils
 
-TINYJS = $(VM_DIR)/*.cpp
+KOALAJS = $(VM_DIR)/*.cpp
 
 NATIVE = $(NATIVE_DIR)/ClassLoader.cpp \
 	  $(NATIVE_DIR)/Math/Math.cpp \
@@ -34,16 +35,18 @@ LIBS = $(LIBS_DIR)/File/File.cpp
 LDFLAG = -lpthread -ldl
 
 VM = koala
+VM_DEBUG = kdb
 
 TARGET = build
 
 all: lib
 	$(CXX) $(CFLAG) -o $(VM) koala.cpp -L./$(TARGET) -lKoalaJS $(LDFLAG)
+	$(CXX) $(CFLAG_DEBUG) -o $(VM_DEBUG) koala.cpp $(KOALAJS) $(NATIVE) $(LIBS)  $(LDFLAG)
 	rm -fr *.dSYM
 
 lib:
 	mkdir -p $(TARGET)/include
-	$(CXX) $(CFLAG) -c $(TINYJS) $(NATIVE) $(LIBS)
+	$(CXX) $(CFLAG) -c $(KOALAJS) $(NATIVE) $(LIBS)
 	rm -f $(TARGET)/libKoalaJS.a
 	$(AR) cq $(TARGET)/libKoalaJS.a *.o
 	rm -f *.o
@@ -51,7 +54,7 @@ lib:
 
 clean:
 	rm -fr $(TARGET)
-	rm -fr $(VM)
+	rm -fr $(VM) $(VM_DEBUG)
 	rm -fr *.o *.dSYM *.bcode
 
 install:

@@ -31,7 +31,7 @@ void compile(const string& fname, bool tofile = false, bool debug = false) {
 
 int main(int argc, char** argv) {
 	if(argc <= 1) {
-		ERR("Usage: koala [-v] [-c] [-d] [filename.js/.bcode]\n");
+		ERR("Usage: koala [-v] [-c] [filename.js/.bcode]\n");
 		return 1;
 	}
 	else if(argc >= 2) {

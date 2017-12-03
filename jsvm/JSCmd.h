@@ -17,8 +17,6 @@ class JSCmd {
 			args->setArray();
 
 			int i=2;
-			if(debug)
-				i++;
 			argc -= i;
 			for(int j=0; j<argc; ++j) {
 				args->setArrayIndex(j, new BCVar(argv[i+j]));
@@ -33,12 +31,11 @@ class JSCmd {
 public:
 	static void cmd(int argc, char** argv, JSModuleLoader moduleLoader) {
 		if(argc >= 2) {
-			if(strcmp(argv[1], "-d") == 0) {
+#ifdef KOALA_DEBUG
 				run(argc, argv, moduleLoader, true);
-			}
-			else {
+#else
 				run(argc, argv, moduleLoader, false);
-			}
+#endif
 		}
 		CodeCache::empty();
 	}
