@@ -1,0 +1,4 @@
+foo exception
+nothrow
+uncaught exception:foo exception
+

@@ -1335,14 +1335,12 @@ void KoalaJS::runCode(Bytecode* bc, PC startPC) {
 						break;
 					}
 					pc = sc->pc;
-					if(scDeep == scopes.size() && bc == NULL) { //usually means call js function.
-						popScope();
-						return;
-					}
 					popScope();
+					sc = scope();
 				}
 				if(sc == NULL) {
 					ERR("uncaught exception:%s\n", exception->getString().c_str());
+					return;
 				}
 
 				break;
