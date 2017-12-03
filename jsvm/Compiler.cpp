@@ -277,9 +277,17 @@ LEX_TYPES Compiler::statement(bool pop) {
 		bytecode->gen(INSTR_THROW);
 	}
 	else if (l->tk==LEX_R_TRY) {
+		PC tryStart, tryEnd, catchStart, catchEnd;
+		// try block
 		l->chkread(LEX_R_TRY);
+		tryStart = bytecode->getPC();
 		block();
+		tryEnd = bytecode->reserve();
+		// catch block
 		l->chkread(LEX_R_CATCH);
+		catchStart = bytecode->getPC();
+		TryItemT tryItem = {tryStart, catchStart, catchStart};
+		bytecode->addTryItem(tryItem);
 		l->chkread('(');
 		string vname = l->tkStr;
 		l->chkread(LEX_ID);
@@ -288,6 +296,9 @@ LEX_TYPES Compiler::statement(bool pop) {
 		bytecode->gen(INSTR_MOV_EXCP);
 		l->chkread(')');
 		block();
+		catchEnd = bytecode->getPC();
+		// forward brach in try block
+		bytecode->setInstr(tryEnd, INSTR_JMP, catchEnd);
 	}
 	else {
 		l->chkread(LEX_EOF);
