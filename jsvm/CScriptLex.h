@@ -54,6 +54,9 @@ typedef enum {
 	LEX_R_UNDEFINED,
 	LEX_R_NEW,
 	LEX_R_INCLUDE,
+	LEX_R_THROW,
+	LEX_R_TRY,
+	LEX_R_CATCH,
 
 	LEX_R_LIST_END /* always the last entry */
 } LEX_TYPES;

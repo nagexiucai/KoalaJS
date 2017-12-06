@@ -1326,6 +1326,35 @@ void KoalaJS::runCode(Bytecode* bc, PC startPC) {
 												doNew(bcode->getStr(offset));
 												break;
 											}
+			case INSTR_THROW: {
+				BCVar *var = reinterpret_cast<BCVar*>(pop2());
+				exception = var->ref();
+
+				// walk through scopes to find exception handle
+				VMScope* sc = scope();
+				while(sc != NULL) {
+					PC target = bcode->getTryTarget(pc);
+					if(target != ILLEGAL_PC) {
+						pc = target;
+						break;
+					}
+					pc = sc->pc;
+					popScope();
+					sc = scope();
+				}
+				if(sc == NULL) {
+					ERR("uncaught exception:%s\n", exception->getString().c_str());
+					return;
+				}
+
+				break;
+			}
+			case INSTR_MOV_EXCP: {
+				BCNode *node = reinterpret_cast<BCNode*>(pop2());
+				node->replace(VAR(exception));
+				exception = NULL;
+				break;
+			}
 		}
 	}
 	if(needPopSC)

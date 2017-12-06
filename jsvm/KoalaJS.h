@@ -202,6 +202,7 @@ class KoalaJS {
 		const static uint16_t STACK_DEEP = 128;
 		StackItem* vStack[STACK_DEEP];
 		uint16_t stackTop;
+		BCVar* exception;
 	
 #ifdef KOALA_DEBUG
 		Debug debug;

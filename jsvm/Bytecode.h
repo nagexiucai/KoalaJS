@@ -74,11 +74,18 @@ typedef struct STDBInfo {
 	const vector<string>* getLines(const string& fname);
 } DebugInfo;
 
+typedef struct {
+	PC start;
+	PC end;
+	PC target;
+} TryItemT;
+
 class Bytecode {
 	PC cindex;
 	vector<string> strTable;
 	PC *codeBuf;
 	uint32_t bufSize;
+	vector<TryItemT> tryTable;
 	Compiler* compiler;
 
 	bool debug;
@@ -118,6 +125,7 @@ public:
 
 	inline void reset() {
 		strTable.clear();
+		tryTable.clear();
 
 		if(codeBuf != NULL) {
 			delete []codeBuf;
@@ -147,6 +155,10 @@ public:
 
 	string getStr(int i);
 
+	PC getTryTarget(PC pc);
+
+	void addTryItem(TryItemT item);
+
 	uint16_t getStrIndex(const string& n);
 
 	inline PC  getPC() {
@@ -166,14 +178,14 @@ public:
 	 @param opCode, opCode.
 	 @param target, target pc.
 	*/
-	void setInstr(PC anchor, OprCode op, PC target = 0xFFFFFFFF);
+	void setInstr(PC anchor, OprCode op, PC target = ILLEGAL_PC);
 
 	/** add instructioin , offset to current pc
 	 @param anchar, anchor of reserved instruction.
 	 @param opCode, opCode.
 	 @param target, target pc.
 	*/
-	void addInstr(PC anchor, OprCode op, PC target = 0xFFFFFFFF);
+	void addInstr(PC anchor, OprCode op, PC target = ILLEGAL_PC);
 
 
 
@@ -199,6 +211,7 @@ public:
 		bc->reset();
 		bc->cindex = cindex;
 		bc->strTable = strTable;
+		bc->tryTable = tryTable;
 		bc->codeBuf = new PC[cindex];
 		memcpy(bc->codeBuf, codeBuf, cindex*sizeof(PC));
 	}
