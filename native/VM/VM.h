@@ -18,6 +18,8 @@ namespace JSM {
 
 		static void getenv(KoalaJS* js, BCVar *c, void *);
 
+		static void require(KoalaJS* js, BCVar *c, void *);
+
 		protected:
 		inline void registerFunctions(KoalaJS* js, const std::string& className) {
 			addFunction(js, className, "exec(src,repeat)", exec, NULL);
@@ -27,6 +29,8 @@ namespace JSM {
 			addFunction(js, className, "loadModule(file)", loadModule, NULL);
 			addFunction(js, className, "loadJS(file)", loadJS, NULL);
 			addFunction(js, className, "loadClass(cls, file)", loadClass, NULL);
+			addFunction(js, className, "require(file)", require, NULL);
+			addFunction(js, "", "require(file)", require, NULL);
 		}
 
 		public:

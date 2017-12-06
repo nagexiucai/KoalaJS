@@ -8,8 +8,8 @@ CXX := $(CROSS_COMPILE)g++
 AR := $(CROSS_COMPILE)ar
 LD := $(CROSS_COMPILE)g++
 
-CFLAG_DEBUG = -Wall -fPIC -O3 -I./ -I./jsvm -I./utils -DKOALA_DEBUG
-CFLAG = -Wall -fPIC -O3 -I./ -I./jsvm -I./utils
+CFLAG_DEBUG = -Wall -fPIC -g -I./ -I./jsvm -I./utils -DKOALA_DEBUG
+CFLAG = -Wall -fPIC -g -I./ -I./jsvm -I./utils
 
 VM_DIR = jsvm
 NATIVE_DIR = native
@@ -28,7 +28,7 @@ NATIVE = $(NATIVE_DIR)/ClassLoader.cpp \
 	  $(NATIVE_DIR)/Array/Array.cpp \
 	  $(NATIVE_DIR)/Thread/Thread.cpp \
 	  $(NATIVE_DIR)/Timer/Timer.cpp \
-	  $(NATIVE_DIR)/Time/Time.cpp 
+	  $(NATIVE_DIR)/Time/Time.cpp
 
 LIBS = $(LIBS_DIR)/File/File.cpp
 
@@ -62,6 +62,7 @@ install:
 	mkdir -p /usr/local/lib/koala
 	mkdir -p /usr/local/bin
 	cp koala /usr/local/bin
+	cp kdb /usr/local/bin
 	cp build/libKoalaJS.a /usr/local/lib
 	cp build/include/*.h /usr/local/include/koala
 	cp -r classes /usr/local/koala

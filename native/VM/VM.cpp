@@ -1,4 +1,5 @@
 #include "VM.h"
+#include "utils/File/File.h"
 #include <cstdlib>
 
 using namespace std;
@@ -68,5 +69,41 @@ void VM::loadModule(KoalaJS* js, BCVar *c, void *userdata) {
 	fn = fn + "/" + fname;
 	if(!js->loadModule(fn))
 		ERR("Can not load extended module %s!\n", fname.c_str());
+}
+
+void VM::require(KoalaJS* js, BCVar* c, void *userdata) {
+	std::string fname = c->getParameter("file")->getString();
+
+	BCVar* module = new BCVar();
+	module->type = BCVar::OBJECT;
+	BCVar* exports = new BCVar();
+	exports->type = BCVar::OBJECT;
+	module->addChild("exports", exports);
+
+	c->addChild("module", module);
+	c->addChild("exports", exports);
+
+	string fn = File::getFullname(js->getcwd(), fname);
+	if(!File::exist(fn)) {
+		const char* env = ::getenv("KOALA_ROOT");
+		fn = "/usr/lib/koala/classes";
+		if(env != NULL) {
+			fn = env;
+			fn = fn + "/classes";
+		}
+		//try some lib/koala path
+		fn = fn + "/" + fname;
+		if(!File::exist(fn))  {
+			ERR("Required module %s not exist!\n", fname.c_str());
+			return;
+		}
+	}
+
+#ifdef KOALA_DEBUG
+	js->run(fn, js->isDebug(), true);
+#else
+	js->run(fn, false, true);
+#endif
+	c->setReturnVar(exports);
 }
 

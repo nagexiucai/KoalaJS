@@ -14,6 +14,8 @@ public:
 	static std::string getFullname(const std::string& path, const std::string& fname);
 
 	static std::string getPath(const std::string& fname);
+
+	static bool exist(const std::string& fname);
 };
 
 #endif

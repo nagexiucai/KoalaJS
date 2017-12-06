@@ -112,3 +112,10 @@ std::string File::getPath(const std::string& fname) {
     return "";
   return fname.substr(0, i+1);
 }
+
+bool File::exist(const std::string& fname) {
+	struct stat st;
+	if(::stat(fname.c_str(), &st) == 0)
+		return true;
+	return false;
+}

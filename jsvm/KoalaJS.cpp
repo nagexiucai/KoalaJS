@@ -530,24 +530,22 @@ bool KoalaJS::funcCall(BCVar* object, BCVar* funcV, const vector<BCVar*>* args) 
 		}
 	}
 
+	VMScope sc;
+	sc.pc = pc;
+	sc.var = params->ref();
+	pushScope(sc);
+
 	if(funcV->type == BCVar::NFUNC) { //native function
 		if(func->native != NULL) {
-			//pushScope(sc);
 			func->native(this, params, func->data);
 			//read return.
 			BCVar* ret = params->getReturnVar();
 			push(ret->ref());
-			delete params;
-			//popScope();
 		}
+		popScope();
 		return true; 
 	}
 
-	VMScope sc;
-	sc.pc = pc;
-	sc.var = params->ref();
-
-	pushScope(sc);
 	//js function
 	pc = func->pc;
 	return true;
@@ -909,18 +907,21 @@ BCNode* KoalaJS::load(const string& name, bool create) {
 }
 
 void KoalaJS::runCode(Bytecode* bc, PC startPC) {
+	size_t scDeep = scopes.size();
+	bool needPopSC = false;
 	if(bc != NULL) {
 		setBytecode(bc);
 
-		VMScope sc;
-		sc.var = root->ref();
-		sc.pc = pc;
-		pushScope(sc);
-
+		if(scDeep == 0) {
+			VMScope sc;
+			sc.var = root->ref();
+			sc.pc = pc;
+			pushScope(sc);
+			needPopSC = true;
+			scDeep++;
+		}
 		pc = startPC;
 	}
-
-	size_t scDeep = scopes.size();
 
 	while(pc < codeSize) {
 #ifdef KOALA_DEBUG
@@ -1327,6 +1328,7 @@ void KoalaJS::runCode(Bytecode* bc, PC startPC) {
 											}
 		}
 	}
-	popScope();
+	if(needPopSC)
+		popScope();
 }
 
