@@ -7,7 +7,7 @@ RThread.run("thread.js", "thread arg: xxxx");
 
 while(true) { 
 	set('count', i);
-	print("main thread set : " + i + "\n");
+	console.log("main thread set : " + i);
 
 	i++;
 	RThread.usleep(100000);

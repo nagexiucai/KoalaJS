@@ -4,7 +4,7 @@ var a = {
 	"belong" : {
 		"book": "Bible",
 		"f": function(i) {
-			print("function called:" + i + "\n");
+			console.log("function called:" + i);
 		},
 		"numbers": [1, 3, 4, 5, 6]
 	}
@@ -13,14 +13,12 @@ var a = {
 a.belong.f(123);
 
 var s = RJSON.toString(a, "  ");
-println(s);
-print("\n");
+console.log(s);
 
 a.name = "Yoda";
 s = RJSON.toString(a, "  ");
-println(s);
-print("\n");
+console.log(s);
 
 var b = RJSON.parse(s);
 s = RJSON.toString(b, "  ");
-println(s);
+console.log(s);

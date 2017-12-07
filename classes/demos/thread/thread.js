@@ -6,7 +6,7 @@ while(true) {
 	v = get('count');
 
 	if(v != undefined)
-		print("sub thread get : " + v + ": " + _threadArg + "\n");
+		console.log("sub thread get : " + v + ": " + _threadArg);
 
 	RThread.usleep(100000);
 }
