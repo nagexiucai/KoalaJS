@@ -16,6 +16,7 @@
 #define PROTOTYPE "prototype"
 #define RETURN "return"
 #define CONSTRUCTOR "constructor"
+#define INTERRUPTER "Interrupter"
 
 using namespace std;
 

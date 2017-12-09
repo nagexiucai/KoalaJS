@@ -670,6 +670,10 @@ void KoalaJS::init(BCVar* rt) {
 	if(rt == NULL) {
 		root = new BCVar();
 		root->type = BCVar::OBJECT;
+
+		BCVar* inter = new BCVar();
+		inter->type = BCVar::OBJECT;
+		root->addChild(INTERRUPTER, inter);
 	}
 	else
 		root = rt;

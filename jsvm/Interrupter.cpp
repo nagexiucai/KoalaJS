@@ -28,8 +28,9 @@ void Interrupter::doInterrupt() {
 			intr->funcName.c_str(), 
 			(int)intr->args.size(),
 			(int)interrupter.size());
-
-	BCVar* v = handler->callJSFunc(intr->funcName, intr->args);
+	
+	BCNode* n = handler->getRoot()->getChild(INTERRUPTER);
+	BCVar* v = handler->callJSFunc(intr->funcName, intr->args, n == NULL?NULL:n->var);
 	v->unref();
 	delete intr;
 }

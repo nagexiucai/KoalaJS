@@ -1,6 +1,6 @@
 // Main thread, start child thread and go dead loop to set Global value. 
 
-include 'comm.js';
+import 'comm.js';
 var i = 0;
 
 RThread.run("thread.js", "thread arg: xxxx");
