@@ -1151,6 +1151,8 @@ void KoalaJS::runCode(Bytecode* bc, PC startPC) {
 																return;
 															}
 															popScope();
+															if(scopes.size() == 0)  //scope size = 0, not return in function,means exit.
+																return;
 														}
 														break;
 													}
