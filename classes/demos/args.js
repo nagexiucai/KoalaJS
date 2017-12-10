@@ -1,2 +1,2 @@
-print("args number: " + _args.length + "\n");
-print("args = " + _args + "\n");
+console.log("args number: " + _args.length);
+console.log("args = " + _args);

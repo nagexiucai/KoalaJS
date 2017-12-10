@@ -50,6 +50,7 @@ namespace JSM {
 		void registerFunctions(KoalaJS* js, const std::string& className) {
 			addFunction(js, "", "print(text)", print, NULL);
 			addFunction(js, "", "println(text)", println, NULL);
+			addFunction(js, "console", "log(text)", println, NULL);
 			addFunction(js, className, "print(text)", print, NULL);
 			addFunction(js, className, "println(text)", println, NULL);
 			addFunction(js, className, "setFD(fd)", setFD, NULL);

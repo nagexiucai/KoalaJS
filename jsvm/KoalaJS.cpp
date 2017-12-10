@@ -670,6 +670,10 @@ void KoalaJS::init(BCVar* rt) {
 	if(rt == NULL) {
 		root = new BCVar();
 		root->type = BCVar::OBJECT;
+
+		BCVar* inter = new BCVar();
+		inter->type = BCVar::OBJECT;
+		root->addChild(INTERRUPTER, inter);
 	}
 	else
 		root = rt;
@@ -1155,6 +1159,8 @@ void KoalaJS::runCode(Bytecode* bc, PC startPC) {
 																return;
 															}
 															popScope();
+															if(scopes.size() == 0)  //scope size = 0, not return in function,means exit.
+																return;
 														}
 														break;
 													}

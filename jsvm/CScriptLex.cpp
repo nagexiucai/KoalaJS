@@ -245,7 +245,7 @@ std::string CScriptLex::getTokenStr(int token) {
 		case LEX_R_NULL         : return "null";
 		case LEX_R_UNDEFINED    : return "undefined";
 		case LEX_R_NEW          : return "new";
-		case LEX_R_INCLUDE      : return "include";
+		case LEX_R_INCLUDE      : return "import";
 	}
 	return "?[UNKNOW]";
 }
@@ -299,7 +299,7 @@ void CScriptLex::getNextToken() {
 		else if (tkStr=="else")      tk = LEX_R_ELSE;
 		else if (tkStr=="do")        tk = LEX_R_DO;
 		else if (tkStr=="while")     tk = LEX_R_WHILE;
-		else if (tkStr=="include")   tk = LEX_R_INCLUDE;
+		else if (tkStr=="import")   tk = LEX_R_INCLUDE;
 		else if (tkStr=="for")       tk = LEX_R_FOR;
 		else if (tkStr=="break")     tk = LEX_R_BREAK;
 		else if (tkStr=="continue")  tk = LEX_R_CONTINUE;

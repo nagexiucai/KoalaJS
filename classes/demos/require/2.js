@@ -1,6 +1,2 @@
 exports.name = "Misa";
-
-exports.f = function() {
-	println("hello!" + name);
-};
-
+module.exports.age = 25;

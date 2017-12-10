@@ -81,7 +81,7 @@ void VM::require(KoalaJS* js, BCVar* c, void *userdata) {
 	module->addChild("exports", exports);
 
 	c->addChild("module", module);
-	c->addChild("exports", exports);
+	BCNode* expNode = c->addChild("exports", exports);
 
 	string fn = File::getFullname(js->getcwd(), fname);
 	if(!File::exist(fn)) {
@@ -104,6 +104,6 @@ void VM::require(KoalaJS* js, BCVar* c, void *userdata) {
 #else
 	js->run(fn, false, true);
 #endif
-	c->setReturnVar(exports);
+	c->setReturnVar(expNode->var);
 }
 

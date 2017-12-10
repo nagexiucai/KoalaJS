@@ -3,9 +3,9 @@ function Jedi(name, age) {
 	this.name = name;
 	this.age = age;
 	this.say = function() {
-		print("name: " + name);
-		print(", age: " + age);
-		println(", May the Force be with you!");
+		console.log("name: " + name +
+			", age: " + age +
+			", May the Force be with you!");
 	};
 }
 
@@ -24,11 +24,11 @@ class Hello {
 	}
 
 	say(word) {
-		println(name + ": " + word);
+		console.log(name + ": " + word);
 	}
 
 	get word() {
-		println("Get-function word");
+		console.log("Get-function word");
 		return "Rule the Galaxy!";
 	}
 }
