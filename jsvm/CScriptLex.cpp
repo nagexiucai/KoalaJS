@@ -314,6 +314,7 @@ void CScriptLex::getNextToken() {
 		else if (tkStr=="null")      tk = LEX_R_NULL;
 		else if (tkStr=="undefined") tk = LEX_R_UNDEFINED;
 		else if (tkStr=="new")       tk = LEX_R_NEW;
+		else if (tkStr=="typeof")       tk = LEX_R_TYPEOF;
 		else if (tkStr=="throw")     tk = LEX_R_THROW;
 		else if (tkStr=="try")    	 tk = LEX_R_TRY;
 		else if (tkStr=="catch")     tk = LEX_R_CATCH;

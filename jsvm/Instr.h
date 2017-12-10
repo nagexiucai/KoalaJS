@@ -74,6 +74,10 @@ const static OprCode INSTR_OR					= 0x0042; // OR										: |
 const static OprCode INSTR_XOR					= 0x0043; // XOR									: ^
 const static OprCode INSTR_AND					= 0x0044; // AND									: &
 
+const static OprCode INSTR_TEQ					= 0x0046; // TEQ										: ===
+const static OprCode INSTR_NTEQ					= 0x0047; // NTEQ									: !==
+const static OprCode INSTR_TYPEOF					= 0x0048; // TYPEOF									: typeof
+
 const static OprCode INSTR_BREAK				= 0x0050; // : break
 const static OprCode INSTR_CONTINUE		= 0x0051; // : continue
 const static OprCode INSTR_RETURN			= 0x0052; // : return none value
