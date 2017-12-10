@@ -26,6 +26,24 @@ STFunc::STFunc() {
 	regular = true;
 }
 
+string BCVar::getTypeString() {
+	std::stringstream ss;
+	if(type == INT)
+		return string("number");
+	else if(type == FLOAT)
+		return string("number");
+	else if(type == STRING)
+		return string("string");
+	else if(type == FUNC)
+		return string("function");
+	else if(isUndefined())
+		return string("undefined");
+	else
+		return string("object");
+
+	return ss.str();
+}
+
 ////////////////////////////////////////////////////////////////////////////////
 /// convert the given std::string into a quoted std::string suitable for javascript
 string BCVar::getJSString(const string &str) {

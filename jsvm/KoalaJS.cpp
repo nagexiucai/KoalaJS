@@ -695,9 +695,11 @@ void KoalaJS::compare(OprCode op, BCVar* v1, BCVar* v2) {
 		if(v1->isUndefined()) {
 			switch(op) {
 				case INSTR_EQ: 
+				case INSTR_TEQ:
 					i = v2->isUndefined();
 					break; 
 				case INSTR_NEQ: 
+				case INSTR_NTEQ:
 					i = !v2->isUndefined();
 					break;
 			}
@@ -705,9 +707,11 @@ void KoalaJS::compare(OprCode op, BCVar* v1, BCVar* v2) {
 		else if(v1->isString()) {
 			switch(op) {
 				case INSTR_EQ: 
+				case INSTR_TEQ:
 					i = (v1->getString() == v2->getString());
 					break; 
 				case INSTR_NEQ: 
+				case INSTR_NTEQ:
 					i = (v1->getString() != v2->getString());
 					break;
 			}
@@ -715,9 +719,11 @@ void KoalaJS::compare(OprCode op, BCVar* v1, BCVar* v2) {
 		else if(v1->isInt() || v1->isFloat()) {
 			switch(op) {
 				case INSTR_EQ: 
+				case INSTR_TEQ:
 					i = (f1 == f2);
 					break; 
 				case INSTR_NEQ: 
+				case INSTR_NTEQ:
 					i = (f1 != f2);
 					break; 
 				case INSTR_LES: 
@@ -735,7 +741,7 @@ void KoalaJS::compare(OprCode op, BCVar* v1, BCVar* v2) {
 			}
 		}
 	}
-	else if(op == INSTR_NEQ) {
+	else if(op == INSTR_NEQ || op == INSTR_NTEQ) {
 		i = true;
 	}
 
@@ -1024,6 +1030,8 @@ void KoalaJS::runCode(Bytecode* bc, PC startPC) {
 											}
 			case INSTR_EQ: 
 			case INSTR_NEQ: 
+			case INSTR_TEQ:
+			case INSTR_NTEQ:
 			case INSTR_LES: 
 			case INSTR_GRT: 
 			case INSTR_LEQ: 
@@ -1330,6 +1338,14 @@ void KoalaJS::runCode(Bytecode* bc, PC startPC) {
 												}
 			case INSTR_NEW: {
 												doNew(bcode->getStr(offset));
+												break;
+											}
+			case INSTR_TYPEOF: {
+												StackItem* i = pop2();
+												BCVar* var = VAR(i);
+												string tp = var ? var->getTypeString() : "null" ;
+												BCVar *type = new BCVar(tp);
+												push(type->ref());
 												break;
 											}
 			case INSTR_THROW: {

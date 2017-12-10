@@ -340,16 +340,19 @@ LEX_TYPES Compiler::base() {
 
 LEX_TYPES Compiler::unary() {
 	LEX_TYPES ret = LEX_EOF;
-	bool no = false;
+	OprCode instr = INSTR_END;
 	if (l->tk == '!') {
 		l->chkread('!');
-		no = true;
+		instr = INSTR_NOT;
+	} else if(l->tk == LEX_R_TYPEOF) {
+		l->chkread(LEX_R_TYPEOF);
+		instr = INSTR_TYPEOF;
 	}
 
 	ret = factor();
 
-	if(no)
-		bytecode->gen(INSTR_NOT);
+	if(instr != INSTR_END)
+		bytecode->gen(instr);
 	return ret;	
 }
 
@@ -446,6 +449,7 @@ LEX_TYPES Compiler::condition() {
 	ret = shift();
 
 	while (l->tk==LEX_EQUAL || l->tk==LEX_NEQUAL ||
+			l->tk==LEX_TYPEEQUAL || l->tk==LEX_NTYPEEQUAL ||
 			l->tk==LEX_LEQUAL || l->tk==LEX_GEQUAL ||
 			l->tk=='<' || l->tk=='>') {
 		int op = l->tk;
@@ -456,6 +460,10 @@ LEX_TYPES Compiler::condition() {
 			bytecode->gen(INSTR_EQ);
 		else if(op == LEX_NEQUAL)
 			bytecode->gen(INSTR_NEQ);
+		else if(op == LEX_TYPEEQUAL)
+			bytecode->gen(INSTR_TEQ);
+		else if(op == LEX_NTYPEEQUAL)
+			bytecode->gen(INSTR_NTEQ);
 		else if(op == LEX_LEQUAL)
 			bytecode->gen(INSTR_LEQ);
 		else if(op == LEX_GEQUAL)

@@ -259,6 +259,8 @@ public:
 		return ss.str(); 
 	}
 
+	string getTypeString();
+
 	inline ~BCVar() {
 		clean();
 		removeAllChildren();
