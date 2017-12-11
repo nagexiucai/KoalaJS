@@ -268,7 +268,7 @@ void CScriptLex::getNextToken() {
 		getNextCh();
 	}
 	// newline comments
-	if (currCh=='/' && nextCh=='/') {
+	if ((currCh=='/' && nextCh=='/') || (currCh=='#' && nextCh=='!')) {
 		while (currCh && currCh!='\n'){
 			getNextCh();
 		}

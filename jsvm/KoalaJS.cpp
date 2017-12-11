@@ -505,7 +505,8 @@ bool KoalaJS::funcCall(BCVar* object, BCVar* funcV, const vector<BCVar*>* args) 
 	BCVar* params = new BCVar(); //function parameters
 	params->type = BCVar::OBJECT;
 	FuncT* func = funcV->getFunc();
-	params->addChild(THIS, object);
+	if(object != NULL)
+		params->addChild(THIS, object);
 
 	//read arguments
 	int argNum = (int)func->args.size();
@@ -520,6 +521,13 @@ bool KoalaJS::funcCall(BCVar* object, BCVar* funcV, const vector<BCVar*>* args) 
 			BCVar* v = VAR(si);
 			params->addChild(arg, v);
 			v->unref(); //unref after pop
+		}
+
+		if(object == NULL) {
+			StackItem* si = pop2();
+			object = VAR(si);
+			params->addChild(THIS, object);
+			object->unref();
 		}
 	}
 	else {
@@ -1326,13 +1334,19 @@ void KoalaJS::runCode(Bytecode* bc, PC startPC) {
 			case INSTR_CALL: 
 			case INSTR_CALLO: {
 												 str = bcode->getStr(offset);
-												 StackItem* i = pop2();
+												 size_t pos = str.find("$");
+												 int argsNum = 0;
+												 if(pos != string::npos) {
+													 string args = str.substr(pos+1);
+													 argsNum = atoi(args.c_str());
+												 }
+
+												 StackItem* i = vStack[stackTop+argsNum];
 												 BCVar* obj = VAR(i);
 												 BCNode* func = findFunc(obj, str, true);
 												 if(func != NULL) {
-													 funcCall(obj, func->var);
+													 funcCall(NULL, func->var);
 												 }
-												 obj->unref();
 												 doInterrupt();
 												 break;
 												}

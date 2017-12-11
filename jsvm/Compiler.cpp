@@ -704,17 +704,23 @@ LEX_TYPES Compiler::factor() {
 		vector<string> names;
 		while (l->tk=='(' || l->tk=='.' || l->tk=='[') {
 			if (l->tk=='(') { // ------------------------------------- Function Call
-				int argNum;
-				callFunc(argNum);
 				StringUtil::split(name, '.', names);
 				name = "";
 				int sz = (int)(names.size()-1);
 				string s = names[sz];
+
+				/*int argNum;
+				callFunc(argNum);
 				if(argNum > 0)
 					s = s + "$" + StringUtil::from(argNum);
+				*/
 					
 				if(sz == 0 && load) {
 					bytecode->gen(INSTR_LOAD, "this");	
+					int argNum;
+					callFunc(argNum);
+					if(argNum > 0)
+						s = s + "$" + StringUtil::from(argNum);
 					bytecode->gen(INSTR_CALL, s);	
 				}
 				else {
@@ -722,6 +728,10 @@ LEX_TYPES Compiler::factor() {
 						bytecode->gen(load ? INSTR_LOAD:INSTR_GET, names[i]);	
 						load = false;
 					}
+					int argNum;
+					callFunc(argNum);
+					if(argNum > 0)
+						s = s + "$" + StringUtil::from(argNum);
 					bytecode->gen(INSTR_CALLO, s);	
 				}
 				load = false;
