@@ -20,7 +20,7 @@ static void* _timerThread(void* data) {
 		if(_timerUSEC > 0) {
 			if(count > (_timerUSEC / MINI_STEP)) {
 				count = 0;
-				inter->interrupt("_onTimer", 0);
+				inter->interrupt(NULL, "_onTimer", 0);
 			}
 		}
 	}

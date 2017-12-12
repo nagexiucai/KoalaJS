@@ -6,10 +6,12 @@
 
 typedef struct STInterrupt {
 	string funcName;
+	BCVar* object;
 	vector<BCVar*> args;
 
 	inline STInterrupt(const string& n) {
 		funcName = n;
+		object = NULL;
 	}
 } Interrupt;
 
@@ -23,7 +25,7 @@ public:
 
 	void doInterrupt();
 	
-	void interrupt(const string& funcName, int argNum, ...); 
+	void interrupt(BCVar* object, const string& funcName, int argNum, ...); 
 };
 
 

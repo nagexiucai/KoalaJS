@@ -29,15 +29,19 @@ void Interrupter::doInterrupt() {
 			(int)intr->args.size(),
 			(int)interrupter.size());
 	
-	BCNode* n = handler->getRoot()->getChild(INTERRUPTER);
-	BCVar* v = handler->callJSFunc(intr->funcName, intr->args, n == NULL?NULL:n->var);
+	BCVar* v = handler->callJSFunc(intr->funcName, intr->args, intr->object);
 	v->unref();
+	if(intr->object != NULL)
+		intr->object->unref();
 	delete intr;
 }
 
-void Interrupter::interrupt(const string& funcName, int argNum, ...) {
+void Interrupter::interrupt(BCVar* object, const string& funcName, int argNum, ...) {
 	_intrLock.lock();
 	Interrupt *intr = new Interrupt(funcName);
+	if(object == NULL)
+		object = handler->getRoot();
+	intr->object = object->ref();
 	//TRACE("get Interrupt %s$%d.\n", funcName.c_str(), argNum);
 
 	va_list args;
