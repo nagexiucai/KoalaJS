@@ -56,8 +56,6 @@ void VM::loadModule(KoalaJS* js, BCVar *c, void *userdata) {
 	size_t pos = fname.rfind(".so");
 	if(pos != fname.length() - 3)
 		fname += ".so";
-	if(js->loadModule(fname))
-		return;
 
 	const char* env = ::getenv("KOALA_ROOT");
 	string fn = "/usr/lib/koala/modules";

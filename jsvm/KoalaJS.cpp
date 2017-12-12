@@ -19,6 +19,8 @@ bool KoalaJS::loadModule(const string& fname) {
 	if(it == extDL.end()) {
 		h = dlopen(fname.c_str(), RTLD_LAZY);
 		if(h == NULL) {
+			const char* e = dlerror();
+			ERR("Extended module load error(%s)!%s\n", fname.c_str(), e != NULL? e:"");
 			return false;
 		}
 		extDL.insert(pair<string, void*>(fname, h));
@@ -32,9 +34,10 @@ bool KoalaJS::loadModule(const string& fname) {
 
 	JSModuleLoader loader = (JSModuleLoader)dlsym(h, LOADER);
 	if(loader == NULL) {
-		dlclose(h);
+		const char* e = dlerror();
+		ERR("Extended module load-function load error (%s)!%s\n", fname.c_str(), e != NULL? e:"");
 		extDL.erase (it);
-		ERR("Extended module load-function not defined (%s)! %s\n", fname.c_str(), DEBUG_LINE);
+		dlclose(h);
 		return false;
 	}
 
@@ -699,7 +702,7 @@ void KoalaJS::compare(OprCode op, BCVar* v1, BCVar* v2) {
 	if(v1 == v2) {
 		i = true;
 	}
-	else if(v1->type == v2->type) {
+	else if(v1->type == v2->type || (v1->isNumber() && v2->isNumber())) {
 		if(v1->isUndefined()) {
 			switch(op) {
 				case INSTR_EQ: 
