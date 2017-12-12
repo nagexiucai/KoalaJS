@@ -5,6 +5,16 @@
 using namespace std;
 using namespace JSM;
 
+static bool _terminated = false;
+
+void VM::terminate(KoalaJS* js, BCVar *c, void *userdata) {
+	_terminated = true;
+}
+
+void VM::terminated(KoalaJS* js, BCVar *c, void *userdata) {
+	c->setReturnVar(new BCVar(_terminated?1:0));
+}
+
 void VM::exec(KoalaJS* js, BCVar *c, void *userdata) {
 	std::string src = c->getParameter("src")->getString();
 	BCVar* v = c->getParameter("repeat");
