@@ -61,6 +61,15 @@ void VM::loadClass(KoalaJS* js, BCVar *c, void *userdata) {
 	c->setReturnVar(v);
 }
 
+void VM::rootPath(KoalaJS* js, BCVar *c, void *userdata) {
+	const char* env = ::getenv("KOALA_ROOT");
+	string path = "/usr/lib/koala";
+	if(env != NULL) {
+		 path = env;
+	}
+	c->setReturnVar(new BCVar(path));
+}
+
 void VM::loadModule(KoalaJS* js, BCVar *c, void *userdata) {
 	std::string fname = c->getParameter("file")->getString();
 	size_t pos = fname.rfind(".so");

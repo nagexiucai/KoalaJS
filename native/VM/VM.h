@@ -24,8 +24,11 @@ namespace JSM {
 
 		static void terminated(KoalaJS* js, BCVar *c, void *);
 
+		static void rootPath(KoalaJS* js, BCVar *c, void *);
+
 		protected:
 		inline void registerFunctions(KoalaJS* js, const std::string& className) {
+			addFunction(js, className, "rootPath()", rootPath, NULL);
 			addFunction(js, className, "terminate()", terminate, NULL);
 			addFunction(js, className, "terminated()", terminated, NULL);
 			addFunction(js, className, "exec(src,repeat)", exec, NULL);
